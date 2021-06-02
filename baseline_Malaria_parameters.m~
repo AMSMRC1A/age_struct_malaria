@@ -2,8 +2,8 @@ global P
 global a % needed for age-dependent parameters
 
 % from parameter table 
-P.phi = sigmoid_prob(x, cmin, cmax, c, k); % prob. of DH -> RH
-P.rho = sigmoid_prob(x, cmin, cmax, c, k); % prob. of severely infected, EH -> DH
+P.phi = sigmoid_prob(x, cmin, cmax, c, k); % 0.5 ??
+P.rho = sigmoid_prob(x, cmin, cmax, c, k); %  prob. of severely infected, EH -> DH
 P.rD = 1/180; % recovery rate for DH
 P.rA = 1/360; % recovery rate for AH
 P.h = 1/15; % incubation rate in human
