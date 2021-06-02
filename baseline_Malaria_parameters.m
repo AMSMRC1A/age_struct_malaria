@@ -1,17 +1,17 @@
 global P
 global a % needed for age-dependent parameters
 
-% from parameter table 
-P.phi = sigmoid_prob(x, cmin, cmax, c, k); % prob. of DH -> RH
-P.rho = sigmoid_prob(x, cmin, cmax, c, k); % prob. of severely infected, EH -> DH
 P.rD = 1/180; % recovery rate for DH
 P.rA = 1/360; % recovery rate for AH
 P.h = 1/15; % incubation rate in human
-P.psi = sigmoid_prob(x, cmin, cmax, c, k); % prob. AH -> DH
+
+% immunity parameters
 P.ds = 5;
 P.dm = 0.25;
 P.c1 = 1;
 P.c2 = 0.1;
+P.Cm0 = 0.4; % intial maternal immunity level at age = 0
+P.Cm = P.Cm0*exp(-a./P.dm); % maternal immunity level at age a
 
 P.bm = 0.67; % desired biting rate per mosquito
 P.bh = 18; % tolerated biting rate per human

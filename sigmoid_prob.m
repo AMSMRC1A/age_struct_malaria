@@ -1,6 +1,15 @@
 %% sigmoidal function for converting immunity to probabilties
-
-function f = sigmoid_prob(x, cmin, cmax, c, k)
+function f = sigmoid_prob(x, lprob)
+switch lprob
+    case 'phi'
+        cmin = 0; cmax = 1; k = 2; c = 1;
+    case 'rho'
+        cmin = 0; cmax = 1; k = 2; c = 1;
+    case 'psi'
+        cmin = 0; cmax = 1; k = 2; c = 1;
+    otherwise 
+        error('not defined probability parameter')
+end
     f = cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin);
 end
 

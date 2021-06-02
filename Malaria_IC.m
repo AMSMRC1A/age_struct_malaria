@@ -9,6 +9,7 @@ DH = 0*ones(na,1);
 AH = 0*ones(na,1);
 RH = 0*ones(na,1);
 
+
 % for mosquitoes - assume at equilibrium
 [SM,EM,IM] = mosquito_ODE(DH,AH,NH,NM);
 
