@@ -30,13 +30,13 @@ b1 = 0.05;
 b2 = 0.505;
 b3 = 0.01;
 b4 = 0.055;
-muH = b0 + b1*exp(-b2*a) + b3*exp(b4*a); % natural human mortality rate
+muH =  0*ones(size(a));%b0 + b1*exp(-b2*a/365) + b3*exp(b4*a/365); % natural human mortality rate
 %% fertility rate (placeholder parameters)
 cc = 4.6;
 zz = 25;
 alpha = 28;
 ww = 13.5;
-gH = 2*cc.*normpdf((a-zz)/ww).*normcdf(alpha*(a-zz)/ww)/ww; % 0.05*ones(size(a)); % human fertility rate
+gH =  0*ones(size(a));%2*cc.*normpdf((a/365-zz)/ww).*normcdf(alpha*(a/365-zz)/ww)/ww; % 0.05*ones(size(a)); % human fertility rate
 
 %%
 muD = 0*ones(size(a));% 0.05*ones(size(a)); % disease-induced human mortality rate
