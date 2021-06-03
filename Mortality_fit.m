@@ -20,7 +20,7 @@ end
 mu(nj*5+6:nn) = rawdata(end)*ones(1,nn-nj*5-5);
 
 %% estimate parameter values for the mortality rate function b0 + b1*exp(-b2*a/365) + b3*exp(b4*a/365)
-modelfun = @(b,x)(b(1) + b(2)*exp(-b(3)*x/365) + b(4)*exp(b(5)*x/365));
+modelfun = @(b,x)(b(1) + b(2)*exp(-b(3)*x) + b(4)*exp(b(5)*x));
 
 % initial guess for parameter values
 b_0 = [0, 0.05, 0.505, 0.01, 0.055];
