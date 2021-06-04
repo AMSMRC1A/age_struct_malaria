@@ -60,7 +60,8 @@ for n = 1:nt-1
             dt*(1+dt*(P.muD(k+1)+P.muH(k+1)+P.rD*P.phi(k+1)))*P.psi(k+1)*lamH;
         DH(k+1,n+1) = num/den;
         AH(k+1,n+1) = (AH(k,n)+dt*((1-P.rho(k+1))*P.h*EH(k+1,n+1)+(1-P.phi(k+1))*P.rD*DH(k+1,n+1))) / (1+dt*(P.psi(k+1)*lamH+P.rA+P.muH(k+1)));
-        RH(k+1,n+1) = (1-P.w(k+1)*dt)*RH(k,n)+dt*(P.phi(k+1)*P.rD*DH(k+1,n+1)+P.rA*AH(k+1,n+1)+P.v(k+1)*SH(k+1,n+1))/(1+dt*P.muH(k+1));
+        RH(k+1,n+1) = ((1-P.w(k+1)*dt)*RH(k,n)+dt*(P.phi(k+1)*P.rD*DH(k+1,n+1)+P.rA*AH(k+1,n+1)+P.v(k+1)*SH(k+1,n+1)))/(1+dt*P.muH(k+1)); % correction
+        
         % constraint on timestep for positivity: (1-P.w(k+1)*dt) > 0               
               
         Qn = P.c1*lamH*SH(k,n)/NH + P.c2*lamH*AH(k,n)/NH;
