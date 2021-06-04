@@ -3,11 +3,11 @@ global a
 na = length(a);
 
 % with age structure
-SH = 0.9*NH/na;
-EH = 0.1*NH/na;
-DH = 0*ones(na,1);
-AH = 0*ones(na,1);
-RH = 0*ones(na,1);
+SH = 0.99*NH/na;
+EH = 0.01*NH/na;
+DH = 0*NH/na;
+AH = 0*NH/na;
+RH = 0*NH/na;
 
 
 % for mosquitoes - assume at equilibrium

@@ -1,4 +1,4 @@
-% close all
+%close all
 clear all
 clc
 format long
@@ -6,17 +6,27 @@ global P
 global a 
 global colour_r1 colour_r2
 
+
+P.scale = 12/365; % translate to years (1/365 year per day)
 tic
 
 % numerical config
-tfinal = 400; % final time
-nt = tfinal+1; % number of subdivisions in time/age
-age_max = 50*365;
-dt = tfinal/(nt-1); % grid size for time
+tfinal = 100; % final time in years
+tmax = tfinal*365*P.scale; % max time with scaling
+nt = tmax+1; % number of subdivisions in time/age
+age_max = 50; % maximum age in years
+amax = age_max*365*P.scale; % max age with scaling
+dt = tmax/(nt-1); % grid size for time
 da = dt; % grid size for age
-t = 0:dt:tfinal; % time mesh
-a = (0:da:age_max)'; % age mesh
+
+t = 0:dt:tmax; % time mesh
+nt = length(t);
+a = (0:da:amax)'; % age mesh
 na = length(a);
+
+tvec = linspace(0,tfinal,nt);
+avec = linspace(0,age_max,na);
+
 
 % model parameters
 baseline_Malaria_parameters;
@@ -60,7 +70,7 @@ for n = 1:nt-1
             dt*(1+dt*(P.muD(k+1)+P.muH(k+1)+P.rD*P.phi(k+1)))*P.psi(k+1)*lamH;
         DH(k+1,n+1) = num/den;
         AH(k+1,n+1) = (AH(k,n)+dt*((1-P.rho(k+1))*P.h*EH(k+1,n+1)+(1-P.phi(k+1))*P.rD*DH(k+1,n+1))) / (1+dt*(P.psi(k+1)*lamH+P.rA+P.muH(k+1)));
-        RH(k+1,n+1) = (1-P.w(k+1)*dt)*RH(k,n)+dt*(P.phi(k+1)*P.rD*DH(k+1,n+1)+P.rA*AH(k+1,n+1)+P.v(k+1)*SH(k+1,n+1))/(1+dt*P.muH(k+1));
+        RH(k+1,n+1) = ((1-P.w(k+1)*dt)*RH(k,n)+dt*(P.phi(k+1)*P.rD*DH(k+1,n+1)+P.rA*AH(k+1,n+1)+P.v(k+1)*SH(k+1,n+1)))/(1+dt*P.muH(k+1));
         % constraint on timestep for positivity: (1-P.w(k+1)*dt) > 0               
               
         Qn = P.c1*lamH*SH(k,n)/NH + P.c2*lamH*AH(k,n)/NH;
@@ -82,34 +92,56 @@ for n = 1:nt-1
 end
 
 %% Plotting
+
+tvec = linspace(0,tfinal,nt);
+avec = linspace(0,age_max,na);
+
 figure_setups;
-plot(t,sum(SH,1),'b-*'); hold on;
-plot(t,sum(EH,1),'-.','Color',colour_r1);
-plot(t,sum(AH,1),'-o','Color',colour_r2);
-plot(t,sum(DH,1),'r-');
-plot(t,sum(RH,1),'g-');
-plot(t,sum(SH,1)+sum(EH,1)+sum(AH,1)+sum(DH,1)+sum(RH,1))
+plot(tvec,sum(SH,1),'b-'); hold on;
+plot(tvec,sum(EH,1),'-.','Color',colour_r1);
+plot(tvec,sum(AH,1),'--','Color',colour_r2);
+plot(tvec,sum(DH,1),'r-');
+plot(tvec,sum(RH,1),'g-');
+plot(tvec,sum(SH,1)+sum(EH,1)+sum(AH,1)+sum(DH,1)+sum(RH,1))
 legend('SH-age','EH-age','AH-age', 'DH-age','RH-age','$N_H$');
 title('human')
 grid on
 
+%% 
+%
 figure_setups;
-plot(a/365,Cs(:,end));
+Nsum = sum(SH,1)+sum(EH,1)+sum(AH,1)+sum(DH,1)+sum(RH,1);
+plot(tvec,sum(SH,1)./Nsum,'b-'); hold on;
+plot(tvec,sum(EH,1)./Nsum,'-.','Color',colour_r1);
+plot(tvec,sum(AH,1)./Nsum,'--','Color',colour_r2);
+plot(tvec,sum(DH,1)./Nsum,'r-');
+plot(tvec,sum(RH,1)./Nsum,'g-');
+plot(tvec,(sum(SH,1)+sum(EH,1)+sum(AH,1)+sum(DH,1)+sum(RH,1))./Nsum)
+legend('SH-age','EH-age','AH-age', 'DH-age','RH-age','$N_H$');
+title('human')
+grid on
+
+%%
+
+figure_setups;
+plot(avec,Cs(:,end));
 title('Final Immunity Distribution');
 
 figure_setups;
-plot(t,sum(Cs,1));
+plot(tvec,sum(Cs,1));
 title('Total Immunity Evolution over time');
 
-temp = 1:365:age_max;
+%%
+temp = 1:round(365*P.scale):amax;
 immunity_groups = zeros(length(temp)-1,1);
 for ii = 1:length(temp)-1
     immunity_groups(ii) = sum(Cs(temp(ii):temp(ii+1),end));
 end
 figure_setups;
-plot(immunity_groups)
+plot(avec(temp(1:end-1)),immunity_groups)
 title('Final Immunity Distribution (grouped)');
 
+%%
 figure_setups;
 plot(t,SM,'b-'); hold on;
 plot(t,EM,'-','Color',colour_r1);
@@ -118,17 +150,24 @@ plot(t,SM+EM+IM)
 legend('SM','EM','IM','$N_M$');
 title('mosquitoes')
 grid on
-
+%
 %% final age distributions
 figure_setups;
-plot(a/365,SH(:,end),'b-'); hold on;
-plot(a/365,EH(:,end),'-','Color',colour_r1);
-plot(a/365,AH(:,end),'-','Color',colour_r2);
-plot(a/365,DH(:,end),'r-');
-plot(a/365,RH(:,end),'g-');
-legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
+plot(avec,SH(:,end),'b-'); hold on;
+plot(avec,EH(:,end),'-','Color',colour_r1);
+plot(avec,AH(:,end),'-','Color',colour_r2);
+plot(avec,DH(:,end),'r-');
+plot(avec,RH(:,end),'g-');
+plot(avec,SH(:,end)+EH(:,end)+AH(:,end)+DH(:,end)+RH(:,end));
+legend('SH-age','EH-age','AH-age', 'DH-age','RH-age','total');
 title('Age distributions by class (final time)')
 grid on
+%}
 
+%%
+figure()
+bar(tvec,[sum(SH,1); sum(EH,1); sum(AH,1); sum(DH,1); sum(RH,1)]','stacked')
+l = legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
+set(l,'location','northwest')
 
 toc;
