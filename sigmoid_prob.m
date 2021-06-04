@@ -2,11 +2,11 @@
 function f = sigmoid_prob(x, lprob)
 switch lprob
     case 'phi'
-        cmin = 0; cmax = 1; k = 2; c = 1;
+        cmin = 0; cmax = 1; k = 2; c = 0.0001;
     case 'rho'
-        cmin = 0; cmax = 1; k = 2; c = 1;
+        cmin = 0; cmax = 1; k = 2; c = 0.0001;
     case 'psi'
-        cmin = 0; cmax = 1; k = 2; c = 1;
+        cmin = 0; cmax = 1; k = 2; c = 0.0001;
     otherwise 
         error('not defined probability parameter')
 end

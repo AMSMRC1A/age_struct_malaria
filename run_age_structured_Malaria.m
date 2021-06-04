@@ -38,6 +38,7 @@ for n = 1:nt-1
     NH = sum(NHa); % total human population at t=n;
     NM = sum(SM(:,n)+EM(:,n)+IM(:,n));
     [bH,~] = biting_rate(NH,NM); 
+    %keyboard;
     lamH = FOI_H(bH,IM(:,n),NM);  % force of infection at t=n
     
     % human birth terms
@@ -47,7 +48,7 @@ for n = 1:nt-1
     AH(1,n+1) = 0;
     RH(1,n+1) = 0;
     % maternal immunity at age = 0
-    Cs(1,n+1) = P.Cm0; 
+    Cs(1,n+1) = da*trapz(P.gH.*Cs(:,n).*NHa)/NH;
     
     for k = 1:na-1
         SH(k+1,n+1) = (SH(k,n)+dt*P.w(k+1)*RH(k,n)) / (1+(lamH+P.v(k+1)+P.muH(k+1))*dt);
@@ -63,7 +64,8 @@ for n = 1:nt-1
         % constraint on timestep for positivity: (1-P.w(k+1)*dt) > 0               
               
         Qn = P.c1*lamH*SH(k,n)/NH + P.c2*lamH*AH(k,n)/NH;
-        Cs(k+1,n+1) = (Cs(k,n)+dt*(Qn+(1/P.ds-1)*P.Cm(k+1)))/(1+1/P.ds*dt);       
+        Vn = P.c3*Cs(1,n+1).*exp(-a(k+1)/P.dm);
+        Cs(k+1,n+1) = (Cs(k,n)+dt*(Qn+(1/P.ds-1)*Vn))/(1+1/P.ds*dt);       
     end
     
     % adjust mosquito infection accordingly
@@ -81,16 +83,32 @@ end
 
 %% Plotting
 figure_setups;
-plot(t,sum(SH,1),'b-'); hold on;
-plot(t,sum(EH,1),'-','Color',colour_r1);
-plot(t,sum(AH,1),'-','Color',colour_r2);
+plot(t,sum(SH,1),'b-*'); hold on;
+plot(t,sum(EH,1),'-.','Color',colour_r1);
+plot(t,sum(AH,1),'-o','Color',colour_r2);
 plot(t,sum(DH,1),'r-');
 plot(t,sum(RH,1),'g-');
 plot(t,sum(SH,1)+sum(EH,1)+sum(AH,1)+sum(DH,1)+sum(RH,1))
 legend('SH-age','EH-age','AH-age', 'DH-age','RH-age','$N_H$');
 title('human')
 grid on
-toc;
+
+figure_setups;
+plot(a/365,Cs(:,end));
+title('Final Immunity Distribution');
+
+figure_setups;
+plot(t,sum(Cs,1));
+title('Total Immunity Evolution over time');
+
+temp = 1:365:age_max;
+immunity_groups = zeros(length(temp)-1,1);
+for ii = 1:length(temp)-1
+    immunity_groups(ii) = sum(Cs(temp(ii):temp(ii+1),end));
+end
+figure_setups;
+plot(immunity_groups)
+title('Final Immunity Distribution (grouped)');
 
 figure_setups;
 plot(t,SM,'b-'); hold on;
@@ -100,4 +118,17 @@ plot(t,SM+EM+IM)
 legend('SM','EM','IM','$N_M$');
 title('mosquitoes')
 grid on
+
+%% final age distributions
+figure_setups;
+plot(a/365,SH(:,end),'b-'); hold on;
+plot(a/365,EH(:,end),'-','Color',colour_r1);
+plot(a/365,AH(:,end),'-','Color',colour_r2);
+plot(a/365,DH(:,end),'r-');
+plot(a/365,RH(:,end),'g-');
+legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
+title('Age distributions by class (final time)')
+grid on
+
+
 toc;

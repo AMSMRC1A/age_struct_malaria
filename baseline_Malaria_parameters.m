@@ -6,20 +6,20 @@ P.rA = 1/360; % recovery rate for AH
 P.h = 1/15; % incubation rate in human
 
 % immunity parameters
-P.ds = 5;
-P.dm = 0.25;
+P.ds = 5*365;
+P.dm = 0.25*365;
 P.c1 = 1;
 P.c2 = 1;
 P.c3 = 1;
 
-P.bm = 0.67; % desired biting rate per mosquito
+P.bm = 7;%0.67; % desired biting rate per mosquito
 P.bh = 18; % tolerated biting rate per human
 
 P.betaM = 0.25; % infectivity of mosquitoes
 P.betaD = 0.35; % infectivity of DH
 P.betaA = 0.03; % infectivity of AH
 
-P.gM = 0.1;  % ?? recruitment rate of mosquitoes
+P.gM = 0.5;  % ?? recruitment rate of mosquitoes
 P.muM = 1/10; % natural mortality rate of mosquitoes
 P.sigma = 1/10; % incubation rate for mosquitoes
 
@@ -41,7 +41,7 @@ gH = gH/365;
 %%
 muD = 0*ones(size(a));% 0.05*ones(size(a)); % disease-induced human mortality rate
 
-w = 1/50*ones(size(a)); % 1/50 transition rate RH -> SH, may also be a function on time t
+w = 1/180*ones(size(a)); % 1/50 transition rate RH -> SH, may also be a function on time t
 v = 0*ones(size(a)); % 0.01 ?? vaccination rate
 
 P.muH = muH; %
