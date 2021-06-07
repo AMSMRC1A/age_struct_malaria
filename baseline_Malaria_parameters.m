@@ -8,9 +8,9 @@ P.h = 1/15; % incubation rate in human
 % immunity parameters
 P.ds = 5*365;
 P.dm = 0.25*365;
-P.c1 = 1;
-P.c2 = 1;
-P.c3 = 1;
+P.c1 = 2*10^5;
+P.c2 = 10^3;
+P.c3 = 10;
 
 P.bm = 7;%0.67; % desired biting rate per mosquito
 P.bh = 18; % tolerated biting rate per human
@@ -40,7 +40,6 @@ gH =  2*cc.*normpdf((a/365-zz)/ww).*normcdf(alpha*(a/365-zz)/ww)/ww; % 0.05*ones
 gH = gH/365;
 %%
 muD = 0*ones(size(a));% 0.05*ones(size(a)); % disease-induced human mortality rate
-
 w = 1/180*ones(size(a)); % 1/50 transition rate RH -> SH, may also be a function on time t
 v = 0*ones(size(a)); % 0.01 ?? vaccination rate
 
