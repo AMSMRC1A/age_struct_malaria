@@ -3,33 +3,20 @@ clear all
 clc
 format long
 global P
-global a 
+%global a 
 global colour_r1 colour_r2
 
 
-P.scale = 12/365; % translate to years (1/365 year per day)
 tic
-
-% numerical config
-tfinal = 100; % final time in years
-tmax = tfinal*365*P.scale; % max time with scaling
-nt = tmax+1; % number of subdivisions in time/age
-age_max = 50; % maximum age in years
-amax = age_max*365*P.scale; % max age with scaling
-dt = tmax/(nt-1); % grid size for time
-da = dt; % grid size for age
-
-t = 0:dt:tmax; % time mesh
-nt = length(t);
-a = (0:da:amax)'; % age mesh
-na = length(a);
-
-tvec = linspace(0,tfinal,nt);
-avec = linspace(0,age_max,na);
-
 
 % model parameters
 baseline_Malaria_parameters;
+
+na = P.na;
+nt = P.nt;
+
+dt = P.dt;
+da = P.da;
 
 % allocation
 SH = NaN(na,nt); EH = NaN(na,nt); DH = NaN(na,nt); AH = NaN(na,nt); RH = NaN(na,nt);
@@ -93,8 +80,8 @@ end
 
 %% Plotting
 
-tvec = linspace(0,tfinal,nt);
-avec = linspace(0,age_max,na);
+tvec = linspace(0,P.tfinal,nt);
+avec = linspace(0,P.age_max,na);
 
 figure_setups;
 plot(tvec,sum(SH,1),'b-'); hold on;

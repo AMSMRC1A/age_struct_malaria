@@ -1,6 +1,8 @@
 function [SH,EH,DH,AH,RH,SM,EM,IM] = Malaria_IC(NH,NM)
-global a
-na = length(a);
+global P
+na = P.na;
+%global a
+%na = length(a);
 
 % with age structure
 SH = 0.99*NH/na;

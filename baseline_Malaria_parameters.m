@@ -1,7 +1,29 @@
 global P
-global a % needed for age-dependent parameters
+% global a % needed for age-dependent parameters
 
-% All rates are parameterized in days
+% Default parameter scaling is days
+
+P.scale = 1/365; % translate to years (1/365 year per day)
+
+% numerical config
+P.tfinal = 100; % final time in years
+P.age_max = 50; % maximum age in years
+
+dt = .5;%tmax/(nt-1); % grid size for time
+da = dt; % grid size for age
+
+P.dt = dt;
+P.da = da;
+
+
+tmax = P.tfinal*365*P.scale/P.dt; % max steps (with scaling)
+%nt = tmax+1; % number of subdivisions in time/age
+amax = P.age_max*365*P.scale/P.da; % max age with scaling
+
+t = 0:dt:P.tfinal; % time mesh
+P.nt = length(t);
+a = (0:da:P.age_max)'; % age mesh
+P.na = length(a);
 
 
 P.rD = 1/180/P.scale; % recovery rate for DH

@@ -3,7 +3,8 @@ global P
 global a 
 % DH and AH are vectors at time t=n;
 
-da = a(2)-a(1);
+da = P.da;
+%da = a(2)-a(1);
 lamM = bM*trapz(P.betaD*DH+P.betaA*AH)*da/NH; 
 
 end
