@@ -1,7 +1,9 @@
 function [SH,EH,DH,AH,RH,SM,EM,IM] = Malaria_IC(NH,NM)
-global a
-na = length(a);
-da = a(2)-a(1);
+
+global P
+na = P.na;
+da = P.da;
+
 % SH = vector
 % with age structure
 SH = 0.9*NH/na/da*ones(na,1); % cell averages

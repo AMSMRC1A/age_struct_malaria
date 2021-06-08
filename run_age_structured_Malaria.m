@@ -3,21 +3,26 @@ clear all
 clc
 format long
 global P
-global a 
 global colour_r1 colour_r2
 
 tic
 
 % numerical config
-tfinal = 300*100; % final time in days
+tfinal = 365*100; % final time in days
 age_max = 50*365; % max ages in days
-dt = 30; % time/age step size in days
+dt = 10; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; nt = length(t);
 a = (0:da:age_max)'; na = length(a);
 
+P.a = a;
+P.na = na;
+P.nt = nt;
+P.dt = dt;
+P.da = da;
+
 % model parameters - rates are in 1/day
-baseline_Malaria_parameters;
+baseline_Malaria_parameters
 
 % allocation
 % SH, EH, etc.. = cell averages
@@ -48,28 +53,21 @@ for n = 1:nt-1
     DH(1,n+1) = 0;
     AH(1,n+1) = 0;
     RH(1,n+1) = 0;
+    
     % maternal immunity at age = 0
     Cs(1,n+1) = trapz(P.gH.*Cs(:,n).*NHa)/NH*da;
-    
-    for k = 1:na-1
-        SH(k+1,n+1) = (SH(k,n)+dt*P.w(k+1)*RH(k,n)) / (1+(lamH+P.v(k+1)+P.muH(k+1))*dt);
-        EH(k+1,n+1) = (EH(k,n)+dt*lamH*SH(k+1,n+1)) / (1+(P.h+P.muH(k+1))*dt);
+
+    SH(2:end,n+1) = (SH(1:end-1,n)+dt*P.w(2:end).*RH(1:end-1,n)) ./ (1+(lamH+P.v(2:end)+P.muH(2:end))*dt);
+    EH(2:end,n+1) = (EH(1:end-1,n)+dt*lamH*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*dt);
         % solve DH and AH together
-        num = (1+dt*(P.rA+ P.muH(k+1)))*(DH(k,n)+dt*P.h*P.rho(k+1)*EH(k+1,n+1))+...
-            dt*(AH(k,n)+DH(k,n)+dt*P.h*EH(k+1,n+1))*P.psi(k+1)*lamH;
-        den = (1+dt*(P.rA+ P.muH(k+1)))*(1+dt*(P.rD+P.muD(k+1)+P.muH(k+1)))+...
-            dt*(1+dt*(P.muD(k+1)+P.muH(k+1)+P.rD*P.phi(k+1)))*P.psi(k+1)*lamH;
-        DH(k+1,n+1) = num/den;
-        AH(k+1,n+1) = (AH(k,n)+dt*((1-P.rho(k+1))*P.h*EH(k+1,n+1)+(1-P.phi(k+1))*P.rD*DH(k+1,n+1))) / (1+dt*(P.psi(k+1)*lamH+P.rA+P.muH(k+1)));
-        RH(k+1,n+1) = ((1-P.w(k+1)*dt)*RH(k,n)+dt*(P.phi(k+1)*P.rD*DH(k+1,n+1)+P.rA*AH(k+1,n+1)+P.v(k+1)*SH(k+1,n+1)))/(1+dt*P.muH(k+1));
-        % constraint on timestep for positivity: (1-P.w(k+1)*dt) > 0               
-        
-%         % update immunity use Qn
-%         Qn = P.c1*lamH*SH(k,n)/NH + P.c2*lamH*AH(k,n)/NH;
-%         Vn = P.c3*Cs(1,n+1).*exp(-a(k+1)/P.dm);
-%         Cs(k+1,n+1) = (Cs(k,n)+dt*(Qn+(1/P.ds-1)*Vn))/(1+1/P.ds*dt); 
-    end
-        
+        num = (1+dt*(P.rA+ P.muH(2:end))).*(DH(1:end-1,n)+dt*P.h*P.rho(2:end).*EH(2:end,n+1))+...
+            dt*(AH(1:end-1,n)+DH(1:end-1,n)+dt*P.h*EH(2:end,n+1)).*P.psi(2:end)*lamH;
+        den = (1+dt*(P.rA+ P.muH(2:end))).*(1+dt*(P.rD+P.muD(2:end)+P.muH(2:end)))+...
+            dt*(1+dt*(P.muD(2:end)+P.muH(2:end)+P.rD*P.phi(2:end))).*P.psi(2:end)*lamH;
+	DH(2:end,n+1) = num./den;
+	AH(2:end,n+1) = (AH(1:end-1,n)+dt*((1-P.rho(2:end))*P.h.*EH(2:end,n+1)+(1-P.phi(2:end))*P.rD.*DH(2:end,n+1))) ./ (1+dt*(P.psi(2:end)*lamH+P.rA+P.muH(2:end)));
+	RH(2:end,n+1) = ((1-P.w(2:end)*dt).*RH(1:end-1,n)+dt*(P.phi(2:end)*P.rD.*DH(2:end,n+1)+P.rA*AH(2:end,n+1)+P.v(2:end).*SH(2:end,n+1))) ./ (1+dt*P.muH(2:end));
+         
     % adjust mosquito infection accordingly - use tn level!
     [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH,NM);
     
@@ -79,11 +77,10 @@ for n = 1:nt-1
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
     [bHp1,~] = biting_rate(NHp1,NMp1);
     lamHp1 = FOI_H(bHp1,IM(1,n+1),NMp1);   
-    for k = 1:na-1       
-        Qnp1 = P.c1*lamHp1*SH(k+1,n+1)/NHp1 + P.c2*lamHp1*AH(k+1,n+1)/NHp1;       
-        Vn = P.c3*Cs(1,n+1).*exp(-a(k+1)/P.dm);
-        Cs(k+1,n+1) = (Cs(k,n)+dt*(Qnp1+(1/P.ds-1)*Vn))/(1+1/P.ds*dt); % use Qn+1
-    end
+
+    Qnp1 = P.c1*lamHp1*SH(2:end,n+1)/NHp1 + P.c2*lamHp1*AH(2:end,n+1)/NHp1; 
+    Vn = P.c3*Cs(1,n+1).*exp(-a(2:end)/P.dm);
+    Cs(2:end,n+1) = (Cs(1:end-1,n)+dt*(Qnp1+(1/P.ds-1)*Vn))./(1+1/P.ds*dt); % use Qn+1
     
     % update progression probability based on immunity Cs
     P.phi = sigmoid_prob(Cs(:,n+1), 'phi'); % prob. of DH -> RH
@@ -100,7 +97,7 @@ for i=1:age_max/365 % index for age i = age_group(i,1),..., age_group(i,2)
     age_group(i,1) = min(temp); 
     age_group(i,2) = max(temp);
 end
-toc;
+toc
 
 % figure_setups;
 % plot(t,trapz(SH,1)*da,'b-*'); hold on;
@@ -171,5 +168,4 @@ grid on
 % legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
 % title('Age distributions by class (final time)')
 % grid on
-
 
