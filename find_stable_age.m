@@ -47,6 +47,7 @@ n_tilde = Lambda*exp(-p*a-P.muH_int);
 
 figure_setups;
 plot(a,n_tilde);
+axis_years(gca,a_max)
 xlabel('age');
 ylabel('pop. density')
 title('Stable Age Distribution (?)')
