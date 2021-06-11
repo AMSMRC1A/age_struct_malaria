@@ -11,6 +11,7 @@ tic
 % numerical config
 tfinal = 300*100; % final time in days
 age_max = 50*365; % max ages in days
+P.age_max = age_max;
 dt = 30; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; nt = length(t);
@@ -143,33 +144,45 @@ axis_years(gca,tfinal)
 title('$\rho$(age) at tfinal')
 grid on
 
+%% Impact of immunity on rho
+
 figure_setups;
 plot(t,rho_ave)
 axis_years(gca,tfinal)
 title('average $\rho$ in time')
 grid on
 
+%% Mosquito infection dynamics
+figure_setups;
+plot(t,SM,'b-'); hold on;
+plot(t,EM,'-','Color',colour_r1);
+plot(t,IM,'r-');
+plot(t,SM+EM+IM)
+legend('SM','EM','IM','$N_M$');
+title('mosquito population size by stages')
+axis_years(gca,tfinal); % change to x-axis to years if needed
+grid on
+% axis([0 tfinal 0 5])
 
-% figure_setups;
-% plot(t,SM,'b-'); hold on;
-% plot(t,EM,'-','Color',colour_r1);
-% plot(t,IM,'r-');
-% plot(t,SM+EM+IM)
-% legend('SM','EM','IM','$N_M$');
-% title('mosquito population size by stages')
-% axis_years(gca,tfinal); % change to x-axis to years if needed
-% grid on
-% % axis([0 tfinal 0 5])
+%% final age distributions
+figure_setups;
+plot(a/365,SH(:,end),'b-'); hold on;
+plot(a/365,EH(:,end),'-','Color',colour_r1);
+plot(a/365,AH(:,end),'-','Color',colour_r2);
+plot(a/365,DH(:,end),'r-');
+plot(a/365,RH(:,end),'g-');
+legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
+title('Age distributions by class (final time)')
+grid on
 
-% %% final age distributions
-% figure_setups;
-% plot(a/365,SH(:,end),'b-'); hold on;
-% plot(a/365,EH(:,end),'-','Color',colour_r1);
-% plot(a/365,AH(:,end),'-','Color',colour_r2);
-% plot(a/365,DH(:,end),'r-');
-% plot(a/365,RH(:,end),'g-');
-% legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
-% title('Age distributions by class (final time)')
-% grid on
+%% Compare initial and final age distribution
+figure_setups;
+Total_pop = SH+EH+AH+DH+RH;
+plot(a/365, Total_pop(:,end),'g-'); hold on;
+%plot(a/365,Total_pop(:,ceil(end/2)),'-','Color',colour_r1); 
+plot(a/365, P.n_tilde,'-','Color',colour_r2);
+plot(a/365, P.n_tilde*exp(P.p_hat*tfinal) ,'-.');
+legend('Final Age dist. (sim.)','Stable Age Dist. (initial)','Final Age dist. (theory)');
+title('Population Age Distributions')
 
 
