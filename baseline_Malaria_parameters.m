@@ -1,5 +1,6 @@
 global P
-global a % needed for age-dependent parameters
+
+a = P.a;
 
 P.rD = 1/180; % recovery rate for DH
 P.rA = 1/360; % recovery rate for AH

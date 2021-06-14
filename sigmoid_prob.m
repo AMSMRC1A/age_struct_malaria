@@ -1,7 +1,7 @@
 %% sigmoidal function for converting immunity to probabilties
 function f = sigmoid_prob(x, lprob)
-global a
-da = a(2)-a(1);
+global P
+
 switch lprob
     case 'phi'
         cmin = 0; cmax = 1; k = 2; c = 40; % c = 40 (if in years, i.e. da = 365, Filipe)

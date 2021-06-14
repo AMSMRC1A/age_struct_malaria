@@ -1,8 +1,7 @@
 function Cs = Immunity_IC()
-
 global P
-global a
-na = length(a);
+
+na = P.na;
 
 Cs = 0*ones(na,1); 
 P.phi = sigmoid_prob(Cs(:,1), 'phi'); % prob. of DH -> RH

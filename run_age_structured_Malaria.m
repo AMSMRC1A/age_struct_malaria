@@ -3,19 +3,24 @@ clear all
 clc
 format long
 global P
-global a 
 global colour_r1 colour_r2
 
 tic
 
 % numerical config
-tfinal = 300*100; % final time in days
+tfinal = 50*365; % final time in days
 age_max = 50*365; % max ages in days
 P.age_max = age_max;
-dt = 30; % time/age step size in days
+dt = 60; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; nt = length(t);
 a = (0:da:age_max)'; na = length(a);
+
+P.a = a;
+P.na = na;
+P.nt = nt;
+P.dt = dt;
+P.da = da;
 
 % model parameters - rates are in 1/day
 baseline_Malaria_parameters;
@@ -50,26 +55,18 @@ for n = 1:nt-1
     AH(1,n+1) = 0;
     RH(1,n+1) = 0;
     % maternal immunity at age = 0
-    Cs(1,n+1) = trapz(P.gH.*Cs(:,n).*NHa)/NH*da;
+    Cs(1,n+1) = P.c3*trapz(P.gH.*Cs(:,n).*NHa)/NH*da;
     
-    for k = 1:na-1
-        SH(k+1,n+1) = (SH(k,n)+dt*P.w(k+1)*RH(k,n)) / (1+(lamH+P.v(k+1)+P.muH(k+1))*dt);
-        EH(k+1,n+1) = (EH(k,n)+dt*lamH*SH(k+1,n+1)) / (1+(P.h+P.muH(k+1))*dt);
-        % solve DH and AH together
-        num = (1+dt*(P.rA+ P.muH(k+1)))*(DH(k,n)+dt*P.h*P.rho(k+1)*EH(k+1,n+1))+...
-            dt*(AH(k,n)+DH(k,n)+dt*P.h*EH(k+1,n+1))*P.psi(k+1)*lamH;
-        den = (1+dt*(P.rA+ P.muH(k+1)))*(1+dt*(P.rD+P.muD(k+1)+P.muH(k+1)))+...
-            dt*(1+dt*(P.muD(k+1)+P.muH(k+1)+P.rD*P.phi(k+1)))*P.psi(k+1)*lamH;
-        DH(k+1,n+1) = num/den;
-        AH(k+1,n+1) = (AH(k,n)+dt*((1-P.rho(k+1))*P.h*EH(k+1,n+1)+(1-P.phi(k+1))*P.rD*DH(k+1,n+1))) / (1+dt*(P.psi(k+1)*lamH+P.rA+P.muH(k+1)));
-        RH(k+1,n+1) = ((1-P.w(k+1)*dt)*RH(k,n)+dt*(P.phi(k+1)*P.rD*DH(k+1,n+1)+P.rA*AH(k+1,n+1)+P.v(k+1)*SH(k+1,n+1)))/(1+dt*P.muH(k+1));
-        % constraint on timestep for positivity: (1-P.w(k+1)*dt) > 0               
-        
-%         % update immunity use Qn
-%         Qn = P.c1*lamH*SH(k,n)/NH + P.c2*lamH*AH(k,n)/NH;
-%         Vn = P.c3*Cs(1,n+1).*exp(-a(k+1)/P.dm);
-%         Cs(k+1,n+1) = (Cs(k,n)+dt*(Qn+(1/P.ds-1)*Vn))/(1+1/P.ds*dt); 
-    end
+    SH(2:end,n+1) = (SH(1:end-1,n)+P.dt*P.w(2:end).*RH(1:end-1,n)) ./ (1+(lamH+P.v(2:end)+P.muH(2:end))*P.dt);
+    EH(2:end,n+1) = (EH(1:end-1,n)+P.dt*lamH*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*P.dt);
+    % solve DH and AH together
+        num = (1+P.dt*(P.rA+ P.muH(2:end))).*(DH(1:end-1,n)+P.dt*P.h*P.rho(2:end).*EH(2:end,n+1))+...
+            P.dt*(AH(1:end-1,n)+DH(1:end-1,n)+P.dt*P.h*EH(2:end,n+1)).*P.psi(2:end)*lamH;
+        den = (1+P.dt*(P.rA+ P.muH(2:end))).*(1+P.dt*(P.rD+P.muD(2:end)+P.muH(2:end)))+...
+            P.dt*(1+P.dt*(P.muD(2:end)+P.muH(2:end)+P.rD*P.phi(2:end))).*P.psi(2:end)*lamH;
+    DH(2:end,n+1) = num./den;
+	AH(2:end,n+1) = (AH(1:end-1,n)+P.dt*((1-P.rho(2:end))*P.h.*EH(2:end,n+1)+(1-P.phi(2:end))*P.rD.*DH(2:end,n+1))) ./ (1+P.dt*(P.psi(2:end)*lamH+P.rA+P.muH(2:end)));
+	RH(2:end,n+1) = ((1-P.w(2:end)*P.dt).*RH(1:end-1,n)+P.dt*(P.phi(2:end)*P.rD.*DH(2:end,n+1)+P.rA*AH(2:end,n+1)+P.v(2:end).*SH(2:end,n+1))) ./ (1+P.dt*P.muH(2:end));
         
     % adjust mosquito infection accordingly - use tn level!
     [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH,NM);
@@ -80,11 +77,19 @@ for n = 1:nt-1
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
     [bHp1,~] = biting_rate(NHp1,NMp1);
     lamHp1 = FOI_H(bHp1,IM(1,n+1),NMp1);   
-    for k = 1:na-1       
-        Qnp1 = P.c1*lamHp1*SH(k+1,n+1)/NHp1 + P.c2*lamHp1*AH(k+1,n+1)/NHp1;       
-        Vn = P.c3*Cs(1,n+1).*exp(-a(k+1)/P.dm);
-        Cs(k+1,n+1) = (Cs(k,n)+dt*(Qnp1+(1/P.ds-1)*Vn))/(1+1/P.ds*dt); % use Qn+1
+    
+    Qnp1 = P.c1*lamHp1*SH(2:end,n+1)/NHp1 + P.c2*lamHp1*AH(2:end,n+1)/NHp1;
+    Vnp1 = NaN(na,1);
+
+    for k = 1:na-1
+        if k <= n
+            Vnp1(k+1) = Cs(1,n-k+1)*exp(-a(k+1)/P.dm);
+        else
+            Vnp1(k+1) = Cs(k-n+1,1)*exp(-t(n+1)/P.dm);
+        end
+        Vnp1 = Vnp1*(1/P.ds-1/P.dm);
     end
+    Cs(2:end,n+1) = (Cs(1:end-1,n)+P.dt*(Qnp1+Vnp1(2:end)))./(1+1/P.ds*P.dt); % use Qn+1
     
     % update progression probability based on immunity Cs
     P.phi = sigmoid_prob(Cs(:,n+1), 'phi'); % prob. of DH -> RH
@@ -94,19 +99,19 @@ for n = 1:nt-1
 end
 
 %% Plotting
-a_year = a/365;
-age_group = NaN(age_max/365,2);
-for i=1:age_max/365 % index for age i = age_group(i,1),..., age_group(i,2)
-    temp = find((a_year>=i-1)&(a_year<i));
-    age_group(i,1) = min(temp); 
-    age_group(i,2) = max(temp);
-end
-toc;
+% a_year = a/365;
+% age_group = NaN(age_max/365,2);
+% for i=1:age_max/365 % index for age i = age_group(i,1),..., age_group(i,2)
+%     temp = find((a_year>=i-1)&(a_year<i));
+%     age_group(i,1) = min(temp); 
+%     age_group(i,2) = max(temp);
+% end
+toc
 
 % figure_setups;
-% plot(t,trapz(SH,1)*da,'b-*'); hold on;
-% plot(t,trapz(EH,1)*da,'-.','Color',colour_r1);
-% plot(t,trapz(AH,1)*da,'-o','Color',colour_r2);
+% plot(t,trapz(SH,1)*da,'b-'); hold on;
+% plot(t,trapz(EH,1)*da,'-','Color',colour_r1);
+% plot(t,trapz(AH,1)*da,'-','Color',colour_r2);
 % plot(t,trapz(DH,1)*da,'r-');
 % plot(t,trapz(RH,1)*da,'g-');
 % plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1)+trapz(RH,1))*da)
@@ -114,75 +119,84 @@ toc;
 % title('human population size by stages')
 % axis_years(gca,tfinal); % change to x-axis to years if needed
 % grid on
-% % axis([0 tfinal 0 1.1])
+% axis([0 tfinal 0 1.1])
 
+% figure_setups; 
+% Cs_year = NaN(age_max/365,nt); % cell average by yearly ages
+% for n = nt
+%     for i = 1:age_max/365
+%         Cs_year(i,n) = mean(Cs(age_group(i,1):age_group(i,2),n),1);
+%     end
+%     plot(Cs_year(:,n));
+%     title(['~~~Immun dist at t = ', num2str(t(n)/365,3), 'yrs'])
+% %     if n==1; pause; else; pause;end
+% end
+% xlabel('age (years)')
+% % ylim([7.4 8.8]*10^-5)
+% grid on
 
 figure_setups; 
-Cs_year = NaN(age_max/365,nt); % cell average by ages
-for n = nt
-    for i = 1:age_max/365
-        Cs_year(i,n) = mean(Cs(age_group(i,1):age_group(i,2),n),1);
-    end
-    plot(Cs_year(:,n));
-    title(['~~~Immun dist at t = ', num2str(t(n)/365,3), 'yrs'])
-%     if n==1; pause; else; pause;end
-end
+plot(a,Cs(:,end));
 xlabel('age (years)')
-% ylim([7.4 8.8]*10^-5)
+title(['~~~Immun dist at tfinal, dt=', num2str(dt)])
 grid on
 
 figure_setups;
 plot(t,trapz(Cs,1)*da);
-% axis([0 tfinal 0 10])
-axis_years(gca,tfinal)
-title('~~~Total Immun in time');
+% axis_years(gca,tfinal)
+title(['~~~Total Immun in time, dt=',num2str(dt)]);
+xlabel('time (days)')
 grid on
 
-figure_setups;
-plot(a,P.rho)
-axis_years(gca,tfinal)
-title('$\rho$(age) at tfinal')
-grid on
+Cs_t = trapz(Cs,1)*da; % total immunity in time
+Cs_end = Cs(:,end); % final distribution of immunity
+save(['Results/solution_',num2str(dt),'.mat'],'P','t','Cs_t','Cs_end')
+
+% figure_setups;
+% plot(a,P.rho)
+% axis_years(gca,tfinal)
+% title('$\rho$(age) at tfinal')
+% grid on
 
 %% Impact of immunity on rho
 
-figure_setups;
-plot(t,rho_ave)
-axis_years(gca,tfinal)
-title('average $\rho$ in time')
-grid on
+% figure_setups;
+% plot(t,rho_ave)
+% axis_years(gca,tfinal)
+% title('average $\rho$ in time')
+% grid on
 
 %% Mosquito infection dynamics
-figure_setups;
-plot(t,SM,'b-'); hold on;
-plot(t,EM,'-','Color',colour_r1);
-plot(t,IM,'r-');
-plot(t,SM+EM+IM)
-legend('SM','EM','IM','$N_M$');
-title('mosquito population size by stages')
-axis_years(gca,tfinal); % change to x-axis to years if needed
-grid on
-% axis([0 tfinal 0 5])
+% figure_setups;
+% plot(t,SM,'b-'); hold on;
+% plot(t,EM,'-','Color',colour_r1);
+% plot(t,IM,'r-');
+% plot(t,SM+EM+IM)
+% legend('SM','EM','IM','$N_M$');
+% title('mosquito population size by stages')
+% axis_years(gca,tfinal); % change to x-axis to years if needed
+% grid on
+% % axis([0 tfinal 0 5])
 
 %% final age distributions
-figure_setups;
-plot(a/365,SH(:,end),'b-'); hold on;
-plot(a/365,EH(:,end),'-','Color',colour_r1);
-plot(a/365,AH(:,end),'-','Color',colour_r2);
-plot(a/365,DH(:,end),'r-');
-plot(a/365,RH(:,end),'g-');
-legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
-title('Age distributions by class (final time)')
-grid on
+% figure_setups;
+% plot(a/365,SH(:,end),'b-'); hold on;
+% plot(a/365,EH(:,end),'-','Color',colour_r1);
+% plot(a/365,AH(:,end),'-','Color',colour_r2);
+% plot(a/365,DH(:,end),'r-');
+% plot(a/365,RH(:,end),'g-');
+% legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
+% title('Age distributions by class (final time)')
+% grid on
 
 %% Compare initial and final age distribution
-figure_setups;
-Total_pop = SH+EH+AH+DH+RH;
-plot(a/365, Total_pop(:,end),'g-'); hold on;
-%plot(a/365,Total_pop(:,ceil(end/2)),'-','Color',colour_r1); 
-plot(a/365, P.n_tilde,'-','Color',colour_r2);
-plot(a/365, P.n_tilde*exp(P.p_hat*tfinal) ,'-.');
-legend('Final Age dist. (sim.)','Stable Age Dist. (initial)','Final Age dist. (theory)');
-title('Population Age Distributions')
+% figure_setups;
+% Total_pop = SH+EH+AH+DH+RH;
+% plot(a/365, Total_pop(:,end),'g-'); hold on;
+% %plot(a/365,Total_pop(:,ceil(end/2)),'-','Color',colour_r1); 
+% plot(a/365, P.n_tilde,'-','Color',colour_r2);
+% plot(a/365, P.n_tilde*exp(P.p_hat*tfinal) ,'-.');
+% legend('Final Age dist. (sim.)','Stable Age Dist. (initial)','Final Age dist. (theory)');
+% title('Population Age Distributions')
 
 
