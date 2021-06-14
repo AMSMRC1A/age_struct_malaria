@@ -1,5 +1,6 @@
 global P
-global a % needed for age-dependent parameters
+
+a = P.a;
 
 P.rD = 1/180; % recovery rate for DH
 P.rA = 1/360; % recovery rate for AH
@@ -8,9 +9,10 @@ P.h = 1/15; % incubation rate in human
 % immunity parameters
 P.ds = 5*365;
 P.dm = 0.25*365;
-P.c1 = 2*10^5;
-P.c2 = 10^3;
-P.c3 = 10;
+P.c1 = 1;
+P.c2 = 1/10;
+P.w1 = 2*10^5;
+P.w2 = 10^3;
 
 P.bm = 7;%0.67; % desired biting rate per mosquito
 P.bh = 18; % tolerated biting rate per human

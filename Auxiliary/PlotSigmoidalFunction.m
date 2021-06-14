@@ -1,16 +1,16 @@
 %% Plot Sigmoidal Probability Function
 
-cmin = .1; % minimum value
-cmax = .9; % maximum value
-c = 2; % constant at half maximal
-k = 8; % Hill coefficient (steepness)
+cmin = 0; % minimum value
+cmax = 1; % maximum value
+c = 40; % constant at half maximal
+k = 2; % Hill coefficient (steepness)
 
-x = 0:.01:10; %input
+x = 0:.01:100; %input
 
 y = cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin); %output
 
 
-figure(1)
+figure_setups;
 plot(x,y,'linewidth',2)
 hold on
 plot([x(1) x(end)],[0.5 0.5],'k:')
