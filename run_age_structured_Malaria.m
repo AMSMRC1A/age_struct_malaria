@@ -11,7 +11,7 @@ tic
 tfinal = 50*365; % final time in days
 age_max = 50*365; % max ages in days
 P.age_max = age_max;
-dt = 1; % time/age step size in days
+dt = 60; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; nt = length(t);
 a = (0:da:age_max)'; na = length(a);
@@ -147,9 +147,10 @@ title(['~~~Total Immun in time, dt=',num2str(dt)]);
 xlabel('time (days)')
 grid on
 
-Cs_t = trapz(Cs,1)*da; % total immunity in time
-Cs_end = Cs(:,end); % final distribution of immunity
-save(['Results/solution_',num2str(dt),'.mat'],'P','t','Cs_t','Cs_end')
+% writing output for convergence check
+% Cs_t = trapz(Cs,1)*da; % total immunity in time
+% Cs_end = Cs(:,end); % final distribution of immunity
+% save(['Results/solution_',num2str(dt),'.mat'],'P','t','Cs_t','Cs_end')
 
 % figure_setups;
 % plot(a,P.rho)
