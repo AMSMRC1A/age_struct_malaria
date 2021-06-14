@@ -1,4 +1,4 @@
-% close all
+close all
 clear all
 clc
 format long
@@ -11,7 +11,7 @@ tic
 tfinal = 50*365; % final time in days
 age_max = 50*365; % max ages in days
 P.age_max = age_max;
-dt = 60; % time/age step size in days
+dt = 1; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; nt = length(t);
 a = (0:da:age_max)'; na = length(a);
@@ -29,14 +29,14 @@ baseline_Malaria_parameters;
 % SH, EH, etc.. = cell averages
 SH = NaN(na,nt); EH = NaN(na,nt); DH = NaN(na,nt); AH = NaN(na,nt); RH = NaN(na,nt);
 SM = NaN(1,nt); EM = NaN(1,nt); IM = NaN(1,nt); 
-Cs = NaN(na,nt);
+Cs = NaN(na,nt); Cm = NaN(na,nt); Cac = NaN(na,nt);
 rho_ave = NaN(1,nt);
 NM = P.gM/P.muM;
 NH = 1;
 
 % initial condition 
 [SH(:,1),EH(:,1),DH(:,1),AH(:,1),RH(:,1),SM(1,1),EM(1,1),IM(1,1)] = Malaria_IC(NH,NM); 
-Cs(:,1) = Immunity_IC; % initial immunity and related probability
+[Cm(:,1),Cac(:,1),Cs(:,1)] = Immunity_IC; % initial immunity and related probability
 rho_ave(1,1) = mean(P.rho);
 
 %% time evolution
@@ -54,8 +54,6 @@ for n = 1:nt-1
     DH(1,n+1) = 0;
     AH(1,n+1) = 0;
     RH(1,n+1) = 0;
-    % maternal immunity at age = 0
-    Cs(1,n+1) = P.c3*trapz(P.gH.*Cs(:,n).*NHa)/NH*da;
     
     SH(2:end,n+1) = (SH(1:end-1,n)+P.dt*P.w(2:end).*RH(1:end-1,n)) ./ (1+(lamH+P.v(2:end)+P.muH(2:end))*P.dt);
     EH(2:end,n+1) = (EH(1:end-1,n)+P.dt*lamH*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*P.dt);
@@ -71,25 +69,26 @@ for n = 1:nt-1
     % adjust mosquito infection accordingly - use tn level!
     [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH,NM);
     
-    % update immunity use Qn+1
+    % immunity at age = 0
+    Cm(1,n+1) = trapz(P.gH.*Cs(:,n).*NHa)/NH*da;
+    Cac(1,n+1) = 0;
+    % acquired immunity
+    for k = 1:na-1
+        if k <= n
+            Cm(k+1,n+1) = Cm(1,n-k+1)*exp(-a(k+1)/P.dm);
+        else
+            Cm(k+1,n+1) = Cm(k-n+1,1)*exp(-t(n+1)/P.dm);
+        end
+    end
+    
     NHap1 = SH(:,n+1)+EH(:,n+1)+DH(:,n+1)+AH(:,n+1)+RH(:,n+1); % total human at age a, t = n
     NHp1 = trapz(NHap1)*da; % total human population at t=n;
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
     [bHp1,~] = biting_rate(NHp1,NMp1);
     lamHp1 = FOI_H(bHp1,IM(1,n+1),NMp1);   
-    
-    Qnp1 = P.c1*lamHp1*SH(2:end,n+1)/NHp1 + P.c2*lamHp1*AH(2:end,n+1)/NHp1;
-    Vnp1 = NaN(na,1);
-
-    for k = 1:na-1
-        if k <= n
-            Vnp1(k+1) = Cs(1,n-k+1)*exp(-a(k+1)/P.dm);
-        else
-            Vnp1(k+1) = Cs(k-n+1,1)*exp(-t(n+1)/P.dm);
-        end
-        Vnp1 = Vnp1*(1/P.ds-1/P.dm);
-    end
-    Cs(2:end,n+1) = (Cs(1:end-1,n)+P.dt*(Qnp1+Vnp1(2:end)))./(1+1/P.ds*P.dt); % use Qn+1
+    Qnp1 = P.w1*lamHp1*SH(2:end,n+1)/NHp1 + P.w2*lamHp1*AH(2:end,n+1)/NHp1;
+    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1+1/P.ds*P.dt); % use Qn+1
+    Cs(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1);
     
     % update progression probability based on immunity Cs
     P.phi = sigmoid_prob(Cs(:,n+1), 'phi'); % prob. of DH -> RH
