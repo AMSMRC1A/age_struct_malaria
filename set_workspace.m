@@ -10,4 +10,4 @@ dirs = regexp(prefix,'[\\/]');
 addpath(genpath([prefix(1:dirs(end))]))
 %% Set a default for plot text style
 %set(0,'DefaultAxesFontSize',13); 
-%set(gca,'FontSize',16);
+%set(gcas,'FontSize',16);
