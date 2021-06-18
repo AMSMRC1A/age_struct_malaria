@@ -6,14 +6,18 @@ P.rD = 1/180; % recovery rate for DH
 P.rA = 1/360; % recovery rate for AH
 P.h = 1/15; % incubation rate in human
 
-% immunity parameters
-P.ds = 5*365;
-P.dm = 0.25*365;
-P.c1 = 1;
-P.c2 = 1/10;
-P.w1 = 2*10^5;
-P.w2 = 10^3;
+%% immunity parameters/rates
+P.ds = 5*365; % half life of acquired immunity
+P.dm = 0.25*365; % half life of maternal immunity
+P.c1 = 1; % weight for acquired immunity
+P.c2 = 1/10; % weight for maternal immunity
+P.w1 = 1; % SH weight % previously 2x10^5
+P.w2 = 1; % EH weight 
+P.w3 = 1; % AH weight % previously 10^3;
+P.w4 = 1; % DH weight
+P.w5 = 1; % RH weight
 
+%% mosquito related parameters/rates
 P.bm = 7;%0.67; % desired biting rate per mosquito
 P.bh = 18; % tolerated biting rate per human
 
