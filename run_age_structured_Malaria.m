@@ -139,38 +139,55 @@ toc
 figure_setups; 
 subplot(2,2,1), plot(a,Cs(:,end));
 xlabel('age (years)')
-title(['~~~Immun dist at tfinal, dt=', num2str(dt)])
+title(['~~~Final Immun dist, dt=', num2str(dt)])
 grid on
 
 subplot(2,2,2), plot(t,trapz(Cs,1)*da);
 % axis_years(gca,tfinal)
-title(['~~~Total Immun in time, dt=',num2str(dt)]);
+title(['~~~Pop. Immun vs time, dt=',num2str(dt)]);
 xlabel('time (days)')
 grid on
 
-% Impact of immunity on rho
-subplot(2,2,3), plot(t,rho_ave)
-axis_years(gca,tfinal)
-title('average $\rho$ in time')
-grid on
-
-subplot(2,2,4), imagesc(t/365,a/365,Cs);
+subplot(2,2,3), imagesc(t/365,a/365,Cs);
 set(gca,'YDir','normal');
 colorbar;
 ylabel('age');
 xlabel('time');
 title('Total Immunity');
 
-% writing output for convergence check
-% Cs_t = trapz(Cs,1)*da; % total immunity in time
-% Cs_end = Cs(:,end); % final distribution of immunity
-% save(['Results/solution_',num2str(dt),'.mat'],'P','t','Cs_t','Cs_end')
+%% Impact of immunity on the sigmoids (rho, psi, phi)
+figure_setups;
+subplot(2,2,1), imagesc(t/365,a/365,sigmoid_prob(Cs, 'phi'));
+set(gca,'YDir','normal');
+colorbar;
+ylabel('age');
+xlabel('time');
+title('$\phi$');
+
+subplot(2,2,2), imagesc(t/365,a/365,sigmoid_prob(Cs, 'rho'));
+set(gca,'YDir','normal');
+colorbar;
+ylabel('age');
+xlabel('time');
+title('$\rho$');
+
+subplot(2,2,3), imagesc(t/365,a/365,sigmoid_prob(Cs, 'psi'));
+set(gca,'YDir','normal');
+colorbar;
+ylabel('age');
+xlabel('time');
+title('$\psi$');
 
 % figure_setups;
 % plot(a,P.rho)
 % axis_years(gca,tfinal)
 % title('$\rho$(age) at tfinal')
 % grid on
+
+%% Write output for convergence check
+% Cs_t = trapz(Cs,1)*da; % total immunity in time
+% Cs_end = Cs(:,end); % final distribution of immunity
+% save(['Results/solution_',num2str(dt),'.mat'],'P','t','Cs_t','Cs_end')
 
 %% Mosquito infection dynamics
 % figure_setups;
