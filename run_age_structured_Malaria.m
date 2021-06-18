@@ -70,7 +70,7 @@ for n = 1:nt-1
     [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH,NM);
     
     % immunity at age = 0
-    Cm(1,n+1) = trapz(P.gH.*Cs(:,n).*NHa)/NH*da; % why is Cs in the integral here?
+    Cm(1,n+1) = P.m*trapz(P.gH.*Cs(:,n).*NHa)/NH*da; % why is Cs in the integral here?
     Cac(1,n+1) = 0;
     % acquired immunity
     for k = 1:na-1
@@ -85,9 +85,8 @@ for n = 1:nt-1
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
     [bHp1,~] = biting_rate(NHp1,NMp1);
     lamHp1 = FOI_H(bHp1,IM(1,n+1),NMp1);   
-    Qnp1 = P.w1*lamHp1*SH(2:end,n+1)/NHp1 + P.w2*lamHp1*EH(2:end,n+1)/NHp1...
-        + P.w3*lamHp1*AH(2:end,n+1)/NHp1 + P.w4*lamHp1*DH(2:end,n+1)/NHp1...
-        + P.w5*lamHp1*RH(2:end,n+1)/NHp1;
+    Qnp1 = lamHp1*(P.w1*SH(2:end,n+1) + P.w2*EH(2:end,n+1) + P.w3*AH(2:end,n+1) ...
+        + P.w4*DH(2:end,n+1) + P.w5*RH(2:end,n+1))/NHp1;
     Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1+1/P.ds*P.dt); % use Qn+1
     Cs(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1); % total immunity from acquired and maternal sources
     

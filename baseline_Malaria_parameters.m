@@ -16,6 +16,7 @@ P.w2 = 1; % EH weight
 P.w3 = 1; % AH weight % previously 10^3;
 P.w4 = 1; % DH weight
 P.w5 = 1; % RH weight
+P.m = 1; % fraction of new-born immunity relative to mother’s
 
 %% mosquito related parameters/rates
 P.bm = 7;%0.67; % desired biting rate per mosquito
