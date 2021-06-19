@@ -1,4 +1,4 @@
-close all
+% close all
 clear all
 clc
 format long
@@ -8,10 +8,10 @@ global colour_r1 colour_r2
 tic
 
 % numerical config
-tfinal = 50*365; % final time in days
+tfinal = 100*365; % final time in days
 age_max = 50*365; % max ages in days
 P.age_max = age_max;
-dt = 60; % time/age step size in days
+dt = 5; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; nt = length(t);
 a = (0:da:age_max)'; na = length(a);
@@ -29,7 +29,7 @@ baseline_Malaria_parameters;
 % SH, EH, etc.. = cell averages
 SH = NaN(na,nt); EH = NaN(na,nt); DH = NaN(na,nt); AH = NaN(na,nt); RH = NaN(na,nt);
 SM = NaN(1,nt); EM = NaN(1,nt); IM = NaN(1,nt); 
-Cs = NaN(na,nt); Cm = NaN(na,nt); Cac = NaN(na,nt);
+Cs = NaN(na,nt); Cm = NaN(na,nt); Cac = NaN(na,nt); 
 rho_ave = NaN(1,nt);
 NM = P.gM/P.muM;
 NH = 1;
@@ -41,6 +41,9 @@ rho_ave(1,1) = mean(P.rho);
 
 %% time evolution
 for n = 1:nt-1
+    if mod(n,(nt-1)/10)==0
+        display(['progress = ',num2str(n/(nt-1)*100),'%'])
+    end
     NHa = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n)+RH(:,n); % total human at age a, t = n
     NH = trapz(NHa)*da; % total human population at t=n;
     
@@ -72,14 +75,11 @@ for n = 1:nt-1
     % immunity at age = 0
     Cm(1,n+1) = P.m*trapz(P.gH.*Cs(:,n).*NHa)/NH*da; % why is Cs in the integral here?
     Cac(1,n+1) = 0;
+    % maternal immunity
+    n0 = min(n,na-1);
+    Cm(2:n0+1,n+1) = (Cm(1,1:n0))'.*exp(-a(2:n0+1)/P.dm); % k=1:n0  
+    Cm(n0+2:end,n+1) = Cm(2:end-n0,1).*exp(-t(n+1)/P.dm);  % k=n0+1:end-1   
     % acquired immunity
-    for k = 1:na-1
-        if k <= n
-            Cm(k+1,n+1) = Cm(1,n-k+1)*exp(-a(k+1)/P.dm);
-        else
-            Cm(k+1,n+1) = Cm(k-n+1,1)*exp(-t(n+1)/P.dm);
-        end
-    end
     NHap1 = SH(:,n+1)+EH(:,n+1)+DH(:,n+1)+AH(:,n+1)+RH(:,n+1); % total human at age a, t = n
     NHp1 = trapz(NHap1)*da; % total human population at t=n;
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
@@ -96,7 +96,6 @@ for n = 1:nt-1
     P.psi = sigmoid_prob(Cs(:,n+1), 'psi'); % prob. AH -> DH
     rho_ave(1,n+1) = mean(P.rho);
 end
-
 %% Plotting
 % a_year = a/365;
 % age_group = NaN(age_max/365,2);
@@ -177,11 +176,11 @@ ylabel('age');
 xlabel('time');
 title('$\psi$');
 
-% figure_setups;
-% plot(a,P.rho)
-% axis_years(gca,tfinal)
-% title('$\rho$(age) at tfinal')
-% grid on
+figure_setups;
+plot(a,P.rho)
+axis_years(gca,tfinal)
+title('$\rho$(age) at tfinal')
+grid on
 
 %% Write output for convergence check
 % Cs_t = trapz(Cs,1)*da; % total immunity in time
@@ -201,24 +200,24 @@ title('$\psi$');
 % % axis([0 tfinal 0 5])
 
 %% final age distributions
-figure_setups;
-plot(a/365,SH(:,end),'b-'); hold on;
-plot(a/365,EH(:,end),'-','Color',colour_r1);
-plot(a/365,AH(:,end),'-','Color',colour_r2);
-plot(a/365,DH(:,end),'r-');
-plot(a/365,RH(:,end),'g-');
-legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
-title('Age distributions by class (final time)')
-grid on
-
+% figure_setups;
+% plot(a/365,SH(:,end),'b-'); hold on;
+% plot(a/365,EH(:,end),'-','Color',colour_r1);
+% plot(a/365,AH(:,end),'-','Color',colour_r2);
+% plot(a/365,DH(:,end),'r-');
+% plot(a/365,RH(:,end),'g-');
+% legend('SH-age','EH-age','AH-age', 'DH-age','RH-age');
+% title('Age distributions by class (final time)')
+% grid on
+% 
 %% Compare initial and final age distribution
-figure_setups;
-Total_pop = SH+EH+AH+DH+RH;
-plot(a/365, Total_pop(:,end),'g-'); hold on;
-%plot(a/365,Total_pop(:,ceil(end/2)),'-','Color',colour_r1); 
-plot(a/365, P.n_tilde,'-','Color',colour_r2);
-plot(a/365, P.n_tilde*exp(P.p_hat*tfinal) ,'-.');
-legend('Final Age dist. (sim.)','Stable Age Dist. (initial)','Final Age dist. (theory)');
-title('Population Age Distributions')
+% figure_setups;
+% Total_pop = SH+EH+AH+DH+RH;
+% plot(a/365, Total_pop(:,end),'g-'); hold on;
+% %plot(a/365,Total_pop(:,ceil(end/2)),'-','Color',colour_r1); 
+% plot(a/365, P.n_tilde,'-','Color',colour_r2);
+% plot(a/365, P.n_tilde*exp(P.p_hat*tfinal) ,'-.');
+% legend('Final Age dist. (sim.)','Stable Age Dist. (initial)','Final Age dist. (theory)');
+% title('Population Age Distributions')
 
 
