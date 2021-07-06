@@ -8,7 +8,7 @@ global colour_r1 colour_r2
 tic
 
 % numerical config
-tfinal = 100*365; % final time in days
+tfinal = 10*365; % final time in days
 age_max = 50*365; % max ages in days
 P.age_max = age_max;
 dt = 5; % time/age step size in days
@@ -73,7 +73,7 @@ for n = 1:nt-1
     [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH,NM);
     
     % immunity at age = 0
-    Cm(1,n+1) = P.m*trapz(P.gH.*Cs(:,n).*NHa)/NH*da; % why is Cs in the integral here?
+    Cm(1,n+1) = P.m*trapz(P.gH.*Cs(:,n).*NHa)/NH*da;
     Cac(1,n+1) = 0;
     % maternal immunity
     n0 = min(n,na-1);
@@ -105,19 +105,20 @@ end
 %     age_group(i,2) = max(temp);
 % end
 toc
-
-% figure_setups;
-% plot(t,trapz(SH,1)*da,'b-'); hold on;
-% plot(t,trapz(EH,1)*da,'-','Color',colour_r1);
-% plot(t,trapz(AH,1)*da,'-','Color',colour_r2);
-% plot(t,trapz(DH,1)*da,'r-');
-% plot(t,trapz(RH,1)*da,'g-');
-% plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1)+trapz(RH,1))*da)
-% legend('SH-age','EH-age','AH-age', 'DH-age','RH-age','$N_H$');
-% title('human population size by stages')
-% axis_years(gca,tfinal); % change to x-axis to years if needed
-% grid on
-% axis([0 tfinal 0 1.1])
+%% 
+figure_setups;
+Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1)+trapz(RH,1))*da;
+plot(t,trapz(SH,1)*da./Nh,'b-'); hold on;
+plot(t,trapz(EH,1)*da./Nh,'-','Color',colour_r1);
+plot(t,trapz(AH,1)*da./Nh,'-','Color',colour_r2);
+plot(t,trapz(DH,1)*da./Nh,'r-');
+plot(t,trapz(RH,1)*da./Nh,'g-');
+plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1)+trapz(RH,1))*da./Nh)
+legend('SH-age','EH-age','AH-age', 'DH-age','RH-age','$N_H$');
+title('human population size by stages')
+axis_years(gca,tfinal); % change to x-axis to years if needed
+grid on
+axis([0 tfinal 0 1.1])
 
 % figure_setups; 
 % Cs_year = NaN(age_max/365,nt); % cell average by yearly ages
@@ -154,33 +155,33 @@ xlabel('time');
 title('Total Immunity');
 
 %% Impact of immunity on the sigmoids (rho, psi, phi)
-figure_setups;
-subplot(2,2,1), imagesc(t/365,a/365,sigmoid_prob(Cs, 'phi'));
-set(gca,'YDir','normal');
-colorbar;
-ylabel('age');
-xlabel('time');
-title('$\phi$');
-
-subplot(2,2,2), imagesc(t/365,a/365,sigmoid_prob(Cs, 'rho'));
-set(gca,'YDir','normal');
-colorbar;
-ylabel('age');
-xlabel('time');
-title('$\rho$');
-
-subplot(2,2,3), imagesc(t/365,a/365,sigmoid_prob(Cs, 'psi'));
-set(gca,'YDir','normal');
-colorbar;
-ylabel('age');
-xlabel('time');
-title('$\psi$');
-
-figure_setups;
-plot(a,P.rho)
-axis_years(gca,tfinal)
-title('$\rho$(age) at tfinal')
-grid on
+% figure_setups;
+% subplot(2,2,1), imagesc(t/365,a/365,sigmoid_prob(Cs, 'phi'));
+% set(gca,'YDir','normal');
+% colorbar;
+% ylabel('age');
+% xlabel('time');
+% title('$\phi$');
+% 
+% subplot(2,2,2), imagesc(t/365,a/365,sigmoid_prob(Cs, 'rho'));
+% set(gca,'YDir','normal');
+% colorbar;
+% ylabel('age');
+% xlabel('time');
+% title('$\rho$');
+% 
+% subplot(2,2,3), imagesc(t/365,a/365,sigmoid_prob(Cs, 'psi'));
+% set(gca,'YDir','normal');
+% colorbar;
+% ylabel('age');
+% xlabel('time');
+% title('$\psi$');
+% 
+% figure_setups;
+% plot(a,P.rho)
+% axis_years(gca,tfinal)
+% title('$\rho$(age) at tfinal')
+% grid on
 
 %% Write output for convergence check
 % Cs_t = trapz(Cs,1)*da; % total immunity in time
@@ -188,16 +189,16 @@ grid on
 % save(['Results/solution_',num2str(dt),'.mat'],'P','t','Cs_t','Cs_end')
 
 %% Mosquito infection dynamics
-% figure_setups;
-% plot(t,SM,'b-'); hold on;
-% plot(t,EM,'-','Color',colour_r1);
-% plot(t,IM,'r-');
-% plot(t,SM+EM+IM)
-% legend('SM','EM','IM','$N_M$');
-% title('mosquito population size by stages')
-% axis_years(gca,tfinal); % change to x-axis to years if needed
-% grid on
-% % axis([0 tfinal 0 5])
+figure_setups;
+plot(t,SM,'b-'); hold on;
+plot(t,EM,'-','Color',colour_r1);
+plot(t,IM,'r-');
+plot(t,SM+EM+IM)
+legend('SM','EM','IM','$N_M$');
+title('mosquito population size by stages')
+axis_years(gca,tfinal); % change to x-axis to years if needed
+grid on
+% axis([0 tfinal 0 5])
 
 %% final age distributions
 % figure_setups;
