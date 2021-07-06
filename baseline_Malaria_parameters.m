@@ -7,15 +7,15 @@ P.rA = 1/360; % recovery rate for AH
 P.h = 1/15; % incubation rate in human
 
 %% immunity parameters/rates
-P.ds = 5*365; % half life of acquired immunity
+P.dac = 5*365; % half life of acquired immunity
 P.dm = 0.25*365; % half life of maternal immunity
 P.c1 = 1; % weight for acquired immunity
 P.c2 = 1/10; % weight for maternal immunity
-P.w1 = 1; % SH weight % previously 2x10^5
-P.w2 = 1; % EH weight 
-P.w3 = 1; % AH weight % previously 10^3;
-P.w4 = 1; % DH weight
-P.w5 = 1; % RH weight
+P.cS = 1; % SH weight % previously 2x10^5
+P.cE = 1; % EH weight 
+P.cA = 1; % AH weight % previously 10^3;
+P.cD = 1; % DH weight
+P.cV = 1; % weight for vaccination
 P.m = 1; % fraction of new-born immunity relative to mother’s
 
 %% mosquito related parameters/rates
