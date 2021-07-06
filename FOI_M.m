@@ -1,8 +1,9 @@
-function lamM = FOI_M(bM,DH,AH,NH)
+function lamM = FOI_M(bM,DH,AH)
 global P
 % DH and AH are vectors at time t=n;
+% bM is calculated in biting_rate.m
 
 da = P.da;
-lamM = bM*trapz(P.betaD*DH+P.betaA*AH)*da/NH; 
+lamM = bM*trapz(P.betaD*DH+P.betaA*AH)*da; 
 
 end

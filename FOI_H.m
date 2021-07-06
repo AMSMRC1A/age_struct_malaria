@@ -1,6 +1,6 @@
-function lamH = FOI_H(bH,IM,NM)
+function lamH = FOI_H(bH,IM)
 global P
 
-lamH = bH*P.betaM*IM/NM;
+lamH = bH*P.betaM*IM;
 
 end

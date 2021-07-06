@@ -6,14 +6,13 @@ global P
 global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 colour_mat7
 global colour_r1 colour_r2
 
-
 tic
 
 % numerical config
-tfinal = 1000*365; % final time in days
-age_max = 50*365; % max ages in days
+tfinal = 100*365; % final time in days
+age_max = tfinal; % max ages in days
 P.age_max = age_max;
-dt = 100; % time/age step size in days
+dt = 10; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; nt = length(t);
 a = (0:da:age_max)'; na = length(a);
@@ -44,14 +43,14 @@ NH = 1;
 %% time evolution
 for n = 1:nt-1
     if mod(n,(nt-1)/10)==0
-        display(['progress = ',num2str(n/(nt-1)*100),'%'])
+        disp(['progress = ',num2str(n/(nt-1)*100),'%'])
     end
     PH = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n); % total human at age a, t = n
     NH = trapz(PH)*da; % total human population at t=n;
     
     NM = SM(1,n)+EM(1,n)+IM(1,n);
     [bH,~] = biting_rate(NH,NM); 
-    lamH = FOI_H(bH,IM(1,n),NM);  % force of infection at t=n
+    lamH = FOI_H(bH,IM(1,n));  % force of infection at t=n
     
     % human birth terms
     SH(1,n+1) = trapz(P.gH.*PH)*da;
@@ -81,7 +80,7 @@ for n = 1:nt-1
     NHp1 = trapz(PHp1)*da; % total human population at t=n;
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
     [bHp1,~] = biting_rate(NHp1,NMp1);
-    lamHp1 = FOI_H(bHp1,IM(1,n+1),NMp1);   
+    lamHp1 = FOI_H(bHp1,IM(1,n+1));   
     Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1)./PHp1(2:end) + P.cE*EH(2:end,n+1)./PHp1(2:end) + P.cA*AH(2:end,n+1)./PHp1(2:end) ...
         + P.cD*DH(2:end,n+1)./PHp1(2:end)) + P.cV*P.v(2:end).*SH(2:end,n+1)./PHp1(2:end);
     Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1+P.dt/P.dac); 
@@ -111,7 +110,7 @@ plot(t,trapz(AH,1)*da./Nh,'-.','Color',colour_mat2);
 plot(t,trapz(DH,1)*da./Nh,'-','Color',colour_mat7);
 plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da./Nh,'k-')
 legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$');
-title('human population size by stages')
+title('human population proportions');
 axis_years(gca,tfinal); % change to x-axis to years if needed
 grid on
 axis([0 tfinal 0 1.1])
@@ -194,7 +193,7 @@ plot(t,IM,'r-');
 plot(t,SM+EM+IM)
 legend('SM','EM','IM','$N_M$');
 title('mosquito population size by stages')
-axis_years(gca,tfinal); % change to x-axis to years if needed
+%axis_years(gca,tfinal); % change to x-axis to years if needed
 grid on
 % axis([0 tfinal 0 5])
 
