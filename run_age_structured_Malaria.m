@@ -9,13 +9,15 @@ global colour_r1 colour_r2
 tic
 
 % numerical config
-tfinal = 100*365; % final time in days
+tfinal = 1000*365; % final time in days
 age_max = tfinal; % max ages in days
 P.age_max = age_max;
-dt = 10; % time/age step size in days
+dt = 100; % time/age step size in days
 da = dt;
-t = (0:dt:tfinal)'; nt = length(t);
-a = (0:da:age_max)'; na = length(a);
+t = (0:dt:tfinal)'; 
+nt = length(t);
+a = (0:da:age_max)'; 
+na = length(a);
 
 P.a = a;
 P.na = na;
@@ -46,8 +48,7 @@ for n = 1:nt-1
         disp(['progress = ',num2str(n/(nt-1)*100),'%'])
     end
     PH = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n); % total human at age a, t = n
-    NH = trapz(PH)*da; % total human population at t=n;
-    
+    NH = trapz(PH)*da; % total human population at t=n;    
     NM = SM(1,n)+EM(1,n)+IM(1,n);
     [bH,~] = biting_rate(NH,NM); 
     lamH = FOI_H(bH,IM(1,n));  % force of infection at t=n
@@ -58,7 +59,9 @@ for n = 1:nt-1
     DH(1,n+1) = 0;
     AH(1,n+1) = 0;
     
-    SH(2:end,n+1) = (SH(1:end-1,n)+P.dt*(P.phi(1:end-1)*P.rD.*DH(1:end-1,n)+P.rA*AH(1:end-1,n))) ./ (1+(lamH+P.muH(2:end))*P.dt);
+    %disp(['n = ',num2str(n)])
+    
+    SH(2:end,n+1) = (SH(1:end-1,n)+P.dt*(P.phi(1:end-1)*P.rD.*DH(1:end-1,n)+P.rA*AH(1:end-1,n))) ./ (1+(lamH+P.muH(2:end))*P.dt);   
     EH(2:end,n+1) = (EH(1:end-1,n)+P.dt*lamH*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*P.dt);
     AH(2:end,n+1) = ((1-P.dt*P.rA)*AH(1:end-1,n)+P.dt*((1-P.rho(1:end-1))*P.h.*EH(2:end,n+1)+(1-P.phi(1:end-1)).*P.rD.*DH(1:end-1,n)))...
         ./ (1+P.dt*(P.psi(1:end-1)*lamH+P.muH(2:end)));
@@ -81,10 +84,13 @@ for n = 1:nt-1
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
     [bHp1,~] = biting_rate(NHp1,NMp1);
     lamHp1 = FOI_H(bHp1,IM(1,n+1));   
-    Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1)./PHp1(2:end) + P.cE*EH(2:end,n+1)./PHp1(2:end) + P.cA*AH(2:end,n+1)./PHp1(2:end) ...
-        + P.cD*DH(2:end,n+1)./PHp1(2:end)) + P.cV*P.v(2:end).*SH(2:end,n+1)./PHp1(2:end);
-    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1+P.dt/P.dac); 
-    Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1); % total immunity from acquired and maternal sources
+    % neglecting disease induced mortality in Cac
+    Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
+        + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1) ;
+    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1/P.dac + P.muD(2:end)));
+    % Cm is now per person but Cac is pooled so need to multiply Cm by PH
+    % to get total immunity contribution
+    Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1).*PHp1; % total immunity from acquired and maternal sources
     
     % update progression probability based on immunity Ctot
     P.phi = sigmoid_prob(Ctot(:,n+1), 'phi'); % prob. of DH -> RH
@@ -102,6 +108,19 @@ end
 % end
 toc
 %% 
+figure_setups;
+Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da;
+plot(t,trapz(SH,1)*da,'-','Color',colour_mat1); hold on;
+plot(t,trapz(EH,1)*da,'--','Color',colour_mat3);
+plot(t,trapz(AH,1)*da,'-.','Color',colour_mat2);
+plot(t,trapz(DH,1)*da,'-','Color',colour_mat7);
+plot(t,Nh,'k-')
+legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$','Location','NorthWest');
+title('Human population sizes');
+axis_years(gca,tfinal); % change to x-axis to years if needed
+grid on
+axis([0 tfinal 0 max(Nh)])
+%%
 figure_setups;
 Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da;
 plot(t,trapz(SH,1)*da./Nh,'-','Color',colour_mat1); hold on;
@@ -189,8 +208,8 @@ title('Total Immunity');
 figure_setups;
 plot(t,SM,'b-'); hold on;
 plot(t,EM,'-','Color',colour_r1);
-plot(t,IM,'r-');
-plot(t,SM+EM+IM)
+plot(t,IM,'r-.');
+plot(t,SM+EM+IM,'-.')
 legend('SM','EM','IM','$N_M$');
 title('mosquito population size by stages')
 %axis_years(gca,tfinal); % change to x-axis to years if needed
