@@ -131,6 +131,7 @@ plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da./Nh,'k-')
 legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$');
 title('human population proportions');
 axis_years(gca,tfinal); % change to x-axis to years if needed
+xlabel('time');
 grid on
 axis([0 tfinal 0 1.1])
 
