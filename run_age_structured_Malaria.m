@@ -156,33 +156,36 @@ hold on;
 subplot(2,2,1), plot(a/365,Ctot(:,floor(nt/2))./PH(:,floor(nt/2)));
 subplot(2,2,1), plot(a/365,Ctot(:,floor(3*nt/4))./PH(:,floor(3*nt/4)));
 subplot(2,2,1), plot(a/365,Ctot(:,end)./PH(:,end));
-xlabel('age (years)')
+xlabel('age')
 legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
-    ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)]);
-title('Immun dist. p.p.');
+    ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)],'Location','NorthWest');
+title('$C_{total}(t)/P_H(t)$');
 grid on
 
 Ph = SH+EH+AH+DH;
 Nh = trapz(Ph,1)*da;
 subplot(2,2,2), plot(t/365,(trapz(Ctot,1)*da)./Nh);
 % axis_years(gca,tfinal)
-title('Pop. Immun p.p. vs time');
+title('$\int C_{total}(\alpha,t)d\alpha / N_H(t)$');
 xlabel('time');
 grid on
 
-subplot(2,2,3), imagesc(t/365,a/365,Ctot.*Ph);
+subplot(2,2,3), imagesc(t/365,a/365,Ctot./PH);
 set(gca,'YDir','normal');
 colorbar;
 ylabel('age');
 xlabel('time');
-title('Total Immunity p.p.');
+title('$C_{total}(\alpha,t)/P_H(\alpha,t)$');
 
-subplot(2,2,4), imagesc(t/365,a/365,Ctot);
-set(gca,'YDir','normal');
-colorbar;
-ylabel('age');
-xlabel('time');
-title('Total Pop. Immunity');
+subplot(2,2,4), plot(a/365,Ctot(:,floor(nt/4)));
+hold on;
+subplot(2,2,4), plot(a/365,Ctot(:,floor(nt/2)));
+subplot(2,2,4), plot(a/365,Ctot(:,floor(3*nt/4)));
+subplot(2,2,4), plot(a/365,Ctot(:,end));
+xlabel('age')
+legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
+    ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)]);
+title('$C_{total}(t)$');
 
 %% Immunity breakdown
 figure_setups; 
