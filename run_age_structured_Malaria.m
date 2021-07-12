@@ -9,10 +9,10 @@ global colour_r1 colour_r2
 tic
 
 % numerical config
-tfinal = 1000*365; % final time in days
+tfinal = 60*365; % final time in days
 age_max = tfinal; % max ages in days
 P.age_max = age_max;
-dt = 100; % time/age step size in days
+dt = 10; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; 
 nt = length(t);
@@ -150,17 +150,24 @@ axis([0 tfinal 0 1.1])
 
 %% Immunity related figures
 figure_setups; 
-subplot(2,2,1), plot(a/365,Ctot(:,end));
+PH = SH+EH+DH+AH;
+subplot(2,2,1), plot(a/365,Ctot(:,floor(nt/4))./PH(:,floor(nt/4)));
+hold on;
+subplot(2,2,1), plot(a/365,Ctot(:,floor(nt/2))./PH(:,floor(nt/2)));
+subplot(2,2,1), plot(a/365,Ctot(:,floor(3*nt/4))./PH(:,floor(3*nt/4)));
+subplot(2,2,1), plot(a/365,Ctot(:,end)./PH(:,end));
 xlabel('age (years)')
-title(['~~~Final Immun dist, dt=', num2str(dt)])
+legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
+    ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)]);
+title('Immun dist. p.p.');
 grid on
 
 Ph = SH+EH+AH+DH;
 Nh = trapz(Ph,1)*da;
-subplot(2,2,2), plot(t/365,trapz(Ctot.*Ph,1)*da./Nh);
+subplot(2,2,2), plot(t/365,(trapz(Ctot,1)*da)./Nh);
 % axis_years(gca,tfinal)
-title(['~~~Pop. Ave Immun vs time, dt=',num2str(dt)]);
-xlabel('time (days)')
+title('Pop. Immun p.p. vs time');
+xlabel('time');
 grid on
 
 subplot(2,2,3), imagesc(t/365,a/365,Ctot.*Ph);
@@ -168,8 +175,24 @@ set(gca,'YDir','normal');
 colorbar;
 ylabel('age');
 xlabel('time');
-title('Total Immunity');
+title('Total Immunity p.p.');
 
+subplot(2,2,4), imagesc(t/365,a/365,Ctot);
+set(gca,'YDir','normal');
+colorbar;
+ylabel('age');
+xlabel('time');
+title('Total Pop. Immunity');
+
+%% Immunity breakdown
+figure_setups; 
+plot(a/365,Cac(:,end));
+hold on;
+plot(a/365,Cm(:,end));
+xlabel('age (years)')
+legend('Acquired','Maternal');
+title('Immun dist.');
+grid on
 %% Impact of immunity on the sigmoids (rho, psi, phi)
 % figure_setups;
 % subplot(2,2,1), imagesc(t/365,a/365,sigmoid_prob(Ctot, 'phi'));
