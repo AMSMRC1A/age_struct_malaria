@@ -17,8 +17,8 @@ p = fzero(F,p0,options);
 P.p_hat = p;
 
 %% Construct the stable age distribution using p_hat
-Lambda = 1/(da.*trapz(exp(-P.p_hat*a-P.muH_int)));
-n_tilde = Lambda*exp(-P.p_hat*a-P.muH_int);
+P.Lambda = 1/(da.*trapz(exp(-P.p_hat*a-P.muH_int))); % needed for R0 calculation later so make global
+n_tilde = P.Lambda*exp(-P.p_hat*a-P.muH_int);
 P.n_tilde = n_tilde; % need this elsewhere in Malaria_IC
 
 %% Update the fertility and stable age dist. if balanced option is selected
@@ -35,7 +35,6 @@ if P.balance_fertility == 1
     options = optimset('TolX',1e-25);
     p0 = [0 1]; % [LP,RP]
     p_new = fzero(F3,p0,options);
-    disp(['q = ',num2str(p_new)]); % we want this as close to zero as possible
     P.p_hat = p_new;
     
     figure_setups;
@@ -47,8 +46,10 @@ if P.balance_fertility == 1
     % update the fertility with the balanced one and update the stable age
     % dist as well
     P.gH = balanced_births;
-    Lambda = 1/(da.*trapz(exp(-P.p_hat*a-P.muH_int)));
-    n_tilde = Lambda*exp(-P.p_hat*a-P.muH_int);
+    P.Lambda = 1/(da.*trapz(exp(-P.muH_int)));
+    n_tilde = P.Lambda*exp(-P.muH_int);
+    %Lambda = 1/(da.*trapz(exp(-P.p_hat*a-P.muH_int)));
+    %n_tilde = Lambda*exp(-P.p_hat*a-P.muH_int);
     P.n_tilde = n_tilde;
 end
 %% Plot the stable age distribution
@@ -58,4 +59,5 @@ axis_years(gca,P.age_max)
 xlabel('age');
 ylabel('pop. density')
 title('Stable Age Distribution');
-%trapz(a,n_tilde) % sanity check, should be = 1 for proper normalization
+disp(['q = ',num2str(P.p_hat)]); % we want this as close to zero as possible
+%trapz(a,P.n_tilde) % sanity check, should be = 1 for proper normalization

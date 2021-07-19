@@ -37,10 +37,10 @@ SM = NaN(1,nt); EM = NaN(1,nt); IM = NaN(1,nt);
 % per-person immunity level or \tilde(Ctotal) \tilde(Cm) \tilde(Cac) on overleaf
 Ctot = NaN(na,nt); Cm = NaN(na,nt); Cac = NaN(na,nt); 
 NM = P.gM/P.muM;
-NH = 1;
+NH = ones(1,length(t));
 
 % initial condition 
-[SH(:,1),EH(:,1),DH(:,1),AH(:,1),SM(1,1),EM(1,1),IM(1,1)] = Malaria_IC(NH,NM); 
+[SH(:,1),EH(:,1),DH(:,1),AH(:,1),SM(1,1),EM(1,1),IM(1,1)] = Malaria_IC(NH(1),NM); 
 [Cm(:,1),Cac(:,1),Ctot(:,1)] = Immunity_IC; % initial immunity and related probability
 
 %% time evolution
@@ -49,9 +49,9 @@ for n = 1:nt-1
         disp(['progress = ',num2str(n/(nt-1)*100),'%']);
     end
     PH = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n); % total human at age a, t = n
-    NH = trapz(PH)*da; % total human population at t=n;    
+    NH(n) = trapz(PH)*da; % total human population at t=n;    
     NM = SM(1,n)+EM(1,n)+IM(1,n);
-    [bH,~] = biting_rate(NH,NM); 
+    [bH,~] = biting_rate(NH(n),NM); 
     lamH = FOI_H(bH,IM(1,n));  % force of infection at t=n
     
     % human birth terms
@@ -70,7 +70,7 @@ for n = 1:nt-1
         ./ (1+P.dt*(P.muH(2:end)+P.muD(2:end)));	
     
     % adjust mosquito infection accordingly - use tn level!
-    [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH,NM);
+    [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH(n),NM);
     
     % immunity gained at age = 0
     Cm(1,n+1) = P.m*trapz(P.gH.*PH.*Cac(:,n))*da/SH(1,n+1);
@@ -88,7 +88,7 @@ for n = 1:nt-1
     % neglecting disease induced mortality in Cac
     Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
         + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1) ;
-    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1/P.dac + P.muD(2:end)));
+    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muD(2:end)));
     % Cm is now per person but Cac is pooled so need to multiply Cm by PH
     % to get total immunity contribution
     Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1).*PHp1; % total immunity from acquired and maternal sources
@@ -99,6 +99,8 @@ for n = 1:nt-1
     P.psi = sigmoid_prob(Ctot(:,n+1), 'psi'); % prob. AH -> DH
 
 end
+PH = SH(:,end)+EH(:,end)+DH(:,end)+AH(:,end); % total human at age a, t = n
+NH(end) = trapz(PH)*da;
 %% Plotting
 % a_year = a/365;
 % age_group = NaN(age_max/365,2);
@@ -262,5 +264,34 @@ grid on
 % plot(a/365, P.n_tilde*exp(P.p_hat*tfinal) ,'-.');
 % legend('Final Age dist. (sim.)','Stable Age Dist. (initial)','Final Age dist. (theory)');
 % title('Population Age Distributions')
+
+%% R0 calculation
+C_star = P.Lambda*(P.bm*P.bm*P.bh*P.bh*NM*NM)*P.betaM*P.sigma./...
+    ((P.bm*NM*P.bh).^2).*(P.sigma+P.muM).*P.muM;
+% NB the immunity functions are equal to 1/2 currently so the argument doesn't
+% matter for them; functions only take scalar input right now
+F_P = @(p,a) P.rho(1)*P.h*exp(-(p+P.rD)*a).*( P.h -P.h*exp((p+P.rD)*a)...
+    -(p+P.rD).*exp((P.rD-P.h)*a) + p + P.rD*exp((p+P.rD)*a) )./((P.h+p)*(P.rD-P.h)*(p+P.rD));
+% numerical overflow in F_P due to the term exp(age_max*P.h) appearing
+G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p))*(1-exp(-(P.h+p)*a))+(1-P.phi(1))*P.rD*F_P(p,a);
+
+H_P = @(p,a) exp(-(P.rA+p)*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p)));
+
+zeta_P = @(p) C_star*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,age_max) + P.betaA.*H_P(p,age_max))) - 1;
+
+% zeta_P(-0.1)
+% zeta_P(0)
+% zeta_P(0.1)
+
+
+
+
+
+
+
+
+
+
+
 
 
