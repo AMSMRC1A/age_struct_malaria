@@ -9,10 +9,11 @@ global colour_r1 colour_r2
 tic
 
 % numerical config
-tfinal = 60*365; % final time in days
-age_max = tfinal; % max ages in days
+P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
+tfinal = 500*365; % final time in days
+age_max = 60*365; % max ages in days
 P.age_max = age_max;
-dt = 10; % time/age step size in days
+dt = 25; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; 
 nt = length(t);
@@ -45,7 +46,7 @@ NH = 1;
 %% time evolution
 for n = 1:nt-1
     if mod(n,(nt-1)/10)==0
-        disp(['progress = ',num2str(n/(nt-1)*100),'%'])
+        disp(['progress = ',num2str(n/(nt-1)*100),'%']);
     end
     PH = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n); % total human at age a, t = n
     NH = trapz(PH)*da; % total human population at t=n;    
@@ -119,10 +120,9 @@ legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$','Location','NorthWest');
 title('Human population sizes');
 axis_years(gca,tfinal); % change to x-axis to years if needed
 grid on
-axis([0 tfinal 0 max(Nh)])
+axis([0 tfinal 0 max(Nh)+0.1]);
 %%
 figure_setups;
-Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da;
 plot(t,trapz(SH,1)*da./Nh,'-','Color',colour_mat1); hold on;
 plot(t,trapz(EH,1)*da./Nh,'--','Color',colour_mat3);
 plot(t,trapz(AH,1)*da./Nh,'-.','Color',colour_mat2);
@@ -133,7 +133,7 @@ title('human population proportions');
 axis_years(gca,tfinal); % change to x-axis to years if needed
 xlabel('time');
 grid on
-axis([0 tfinal 0 1.1])
+axis([0 tfinal 0 1.1]);
 
 % figure_setups; 
 % Ctot_year = NaN(age_max/365,nt); % cell average by yearly ages

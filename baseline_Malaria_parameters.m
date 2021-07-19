@@ -8,13 +8,13 @@ P.h = 1/15; % incubation rate in human
 
 %% immunity parameters/rates
 P.dac = 5*365; % half life of acquired immunity
-P.dm = 0.5*365; % half life of maternal immunity
+P.dm = 1*365; % half life of maternal immunity
 P.c1 = 1; % weight for acquired immunity
-P.c2 = 10; % weight for maternal immunity
+P.c2 = 1; % weight for maternal immunity
 P.cS = 1; % SH weight % previously 2x10^5
-P.cE = 0.01; % EH weight 
-P.cA = 0.1; % AH weight % previously 10^3;
-P.cD = 0.1; % DH weight
+P.cE = 1; % EH weight 
+P.cA = 1; % AH weight % previously 10^3;
+P.cD = 1; % DH weight
 P.cV = 0; % weight for vaccination
 P.m = 1; % fraction of new-born immunity relative to mother’s
 
