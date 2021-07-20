@@ -13,7 +13,7 @@ P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth ra
 tfinal = 500*365; % final time in days
 age_max = 60*365; % max ages in days
 P.age_max = age_max;
-dt = 25; % time/age step size in days
+dt = 20; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; 
 nt = length(t);
@@ -52,7 +52,7 @@ for n = 1:nt-1
     NH(n) = trapz(PH)*da; % total human population at t=n;    
     NM = SM(1,n)+EM(1,n)+IM(1,n);
     [bH,~] = biting_rate(NH(n),NM); 
-    lamH = FOI_H(bH,IM(1,n));  % force of infection at t=n
+    lamH = FOI_H(bH,IM(1,n),NM);  % force of infection at t=n
     
     % human birth terms
     SH(1,n+1) = trapz(P.gH.*PH)*da;
@@ -84,11 +84,11 @@ for n = 1:nt-1
     NHp1 = trapz(PHp1)*da; % total human population at t=n;
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
     [bHp1,~] = biting_rate(NHp1,NMp1);
-    lamHp1 = FOI_H(bHp1,IM(1,n+1));   
+    lamHp1 = FOI_H(bHp1,IM(1,n+1),NMp1);   
     % neglecting disease induced mortality in Cac
     Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
         + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1) ;
-    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muD(2:end)));
+    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muH(2:end)));
     % Cm is now per person but Cac is pooled so need to multiply Cm by PH
     % to get total immunity contribution
     Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1).*PHp1; % total immunity from acquired and maternal sources
@@ -266,7 +266,8 @@ grid on
 % title('Population Age Distributions')
 
 %% R0 calculation
-C_star = P.Lambda*(P.bm*P.bm*P.bh*P.bh*NM*NM)*P.betaM*P.sigma./...
+% convert all quantities to years?
+C_star = P.Lambda*(P.bm*P.bm*P.bh*P.bh*NM)*P.betaM*P.sigma./...
     ((P.bm*NM*P.bh).^2).*(P.sigma+P.muM).*P.muM;
 % NB the immunity functions are equal to 1/2 currently so the argument doesn't
 % matter for them; functions only take scalar input right now
