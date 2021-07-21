@@ -10,10 +10,10 @@ tic
 
 % numerical config
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
-tfinal = 500*365; % final time in days
+tfinal = 200*365; % final time in days
 age_max = 60*365; % max ages in days
 P.age_max = age_max;
-dt = 20; % time/age step size in days
+dt = 5; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)'; 
 nt = length(t);
@@ -117,7 +117,7 @@ plot(t,trapz(SH,1)*da,'-','Color',colour_mat1); hold on;
 plot(t,trapz(EH,1)*da,'--','Color',colour_mat3);
 plot(t,trapz(AH,1)*da,'-.','Color',colour_mat2);
 plot(t,trapz(DH,1)*da,'-','Color',colour_mat7);
-plot(t,Nh,'k-')
+plot(t,Nh,'-.k')
 legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$','Location','NorthWest');
 title('Human population sizes');
 axis_years(gca,tfinal); % change to x-axis to years if needed
@@ -129,7 +129,7 @@ plot(t,trapz(SH,1)*da./Nh,'-','Color',colour_mat1); hold on;
 plot(t,trapz(EH,1)*da./Nh,'--','Color',colour_mat3);
 plot(t,trapz(AH,1)*da./Nh,'-.','Color',colour_mat2);
 plot(t,trapz(DH,1)*da./Nh,'-','Color',colour_mat7);
-plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da./Nh,'k-')
+plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da./Nh,'-.k');
 legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$');
 title('human population proportions');
 axis_years(gca,tfinal); % change to x-axis to years if needed
@@ -158,7 +158,7 @@ subplot(2,2,1), plot(a/365,Ctot(:,floor(nt/4))./PH(:,floor(nt/4)));
 hold on;
 subplot(2,2,1), plot(a/365,Ctot(:,floor(nt/2))./PH(:,floor(nt/2)));
 subplot(2,2,1), plot(a/365,Ctot(:,floor(3*nt/4))./PH(:,floor(3*nt/4)));
-subplot(2,2,1), plot(a/365,Ctot(:,end)./PH(:,end));
+subplot(2,2,1), plot(a/365,Ctot(:,end)./PH(:,end),'-.');
 xlabel('age')
 legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
     ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)],'Location','NorthWest');
@@ -184,7 +184,7 @@ subplot(2,2,4), plot(a/365,Ctot(:,floor(nt/4)));
 hold on;
 subplot(2,2,4), plot(a/365,Ctot(:,floor(nt/2)));
 subplot(2,2,4), plot(a/365,Ctot(:,floor(3*nt/4)));
-subplot(2,2,4), plot(a/365,Ctot(:,end));
+subplot(2,2,4), plot(a/365,Ctot(:,end),'-.');
 xlabel('age')
 legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
     ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)]);
@@ -266,33 +266,20 @@ grid on
 % title('Population Age Distributions')
 
 %% R0 calculation
-% convert all quantities to years?
 C_star = P.Lambda*(P.bm*P.bm*P.bh*P.bh*NM)*P.betaM*P.sigma./...
-    ((P.bm*NM*P.bh).^2).*(P.sigma+P.muM).*P.muM;
+    (((P.bm*NM + P.bh).^2).*(P.sigma+P.muM).*P.muM);
 % NB the immunity functions are equal to 1/2 currently so the argument doesn't
 % matter for them; functions only take scalar input right now
-F_P = @(p,a) P.rho(1)*P.h*exp(-(p+P.rD)*a).*( P.h -P.h*exp((p+P.rD)*a)...
-    -(p+P.rD).*exp((P.rD-P.h)*a) + p + P.rD*exp((p+P.rD)*a) )./((P.h+p)*(P.rD-P.h)*(p+P.rD));
+F_P = @(p,a) P.rho(1)*P.h*( P.h*exp(-(p+P.rD)*a) - P.h...
+    -(p+P.rD).*exp(-(p+P.h)*a) + p*exp(-(p+P.rD)*a) + P.rD )./((P.h+p)*(P.rD-P.h)*(p+P.rD));
 % numerical overflow in F_P due to the term exp(age_max*P.h) appearing
-G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p))*(1-exp(-(P.h+p)*a))+(1-P.phi(1))*P.rD*F_P(p,a);
+G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p))*(1-exp(-(P.h+p)*a)) + (1-P.phi(1))*P.rD*F_P(p,a);
 
 H_P = @(p,a) exp(-(P.rA+p)*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p)));
 
-zeta_P = @(p) C_star*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,age_max) + P.betaA.*H_P(p,age_max))) - 1;
+zeta_P = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P(p,0:da:age_max)')) - 1;
 
-% zeta_P(-0.1)
-% zeta_P(0)
-% zeta_P(0.1)
-
-
-
-
-
-
-
-
-
-
-
-
+zeta_P(-0.02)
+zeta_P(0)
+zeta_P(0.01)
 
