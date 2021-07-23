@@ -59,9 +59,7 @@ for n = 1:nt-1
     EH(1,n+1) = 0;
     DH(1,n+1) = 0;
     AH(1,n+1) = 0;
-    
-    %disp(['n = ',num2str(n)])
-    
+        
     SH(2:end,n+1) = (SH(1:end-1,n)+P.dt*(P.phi(1:end-1)*P.rD.*DH(1:end-1,n)+P.rA*AH(1:end-1,n))) ./ (1+(lamH+P.muH(2:end))*P.dt);
     EH(2:end,n+1) = (EH(1:end-1,n)+P.dt*lamH*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*P.dt);
     AH(2:end,n+1) = ((1-P.dt*P.rA)*AH(1:end-1,n)+P.dt*((1-P.rho(1:end-1))*P.h.*EH(2:end,n+1)+(1-P.phi(1:end-1)).*P.rD.*DH(1:end-1,n)))...
@@ -92,25 +90,16 @@ for n = 1:nt-1
     % Cm is now per person but Cac is pooled so need to multiply Cm by PH
     % to get total immunity contribution
     Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1).*PHp1; % total immunity from acquired and maternal sources
-    
     % update progression probability based on immunity Ctot
     P.phi = sigmoid_prob(Ctot(:,n+1), 'phi'); % prob. of DH -> RH
     P.rho = sigmoid_prob(Ctot(:,n+1), 'rho'); % prob. of severely infected, EH -> DH
     P.psi = sigmoid_prob(Ctot(:,n+1), 'psi'); % prob. AH -> DH
     
 end
-PH = SH(:,end)+EH(:,end)+DH(:,end)+AH(:,end); % total human at age a, t = n
-NH(end) = trapz(PH)*da;
-%% Plotting
-% a_year = a/365;
-% age_group = NaN(age_max/365,2);
-% for i=1:age_max/365 % index for age i = age_group(i,1),..., age_group(i,2)
-%     temp = find((a_year>=i-1)&(a_year<i));
-%     age_group(i,1) = min(temp);
-%     age_group(i,2) = max(temp);
-% end
+PH_final = SH(:,end)+EH(:,end)+DH(:,end)+AH(:,end); % total human at age a, t = n
+NH(end) = trapz(PH_final)*da;
 toc
-%%
+%% Population size versus time
 figure_setups;
 Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da;
 plot(t,trapz(SH,1)*da,'-','Color',colour_mat1); hold on;
@@ -119,11 +108,36 @@ plot(t,trapz(AH,1)*da,'-.','Color',colour_mat2);
 plot(t,trapz(DH,1)*da,'-','Color',colour_mat7);
 plot(t,Nh,'-.k')
 legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$','Location','NorthWest');
-title('Human population sizes');
+title('Population size vs time');
 axis_years(gca,tfinal); % change to x-axis to years if needed
 grid on
 axis([0 tfinal 0 max(Nh)+0.1]);
-%%
+%% Final age profiles at tfinal
+figure_setups;
+plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
+plot(a,EH(:,end),'--','Color',colour_mat3);
+plot(a,AH(:,end),'-.','Color',colour_mat2);
+plot(a,DH(:,end),'-','Color',colour_mat7);
+plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
+legend('SH','EH','AH', 'DH','PH');
+title('Final Age Dist.');
+axis_years(gca,age_max); % change to x-axis to years if needed
+grid on
+axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
+%% Final age proportions at tfinal
+figure_setups;
+plot(a,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
+plot(a,EH(:,end)./PH_final,'--','Color',colour_mat3);
+plot(a,AH(:,end)./PH_final,'-.','Color',colour_mat2);
+plot(a,DH(:,end)./PH_final,'-','Color',colour_mat7);
+%plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end))./PH_final,'-.k');
+legend('SH','EH','AH', 'DH');
+title('Final Age Dist. Proportions');
+xlabel('age');
+axis_years(gca,age_max); % change to x-axis to years if needed
+grid on
+axis([0 age_max 0 1.1]);
+%% Population proportions versus time
 figure_setups;
 plot(t,trapz(SH,1)*da./Nh,'-','Color',colour_mat1); hold on;
 plot(t,trapz(EH,1)*da./Nh,'--','Color',colour_mat3);
@@ -131,26 +145,11 @@ plot(t,trapz(AH,1)*da./Nh,'-.','Color',colour_mat2);
 plot(t,trapz(DH,1)*da./Nh,'-','Color',colour_mat7);
 plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da./Nh,'-.k');
 legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$');
-title('human population proportions');
+title('Population proportions vs time');
 axis_years(gca,tfinal); % change to x-axis to years if needed
 xlabel('time');
 grid on
 axis([0 tfinal 0 1.1]);
-
-% figure_setups;
-% Ctot_year = NaN(age_max/365,nt); % cell average by yearly ages
-% for n = nt
-%     for i = 1:age_max/365
-%         Ctot_year(i,n) = mean(Ctot(age_group(i,1):age_group(i,2),n),1);
-%     end
-%     plot(Ctot_year(:,n));
-%     title(['~~~Immun dist at t = ', num2str(t(n)/365,3), 'yrs'])
-% %     if n==1; pause; else; pause;end
-% end
-% xlabel('age (years)')
-% % ylim([7.4 8.8]*10^-5)
-% grid on
-
 %% Immunity related figures
 figure_setups;
 PH = SH+EH+DH+AH;
@@ -159,14 +158,16 @@ hold on;
 subplot(2,2,1), plot(a/365,Ctot(:,floor(nt/2))./PH(:,floor(nt/2)));
 subplot(2,2,1), plot(a/365,Ctot(:,floor(3*nt/4))./PH(:,floor(3*nt/4)));
 subplot(2,2,1), plot(a/365,Ctot(:,end)./PH(:,end),'-.');
+% C_max = P.cS*SH(:,end)/PH(:,end) + P.cE*SH(:,end)/PH(:,end) + P.cA + P.cD;
+% Im_bound = (P.dac/10).*(1 - exp(-a/P.dac));
+% subplot(2,2,1), plot(a/365,Im_bound,'-.g');
 xlabel('age')
 legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
     ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)],'Location','NorthWest');
 title('$C_{total}(t)/P_H(t)$');
 grid on
 
-Ph = SH+EH+AH+DH;
-Nh = trapz(Ph,1)*da;
+Nh = trapz(PH,1)*da;
 subplot(2,2,2), plot(t/365,(trapz(Ctot,1)*da)./Nh);
 % axis_years(gca,tfinal)
 title('$\int C_{total}(\alpha,t)d\alpha / N_H(t)$');
@@ -189,7 +190,6 @@ xlabel('age')
 legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
     ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)]);
 title('$C_{total}(t)$');
-
 %% Immunity breakdown
 figure_setups;
 plot(a/365,Cac(:,end));
