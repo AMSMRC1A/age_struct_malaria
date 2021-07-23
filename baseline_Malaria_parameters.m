@@ -10,7 +10,7 @@ P.h = 1/15; % incubation rate in human
 P.dac = 5*365; % half life of acquired immunity
 P.dm = 1*365; % half life of maternal immunity
 P.c1 = 1; % weight for acquired immunity
-P.c2 = 0.5; % weight for maternal immunity
+P.c2 = 1; % weight for maternal immunity
 P.cS = 0.75; % SH weight
 P.cE = 0.1; % EH weight 
 P.cA = 0.1; % AH weight
@@ -19,8 +19,8 @@ P.cV = 0; % weight for vaccination
 P.m = 1; % fraction of new-born immunity relative to mother’s
 
 %% mosquito related parameters/rates
-P.bm = 0.5;%7;%0.67; % desired biting rate per mosquito
-P.bh = 0.5;%18; % tolerated biting rate per human
+P.bm = 7;%0.67; % desired biting rate per mosquito
+P.bh = 18; % tolerated biting rate per human
 
 P.betaM = 0.25; % infectivity of mosquitoes
 P.betaD = 0.35; % infectivity of DH

@@ -1,4 +1,3 @@
-% close all
 clear all
 clc
 format long
@@ -8,7 +7,7 @@ global colour_r1 colour_r2
 
 tic
 
-% numerical config
+%% numerical config
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
 tfinal = 200*365; % final time in days
 age_max = 60*365; % max ages in days
@@ -74,9 +73,9 @@ for n = 1:nt-1
     Cm(1,n+1) = P.m*trapz(P.gH.*PH.*Cac(:,n))*da/SH(1,n+1);
     Cac(1,n+1) = 0;
     % maternal immunity
-    n0 = min(n,na-1);
-    Cm(2:n0+1,n+1) = (Cm(1,1:n0))'.*exp(-a(2:n0+1)/P.dm); % k=1:n0
-    Cm(n0+2:end,n+1) = Cm(2:end-n0,1).*exp(-t(n+1)/P.dm);  % k=n0+1:end-1
+    %n0 = min(n,na-1); % comment this formula for now, use implicit scheme
+    %Cm(2:n0+1,n+1) = (Cm(1,1:n0))'.*exp(-a(2:n0+1)/P.dm); % k=1:n0
+    %Cm(n0+2:end,n+1) = Cm(2:end-n0,1).*exp(-t(n+1)/P.dm);  % k=n0+1:end-1
     % acquired immunity - use Qn+1
     PHp1 = SH(:,n+1)+EH(:,n+1)+DH(:,n+1)+AH(:,n+1); % total human at age a, t = n+1
     NHp1 = trapz(PHp1)*da; % total human population at t=n;
@@ -87,6 +86,7 @@ for n = 1:nt-1
     Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
         + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1) ;
     Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muH(2:end)));
+    Cm(2:end,n+1) = Cm(1:end-1,n)/(1+P.dt/P.dac); 
     % Cm is now per person but Cac is pooled so need to multiply Cm by PH
     % to get total immunity contribution
     Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1).*PHp1; % total immunity from acquired and maternal sources
@@ -112,7 +112,7 @@ title('Population size vs time');
 axis_years(gca,tfinal); % change to x-axis to years if needed
 grid on
 axis([0 tfinal 0 max(Nh)+0.1]);
-%% Final age profiles at tfinal
+%% Age profiles at tfinal
 figure_setups;
 plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
 plot(a,EH(:,end),'--','Color',colour_mat3);
@@ -124,14 +124,14 @@ title('Final Age Dist.');
 axis_years(gca,age_max); % change to x-axis to years if needed
 grid on
 axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
-%% Final age proportions at tfinal
+%% Age proportions at tfinal
 figure_setups;
 plot(a,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
 plot(a,EH(:,end)./PH_final,'--','Color',colour_mat3);
 plot(a,AH(:,end)./PH_final,'-.','Color',colour_mat2);
 plot(a,DH(:,end)./PH_final,'-','Color',colour_mat7);
-%plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end))./PH_final,'-.k');
-legend('SH','EH','AH', 'DH');
+plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end))./PH_final,'-.k');
+legend('SH','EH','AH', 'DH','PH');
 title('Final Age Dist. Proportions');
 xlabel('age');
 axis_years(gca,age_max); % change to x-axis to years if needed
@@ -190,14 +190,29 @@ xlabel('age')
 legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
     ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)]);
 title('$C_{total}(t)$');
+%% Immunity calculations at steady state
+% C_SS = zeros(1,na);
+% for i = 1:na
+%     C_SS(i) = f(lamHp1)*da*exp(-a(i)/P.dac)*trapz(exp(a(1:i)./P.dac).*(P.cS*SH(1:i,end) + P.cE*EH(1:i,end)...
+%         + P.cA*AH(1:i,end) + P.cD*DH(1:i,end))./PH_final(1:i));
+% end
+% figure_setups;
+% plot(a,C_SS,'-.r');
+% title('Steady state acquired immunity');
+% axis_years(gca,age_max);
+% xlabel('age')
+% axis([0 age_max 0 max(C_SS)*1.1]);
+% grid on;
 %% Immunity breakdown
 figure_setups;
-plot(a/365,Cac(:,end));
+plot(a,Cac(:,end),'-.r');
 hold on;
-plot(a/365,Cm(:,end));
+plot(a,Cm(:,end),'-.b');
+plot(a,P.c2*Cm(:,end)+P.c1*Cac(:,end),'-.k');
 xlabel('age (years)')
-legend('Acquired','Maternal');
+legend('Acquired','Maternal','Total');
 title('Immun dist.');
+axis([0 age_max 0 max(max(Cm(:,end)),max(Cac(:,end)))*1.1]);
 grid on
 %% Impact of immunity on the sigmoids (rho, psi, phi)
 % figure_setups;
