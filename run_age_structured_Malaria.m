@@ -47,18 +47,19 @@ for n = 1:nt-1
     if mod(n,(nt-1)/10)==0
         disp(['progress = ',num2str(n/(nt-1)*100),'%']);
     end
+    
+    % human equations 
     PH = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n); % total human at age a, t = n
     NH(n) = trapz(PH)*da; % total human population at t=n;
     NM = SM(1,n)+EM(1,n)+IM(1,n);
     [bH,~] = biting_rate(NH(n),NM);
     lamH = FOI_H(bH,IM(1,n),NM);  % force of infection at t=n
-    
-    % human birth terms
+    % birth terms
     SH(1,n+1) = trapz(P.gH.*PH)*da;
     EH(1,n+1) = 0;
     DH(1,n+1) = 0;
     AH(1,n+1) = 0;
-        
+    
     SH(2:end,n+1) = (SH(1:end-1,n)+P.dt*(P.phi(1:end-1)*P.rD.*DH(1:end-1,n)+P.rA*AH(1:end-1,n))) ./ (1+(lamH+P.muH(2:end))*P.dt);
     EH(2:end,n+1) = (EH(1:end-1,n)+P.dt*lamH*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*P.dt);
     AH(2:end,n+1) = ((1-P.dt*P.rA)*AH(1:end-1,n)+P.dt*((1-P.rho(1:end-1))*P.h.*EH(2:end,n+1)+(1-P.phi(1:end-1)).*P.rD.*DH(1:end-1,n)))...
@@ -66,10 +67,10 @@ for n = 1:nt-1
     DH(2:end,n+1) = ((1-P.dt*P.rD)*DH(1:end-1,n)+P.dt*(P.rho(1:end-1)*P.h.*EH(2:end,n+1)+P.psi(1:end-1).*lamH.*AH(2:end,n+1)))...
         ./ (1+P.dt*(P.muH(2:end)+P.muD(2:end)));
     
-    % adjust mosquito infection accordingly - use tn level!
+    % mosquito equations
     [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH(n),NM);
     
-    % immunity gained at age = 0
+    % immunity equations
     Cm(1,n+1) = P.m*trapz(P.gH.*PH.*Cac(:,n))*da/SH(1,n+1);
     Cac(1,n+1) = 0;
     % maternal immunity
@@ -90,11 +91,11 @@ for n = 1:nt-1
     % Cm is now per person but Cac is pooled so need to multiply Cm by PH
     % to get total immunity contribution
     Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1).*PHp1; % total immunity from acquired and maternal sources
+    
     % update progression probability based on immunity Ctot
     P.phi = sigmoid_prob(Ctot(:,n+1), 'phi'); % prob. of DH -> RH
     P.rho = sigmoid_prob(Ctot(:,n+1), 'rho'); % prob. of severely infected, EH -> DH
-    P.psi = sigmoid_prob(Ctot(:,n+1), 'psi'); % prob. AH -> DH
-    
+    P.psi = sigmoid_prob(Ctot(:,n+1), 'psi'); % prob. AH -> DH    
 end
 PH_final = SH(:,end)+EH(:,end)+DH(:,end)+AH(:,end); % total human at age a, t = n
 NH(end) = trapz(PH_final)*da;

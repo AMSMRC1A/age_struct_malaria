@@ -2,12 +2,12 @@ function fig = figure_setups()
 % 08/31/20018 Zhuolin Qu
 
 % Home PC single screen -- wide
-% fig = figure('Position', [100, 55,1100, 600]);
+fig = figure('Position', [100, 55,1100, 600]);
 % fig = figure('Position', [20, 55,1900, 500]);
 % fig = figure('Position', [100, 55,1800, 900]);
 
 % % Home PC single screen -- regular
-fig = figure('Position', [100, 25,900, 700]);
+% fig = figure('Position', [100, 25,900, 700]);
 % fig = figure('Position', [100, 45,900, 600]);
 % Home PC single screen -- rectangle
 % fig = figure('Position', [100, 55,700, 700]);

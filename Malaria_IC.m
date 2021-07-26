@@ -1,4 +1,6 @@
 function [SH,EH,DH,AH,SM,EM,IM] = Malaria_IC(NH,NM)
+% NH(1,np) NM(1,np)
+% SH(na,np) SM(1,np)
 global P
 
 find_stable_age; % calculate the stable age distribution

@@ -1,6 +1,9 @@
 %% sigmoidal function for converting immunity to probabilties
 function f = sigmoid_prob(x, lprob)
+% x(na,np) f(na,np)
 global P
+
+x = reshape(x,P.na,P.np);
 
 switch lprob
     case 'phi'
