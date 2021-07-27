@@ -9,10 +9,10 @@ tic
 
 %% numerical config
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
-tfinal = 200*365; % final time in days
-age_max = 75*365; % max ages in days
+tfinal = 500*365; % final time in days
+age_max = 60*365; % max ages in days
 P.age_max = age_max;
-dt = 40; % time/age step size in days
+dt = 50; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)';
 nt = length(t);
@@ -190,19 +190,6 @@ xlabel('age')
 legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
     ['t = ',num2str(3*tfinal/(4*365))],['t = ',num2str(tfinal/365)]);
 title('$C_{total}(t)$');
-%% Immunity calculations at steady state
-% C_SS = zeros(1,na);
-% for i = 1:na
-%     C_SS(i) = f(lamHp1)*da*exp(-a(i)/P.dac)*trapz(exp(a(1:i)./P.dac).*(P.cS*SH(1:i,end) + P.cE*EH(1:i,end)...
-%         + P.cA*AH(1:i,end) + P.cD*DH(1:i,end))./PH_final(1:i));
-% end
-% figure_setups;
-% plot(a,C_SS,'-.r');
-% title('Steady state acquired immunity');
-% axis_years(gca,age_max);
-% xlabel('age')
-% axis([0 age_max 0 max(C_SS)*1.1]);
-% grid on;
 %% Immunity breakdown
 figure_setups;
 plot(a,Cac(:,end),'-.r');
@@ -275,11 +262,9 @@ if P.balance_fertility == 1
     p_star = fzero(zeta_P,p0,options);
     disp(['p* = ',num2str(p_star)]);
     if p_star < 0
-        disp('Real root negative; DFE may be stable');
-        %disp(['R0 = ',num2str(zeta_P(p_star)+1,'%16.14f'), '; DFE is stable']);
+        disp('Real root of char. eqn. negative; DFE may be stable');
     else
-        disp('Real root positive; DFE is unstable');
-        %disp(['R0 = ',num2str(zeta_P(p_star)+1,'%16.14f'), '; DFE is unstable']);
+        disp('Real root of char. eqn. positive; DFE is unstable');
     end
 end
 %% Solve for the Jacobian of the system numerically
@@ -336,7 +321,7 @@ figure_setups;
 scatter(real(eig(jacobian)),imag(eig(jacobian)));
 grid on;
 xline(0,'r','LineWidth',2);
-title('Linearized spectrum');
+title('Linearized spectrum at equilibrium');
 xlim([min(temp_eig) re_max+0.1]);
 %% Check if DFE is stable numerically (regardless of time stepped simulation)
 P1 = [ones(length(a),1), 0*ones(length(a),1), 0*ones(length(a),1), 0*ones(length(a),1)];
@@ -353,7 +338,7 @@ title('Final Age Dist. Proportions (DFE)');
 temp_eig = sort(real(eig(jacobian)),'descend');
 re_max = max(temp_eig);
 if re_max < 0
-        disp(['max real part of eigenvalues = ',num2str(re_max,'%10.6f'), '; DFE is stable']);
+        disp(['max real part of eigenvalues at DFE = ',num2str(re_max,'%10.6f'), '; DFE is stable']);
 else
         disp(['max real part of eigenvalues = ',num2str(re_max,'%10.6f'), '; DFE is unstable']);
 end
@@ -361,7 +346,7 @@ figure_setups;
 scatter(real(eig(jacobian)),imag(eig(jacobian)));
 grid on;
 xline(0,'r','LineWidth',2);
-title('Linearized spectrum');
+title('Linearized spectrum at DFE');
 xlim([min(temp_eig) re_max+0.1]);
 %% DFE stability without quasi-static equilibrium for mosquitoes
 % if P.balance_fertility == 1
