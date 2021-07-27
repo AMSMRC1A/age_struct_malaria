@@ -19,8 +19,8 @@ P.cV = 0; % weight for vaccination
 P.m = 1; % fraction of new-born immunity relative to mother’s
 
 %% mosquito related parameters/rates
-P.bm = 7;%0.67; % desired biting rate per mosquito
-P.bh = 18; % tolerated biting rate per human
+P.bm = 0.5;%7;%0.67; % desired biting rate per mosquito
+P.bh = 0.5;%18; % tolerated biting rate per human
 
 P.betaM = 0.25; % infectivity of mosquitoes
 P.betaD = 0.35; % infectivity of DH
