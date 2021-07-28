@@ -9,10 +9,10 @@ tic
 
 %% numerical config
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
-tfinal = 500*365; % final time in days
+tfinal = 200*365; % final time in days
 age_max = 60*365; % max ages in days
 P.age_max = age_max;
-dt = 50; % time/age step size in days
+dt = 20; % time/age step size in days
 da = dt;
 t = (0:dt:tfinal)';
 nt = length(t);
@@ -127,10 +127,10 @@ axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
 %% Age proportions at tfinal
 figure_setups;
 plot(a,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
-plot(a,EH(:,end)./PH_final,'--','Color',colour_mat3);
-plot(a,AH(:,end)./PH_final,'-.','Color',colour_mat2);
+plot(a,EH(:,end)./PH_final,'-','Color',colour_mat3);
+plot(a,AH(:,end)./PH_final,'-','Color',colour_mat2);
 plot(a,DH(:,end)./PH_final,'-','Color',colour_mat7);
-plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end))./PH_final,'-.k');
+plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end))./PH_final,'-k');
 legend('SH','EH','AH', 'DH','PH');
 title('Final Age Dist. Proportions');
 xlabel('age');
@@ -192,13 +192,27 @@ legend(['t = ',num2str(tfinal/(4*365))],['t = ',num2str(tfinal/(2*365))],...
 title('$C_{total}(t)$');
 %% Immunity breakdown
 figure_setups;
-plot(a,Cac(:,end),'-.r');
+subplot(1,2,2), plot(a,Cac(:,end)./PH(:,end),'-r');
+hold on;
+plot(a,Cm(:,end)./PH(:,end),'-b');
+plot(a,(P.c2*Cm(:,end)+P.c1*Cac(:,end))./PH(:,end),'-k');
+xlabel('age (years)')
+legend('$C_{ac}(\alpha,t_{max})/P_H(\alpha,t_{max})$',...
+    '$C_{m}(\alpha,t_{max})/P_H(\alpha,t_{max})$','$C_{total}(\alpha,t_{max})/P_H(\alpha,t_{max})$',...
+    'Location','SouthEast');
+title('Immun dist.');
+axis_years(gca,age_max);
+axis([0 age_max 0 max(max(Cm(:,end)./PH(:,end)),max(Cac(:,end)./PH(:,end)))*1.1]);
+grid on
+
+subplot(1,2,1), plot(a,Cac(:,end),'-.r');
 hold on;
 plot(a,Cm(:,end),'-.b');
 plot(a,P.c2*Cm(:,end)+P.c1*Cac(:,end),'-.k');
 xlabel('age (years)')
-legend('Acquired','Maternal','Total');
+legend('Acquired','Maternal','Total','Location','SouthEast');
 title('Immun dist.');
+axis_years(gca,age_max);
 axis([0 age_max 0 max(max(Cm(:,end)),max(Cac(:,end)))*1.1]);
 grid on
 %% Impact of immunity on the sigmoids (rho, psi, phi)
@@ -268,7 +282,7 @@ if P.balance_fertility == 1
     end
 end
 %% Solve for the Jacobian of the system numerically
-% x should have 4 columns, number of rows is the number of distinct ages,
+% x should have 4 columns, number of rows is the number of distinct ages
 % [SH, EH, DH, AH] ordering
 P.phi = 1/2;
 P.psi = 1/2;
@@ -298,12 +312,12 @@ plot(a,eq_age(:,2),'-.','Color',colour_mat3);
 plot(a,eq_age(:,4),'-.','Color',colour_mat2);
 plot(a,eq_age(:,3),'-.','Color',colour_mat7);
 plot(a,sum(eq_age,2),'-.k');
-plot(a,P0(:,1),'Color',colour_mat1); hold on;
-plot(a,P0(:,2),'Color',colour_mat3);
-plot(a,P0(:,4),'Color',colour_mat2);
-plot(a,P0(:,3),'Color',colour_mat7);
-plot(a,sum(P0,2),'k');
-legend('SH (solver)','EH (solver)','AH (solver)', 'DH (solver)','PH (solver)','SH (evolved)','EH (evolved)','AH (evolved)', 'DH (evolved)','PH (evolved)');
+% plot(a,P0(:,1),'Color',colour_mat1); hold on;
+% plot(a,P0(:,2),'Color',colour_mat3);
+% plot(a,P0(:,4),'Color',colour_mat2);
+% plot(a,P0(:,3),'Color',colour_mat7);
+% plot(a,sum(P0,2),'k');
+legend('SH (solver)','EH (solver)','AH (solver)', 'DH (solver)','PH (solver)');
 title('Final Age Dist. Proportions');
 xlabel('age');
 axis_years(gca,age_max); % change to x-axis to years if needed
