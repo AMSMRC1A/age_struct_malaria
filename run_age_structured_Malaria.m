@@ -98,7 +98,6 @@ for n = 1:nt-1
 end
 PH_final = SH(:,end)+EH(:,end)+DH(:,end)+AH(:,end); % total human at age a, t = n
 NH(end) = trapz(PH_final)*da;
-toc
 %% Population size versus time
 figure_setups;
 Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da;
@@ -383,3 +382,5 @@ xlim([min(temp_eig) re_max+0.1]);
 %         disp(['R0 = ',num2str(zeta_P(p_star)+1,'%16.14f'),'; DFE is unstable']);
 %     end
 % end
+
+toc
