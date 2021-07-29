@@ -271,7 +271,7 @@ if P.balance_fertility == 1
     H_P = @(p,a) exp(-(P.rA+p)*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p)));
     zeta_P = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P(p,0:da:age_max)')) - 1;
     options = optimset('TolX',1e-12);
-    p0 = [-0.02 1]; % [LP,RP] -> need to take care when selecting the endpoints as zeta_P may  blow-up for negative p
+    p0 = 0.01;%[-0.02 1]; % [LP,RP] -> need to take care when selecting the endpoints as zeta_P may  blow-up for negative p
     p_star = fzero(zeta_P,p0,options);
     disp(['p* = ',num2str(p_star)]);
     if p_star < 0

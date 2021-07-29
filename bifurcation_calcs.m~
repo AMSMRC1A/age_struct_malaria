@@ -18,7 +18,7 @@ P.da = da;
 baseline_Malaria_parameters;
 find_stable_age;
 %% Set range for the bifurcation parameter
-param = 0.1125:0.025:0.25; % changing P.betaM the mosquito desired bites
+param = 0.2:0.1:0.6; % changing P.bm the mosquito desired bites
 %% options 
 error_tolerance = 1e-20;
 options = optimoptions('fsolve','Display','none','OptimalityTolerance',...
@@ -32,8 +32,7 @@ re_max_DFE = zeros(1,length(param));
 sol_norm_DFE = zeros(1,length(param));
 error_DFE = zeros(1,length(param));
 for i = 1:length(param)
-    disp(['progress = ',num2str((i-1)/(length(param))*100),'%']);
-    P.betaM = param(i);
+    P.bm = param(i);
     P.phi = 1/2;
     P.psi = 1/2;
     P.rho = 1/2;
@@ -86,8 +85,7 @@ end
 % title('Linearized spectrum at DFE');
 % xlim([min(temp_eig) re_max+0.1]);
 %% Plot the results
-%figure_setups;
-figure(9);
+figure_setups;
 hold on;
 error_tolerance = 1e-6;
 % endemic equilibrium plotting
@@ -104,18 +102,18 @@ for j = 1:length(param)
 end
 % DFE plotting
 for j = 1:length(param)
-    if re_max_DFE(j) < 0 && error_DFE(j) < error_tolerance
+    if re_max_DFE(j) < 0 && error_endemic(j) < error_tolerance
         scatter(param(j),sol_norm_endemic(j),'b','filled');
-    elseif re_max_DFE(j) < 0 && error_DFE(j) > error_tolerance
-        scatter(param(j),sol_norm_DFE(j),'r','filled');
-    elseif re_max_DFE(j) > 0 && error_DFE(j) > error_tolerance
-        scatter(param(j),sol_norm_DFE(j),'r');
+    elseif re_max_endemic(j) < 0 && error_endemic(j) > error_tolerance
+        scatter(param(j),sol_norm_endemic(j),'r','filled');
+    elseif re_max_endemic(j) > 0 && error_endemic(j) > error_tolerance
+        scatter(param(j),sol_norm_endemic(j),'r');
     else
-        scatter(param(j),sol_norm_DFE(j),'b');
+        scatter(param(j),sol_norm_endemic(j),'b');
     end
 end
 grid on;
-xlabel('$\beta_M$');
+xlabel('$b_m$');
 ylabel('$|| \tilde{S}_H ||$');
 set(get(gca,'ylabel'),'rotation',0)
 %%
