@@ -289,7 +289,7 @@ if P.balance_fertility == 1
     F_P = @(p,a) P.rho(1)*P.h*( P.h*exp(-(p+P.rD).*a) - P.h...
         -(p+P.rD).*exp(-(p+P.h).*a) + p*exp(-(p+P.rD).*a) + P.rD )./((P.h+p)*(P.rD-P.h)*(p+P.rD));
     G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h + p)).*(1-exp(-(P.h+p).*a)) + (1-P.phi(1))*P.rD*F_P(p,a);
-    H_P = @(p,a) exp(-(P.rA+p).*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p)));
+    H_P = @(p,a) exp(-(P.rA+p)*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p)));
     zeta_P = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P(p,0:da:age_max)')) - 1;
     options = optimset('TolX',1e-12);
     p0 = [-0.02 1]; % [LP,RP] -> need to take care when selecting the endpoints as zeta_P may  blow-up for negative p
