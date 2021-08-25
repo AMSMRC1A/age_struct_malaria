@@ -270,30 +270,28 @@ if P.balance_fertility == 1
     G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p)).*(1-exp(-(P.h+p).*a)) + (1-P.phi(1))*P.rD*F_P(p,a);
     H_P = @(p,a) exp(-(P.rA+p)*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p)));
     zeta_P = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P(p,0:da:age_max)')) - 1;
-    options = optimset('TolX',1e-12);
-    p0 = 0.01;%[-0.02 1]; % [LP,RP] -> need to take care when selecting the endpoints as zeta_P may  blow-up for negative p
-    p_star = fzero(zeta_P,p0,options);
-    disp(['p* = ',num2str(p_star)]);
-    if p_star < 0
-        disp('Real root of char. eqn. negative; DFE may be stable');
+    %options = optimset('TolX',1e-12);
+    %p0 = 0.01;%[-0.02 1]; % [LP,RP] -> need to take care when selecting the endpoints as zeta_P may  blow-up for negative p
+    %p_star = fzero(zeta_P,p0,options);
+    R0 = zeta_P(0);
+    disp(['R0 = ',num2str(R0)]);
+    if R0 < 1
+        disp('R0 is less than 1; DFE may be stable');
     else
-        disp('Real root of char. eqn. positive; DFE is unstable');
+        disp('R0 is greater than 1; DFE is unstable');
     end
 end
 %% Solve for the Jacobian of the system numerically
 % x should have 4 columns, number of rows is the number of distinct ages
 % [SH, EH, DH, AH] ordering
-P.phi = 1/2;
-P.psi = 1/2;
-P.rho = 1/2;
 [bH,bM] = biting_rate(1,P.gM/P.muM);
 Lambda_M = @(x) bM*P.Lambda*da*trapz(exp(-P.muH_int).*(P.betaD*x(:,3)+P.betaA*x(:,4)));
 Lambda_H = @(x) bH*P.betaM*(P.sigma/(P.sigma+P.muM))*((Lambda_M(x))/(Lambda_M(x) + P.muM));
 % first row is different to account for boundary conditions
-F_PSI = @(x) [[-x(1,1)+1; -Lambda_H(x)*x(2:end,1) + P.phi*P.rD*x(2:end,3) + P.rA*x(2:end,4) - diff(x(:,1))/da];...
+F_PSI = @(x) [[-x(1,1)+1; -Lambda_H(x)*x(2:end,1) + P.phi(1)*P.rD*x(2:end,3) + P.rA*x(2:end,4) - diff(x(:,1))/da];...
     [-x(1,2); Lambda_H(x)*x(2:end,1) - P.h*x(2:end,2) - diff(x(:,2))/da];...
-    [-x(1,3); P.rho*P.h*x(2:end,2) + P.psi*Lambda_H(x)*x(2:end,4) - P.rD*x(2:end,3) - diff(x(:,3))/da];...
-    [-x(1,4); (1-P.rho)*P.h*x(2:end,2) - P.psi*Lambda_H(x)*x(2:end,4) + (1-P.phi)*P.rD*x(2:end,3) - P.rA*x(2:end,4) - diff(x(:,4))/da]];
+    [-x(1,3); P.rho(1)*P.h*x(2:end,2) + P.psi(1)*Lambda_H(x)*x(2:end,4) - P.rD*x(2:end,3) - diff(x(:,3))/da];...
+    [-x(1,4); (1-P.rho(1))*P.h*x(2:end,2) - P.psi(1)*Lambda_H(x)*x(2:end,4) + (1-P.phi(1))*P.rD*x(2:end,3) - P.rA*x(2:end,4) - diff(x(:,4))/da]];
 % -1 is always an eigenvalue (multiplicity 4) of the Jacobian of the discretized operator because of the structure of the first row
 % F_PSI = @(x) [[-x(1,1)+1; -Lambda_H(x)*x(2:end,1) + P.phi*P.rD*x(2:end,3) + P.rA*x(2:end,4) - diff(x(:,1))/da];...
 %     [-x(1,2); Lambda_H(x)*x(2:end,1) - P.h*x(2:end,2) - diff(x(:,2))/da];...

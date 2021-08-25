@@ -3,7 +3,7 @@ global P
 a = P.a;
 
 P.rD = 1/180; % recovery rate for DH
-P.rA = 1/360; % recovery rate for AH
+P.rA = 0;%1/360; % recovery rate for AH
 P.h = 1/15; % incubation rate in human
 
 %% immunity parameters/rates
