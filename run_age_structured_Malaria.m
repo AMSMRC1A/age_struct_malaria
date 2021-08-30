@@ -44,7 +44,7 @@ NH = ones(1,length(t));
 
 %% time evolution
 for n = 1:nt-1
-    if mod(n,(nt-1)/10)==0
+    if mod(n,(nt-1)/5)==0
         disp(['progress = ',num2str(n/(nt-1)*100),'%']);
     end
     PH = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n); % total human at age a, t = n

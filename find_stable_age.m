@@ -54,11 +54,5 @@ if P.balance_fertility == 1
     P.n_tilde = n_tilde;
 end
 %%
-%figure_setups;
-%plot(a,P.n_tilde);
-%axis_years(gca,P.age_max)
-%xlabel('age');
-%ylabel('pop. density')
-%title('Stable Age Distribution');
-disp(['q = ',num2str(P.p_hat)]); % we want this as close to zero as possible
-%trapz(a,P.n_tilde) % sanity check, should be = 1 for proper normalization
+% disp(['q = ',num2str(P.p_hat)]); % we want this as close to zero as possible
+% trapz(a,P.n_tilde) % sanity check, should be = 1 for proper normalization
