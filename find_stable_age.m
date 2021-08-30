@@ -27,9 +27,7 @@ if P.balance_fertility == 1
     error_tolerance = 1e-25;
     options = optimoptions('fsolve','Display','none','OptimalityTolerance',...
         error_tolerance);
-    [balanced_births,fval,exitflag,output,jacobian] = fsolve(F2,P.gH,options); % start from current fertility
-    %balanced_births = sqrt(balanced_births);
-    
+    [balanced_births,fval,exitflag,output,jacobian] = fsolve(F2,P.gH,options); % start from current fertility  
     % check if new growth factor is approximately zero
     F3 = @(p) da.*trapz(balanced_births.*exp(-p*a-P.muH_int)) - 1;
     options = optimset('TolX',1e-25);
@@ -37,12 +35,13 @@ if P.balance_fertility == 1
     p_new = fzero(F3,p0,options);
     P.p_hat = p_new;
     
-    figure_setups;
-    plot(a,P.gH,'b');
-    hold on;
-    plot(a,balanced_births,'-.r');
-    axis_years(gca,P.age_max);
-    legend('original fertility','balanced fertility');
+    %figure_setups;
+    %plot(a,P.gH,'b');
+    %hold on;
+    %plot(a,balanced_births,'-.r');
+    %axis_years(gca,P.age_max);
+    %legend('original fertility','balanced fertility');
+    
     % update the fertility with the balanced one and update the stable age
     % dist as well
     P.gH = balanced_births;
@@ -59,5 +58,5 @@ end
 %xlabel('age');
 %ylabel('pop. density')
 %title('Stable Age Distribution');
-disp(['q = ',num2str(P.p_hat)]); % we want this as close to zero as possible
+%disp(['q = ',num2str(P.p_hat)]); % we want this as close to zero as possible
 %trapz(a,P.n_tilde) % sanity check, should be = 1 for proper normalization

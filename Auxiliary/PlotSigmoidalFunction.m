@@ -7,8 +7,7 @@ k = 2; % Hill coefficient (steepness)
 
 x = 0:.01:100; %input
 
-y = cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin); %output
-
+y = 1 - cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin); %output
 
 figure_setups;
 plot(x,y,'linewidth',2)
