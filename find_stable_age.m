@@ -37,12 +37,13 @@ if P.balance_fertility == 1
     p_new = fzero(F3,p0,options);
     P.p_hat = p_new;
     
-    figure_setups;
-    plot(a,P.gH,'b');
-    hold on;
-    plot(a,balanced_births,'-.r');
-    axis_years(gca,P.age_max);
-    legend('original fertility','balanced fertility');
+%     figure_setups;
+%     plot(a,P.gH,'b');
+%     hold on;
+%     plot(a,balanced_births,'-.r');
+%     axis_years(gca,P.age_max);
+%     legend('original fertility','balanced fertility');
+    
     % update the fertility with the balanced one and update the stable age
     % dist as well
     P.gH = balanced_births;

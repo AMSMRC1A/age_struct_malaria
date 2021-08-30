@@ -3,7 +3,7 @@ global P
 a = P.a;
 
 P.rD = 1/180; % recovery rate for DH
-P.rA = 0;%1/360; % recovery rate for AH
+P.rA = 1/360; % recovery rate for AH
 P.h = 1/15; % incubation rate in human
 
 %% immunity parameters/rates
@@ -22,7 +22,7 @@ P.m = 1; % fraction of new-born immunity relative to mother’s
 P.bm = 0.5;%7;%0.67; % desired biting rate per mosquito
 P.bh = 0.5;%18; % tolerated biting rate per human
 
-P.betaM = 0.175; % infectivity of mosquitoes
+P.betaM = 0.6; % infectivity of mosquitoes
 P.betaD = 0.35; % infectivity of DH
 P.betaA = 0.03; % infectivity of AH
 
