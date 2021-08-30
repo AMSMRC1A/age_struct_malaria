@@ -232,14 +232,18 @@ if P.balance_fertility == 1
     %    - (P.rD - P.h)*(p*(P.rho(1)-1) + P.rD*(P.rho(1)*P.phi(1)-1) )...
     %    - ( P.rho(1)*P.rD*(P.phi(1)-1)*(P.h+p) )*exp(-(p+P.rD)*a) )./((P.h+p)*(P.rD-P.h)*(p+P.rD));
     G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p)).*(1-exp(-(P.h+p).*a)) + (1-P.phi(1))*P.rD*F_P(p,a);
-    H_P = @(p,a) ( (-1+exp(-(p+P.rA)*a))*P.h + p + P.rA - exp(-a*P.h)*(p+P.rA) )./((p+P.rA)*(p+P.rA-P.h)); % just for the example
-    H_P2 = @(p,a) exp(-(P.rA+p)*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p)));
+    %H_P = @(p,a) ( (-1+exp(-(p+P.rA)*a))*P.h + p + P.rA - exp(-a*P.h)*(p+P.rA) )./((p+P.rA)*(p+P.rA-P.h)); % just for the example rho=0, phi = 1
+    %H_P2 = @(p,a) exp(-(P.rA+p)*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p))); % this is not accurate enough, old version
+    H_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p)).*( ( -P.h + (P.h+p)*exp(-(p+P.rA)*a) + P.rA - (p + P.rA)*exp(-(P.h+p)*a) )./((p + P.rA)*(P.rA - P.h)) )...
+        + ((1-P.phi(1))*P.rD*P.rho(1)*P.h/((P.h+p)*(P.rD-P.h)*(p+P.rD)))*...
+        ( ((P.h -P.rD)/(p+P.rA)-(p+P.rD)/(P.h-P.rA)+(P.h+p)/(P.rD-P.rA))*exp(-(p+P.rA)*a) + ...
+        (p+P.h)*exp(-(p+P.rD)*a)/(P.rA-P.rD) + (P.rD-P.h)/(P.rA+p) + (p+P.rD)*exp(-(P.h+p)*a)/(P.h-P.rA) );
     zeta_P = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P(p,0:da:age_max)'));
-    zeta_P2 = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P2(p,0:da:age_max)'));
+    %zeta_P2 = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P2(p,0:da:age_max)'));
     R0 = zeta_P(0);
     disp(['R0 = ',num2str(R0)]);
     if R0 < 1
-        disp('R0 is less than 1; DFE may be stable');
+        disp('R0 is less than 1; DFE is stable');
     else
         disp('R0 is greater than 1; DFE is unstable');
     end
