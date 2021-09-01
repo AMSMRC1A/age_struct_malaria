@@ -2,10 +2,10 @@
 
 cmin = 0; % minimum value
 cmax = 1; % maximum value
-c = 40; % constant at half maximal
+c = 1; % constant at half maximal
 k = 2; % Hill coefficient (steepness)
 
-x = 0:.01:100; %input
+x = 0:.01:5; %input
 
 y = 1 - cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin); %output
 

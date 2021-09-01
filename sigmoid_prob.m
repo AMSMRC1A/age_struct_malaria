@@ -12,11 +12,11 @@ switch lprob
     otherwise 
         error('not defined probability parameter')
 end
-    f = 0.5*ones(size(x));
-    %f = cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin);
-    %if lprob == 'phi'
-    %    f = 1 - f;
-    %end
+    %f = 0.5*ones(size(x));
+    f = cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin);
+    if lprob == 'phi'
+        f = 1 - f;
+    end
 end
 
 % input x should be the immunity level (C_s)

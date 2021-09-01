@@ -30,7 +30,7 @@ P.da = da;
 baseline_Malaria_parameters; % set parameters
 
 halfmaximal_var = [1];
-gM_var = [0.01 0.05 0.1 0.5 1]; % NB muM = 1/10, NM = gM/muM baseline
+gM_var = [0.01 0.05 0.1 1 5]; % NB muM = 1/10, NM = gM/muM baseline
 final_immunity = zeros(na,length(gM_var));
 final_EIR = zeros(1,length(gM_var));
 for ii = 1:length(halfmaximal_var)
