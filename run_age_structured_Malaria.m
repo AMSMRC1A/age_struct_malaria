@@ -7,8 +7,11 @@ global colour_r1 colour_r2
 
 tic
 
-%% numerical config
+%% Numerical configuration and output settings
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
+P.calc_R0 = 1; % 0 to ignore R0 calculation, 1 to compute it based on constant sigmoids
+P.numerical_stability = 0; % 0 to numerical DFE stability calculation
+
 tfinal = 200*365; % final time in days
 age_max = 60*365; % max ages in days
 P.age_max = age_max;
@@ -24,7 +27,7 @@ P.na = na;
 P.nt = nt;
 P.dt = dt;
 P.da = da;
-P.halfmaximal = 40;
+P.halfmaximal = 1;
 
 % model parameters - rates are in 1/day
 baseline_Malaria_parameters;
@@ -34,7 +37,7 @@ baseline_Malaria_parameters;
 SH = NaN(na,nt); EH = NaN(na,nt); DH = NaN(na,nt); AH = NaN(na,nt);
 SM = NaN(1,nt); EM = NaN(1,nt); IM = NaN(1,nt);
 
-% per-person immunity level or \tilde(Ctotal) \tilde(Cm) \tilde(Cac) on overleaf
+% per-person immunity level or \tilde(Ctotal) \tilde(Cm) \tilde(Cac) on Overleaf
 Ctot = NaN(na,nt); Cm = NaN(na,nt); Cac = NaN(na,nt);
 NM = P.gM/P.muM;
 NH = ones(1,length(t));
@@ -45,7 +48,7 @@ NH = ones(1,length(t));
 
 %% time evolution
 for n = 1:nt-1
-    if mod(n,(nt-1)/10)==0
+    if mod(n,(nt-1)/5)==0
         disp(['progress = ',num2str(n/(nt-1)*100),'%']);
     end
     PH = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n); % total human at age a, t = n
@@ -54,12 +57,17 @@ for n = 1:nt-1
     [bH,~] = biting_rate(NH(n),NM);
     lamH = FOI_H(bH,IM(1,n),NM);  % force of infection at t=n
     
+    % update progression probability based on immunity PER PERSON
+    P.phi = sigmoid_prob(Ctot(:,n)./PH, 'phi'); % prob. of DH -> RH
+    P.rho = sigmoid_prob(Ctot(:,n)./PH, 'rho'); % prob. of severely infected, EH -> DH
+    P.psi = sigmoid_prob(Ctot(:,n)./PH, 'psi'); % prob. AH -> DH
+    
     % human birth terms
     SH(1,n+1) = trapz(P.gH.*PH)*da;
     EH(1,n+1) = 0;
     DH(1,n+1) = 0;
     AH(1,n+1) = 0;
-        
+    
     SH(2:end,n+1) = (SH(1:end-1,n)+P.dt*(P.phi(1:end-1)*P.rD.*DH(1:end-1,n)+P.rA*AH(1:end-1,n))) ./ (1+(lamH+P.muH(2:end))*P.dt);
     EH(2:end,n+1) = (EH(1:end-1,n)+P.dt*lamH*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*P.dt);
     AH(2:end,n+1) = ((1-P.dt*P.rA)*AH(1:end-1,n)+P.dt*((1-P.rho(1:end-1))*P.h.*EH(2:end,n+1)+(1-P.phi(1:end-1)).*P.rD.*DH(1:end-1,n)))...
@@ -87,19 +95,13 @@ for n = 1:nt-1
     Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
         + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1) ;
     Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muH(2:end)));
-    Cm(2:end,n+1) = Cm(1:end-1,n)/(1+P.dt/P.dac); 
+    Cm(2:end,n+1) = Cm(1:end-1,n)/(1+P.dt/P.dac);
     % Cm is now per person but Cac is pooled so need to multiply Cm by PH
     % to get total immunity contribution
     Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1).*PHp1; % total immunity from acquired and maternal sources
-    % update progression probability based on immunity Ctot
-    P.phi = sigmoid_prob(Ctot(:,n+1), 'phi'); % prob. of DH -> RH
-    P.rho = sigmoid_prob(Ctot(:,n+1), 'rho'); % prob. of severely infected, EH -> DH
-    P.psi = sigmoid_prob(Ctot(:,n+1), 'psi'); % prob. AH -> DH
-    
 end
 PH_final = SH(:,end)+EH(:,end)+DH(:,end)+AH(:,end); % total human at age a, t = n
 NH(end) = trapz(PH_final)*da;
-toc
 %% Population size versus time
 figure_setups;
 Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da;
@@ -250,15 +252,15 @@ grid on
 % save(['Results/solution_',num2str(dt),'.mat'],'P','t','Ctot_t','Ctot_end')
 
 %% Mosquito infection dynamics
-figure_setups;
-plot(t,SM,'b-'); hold on;
-plot(t,EM,'-','Color',colour_r1);
-plot(t,IM,'r-.');
-plot(t,SM+EM+IM,'-.')
-legend('SM','EM','IM','$N_M$');
-title('mosquito population size by stages')
+% figure_setups;
+% plot(t,SM,'b-'); hold on;
+% plot(t,EM,'-','Color',colour_r1);
+% plot(t,IM,'r-.');
+% plot(t,SM+EM+IM,'-.')
+% legend('SM','EM','IM','$N_M$');
+% title('mosquito population size by stages')
 %axis_years(gca,tfinal); % change to x-axis to years if needed
-grid on
+%grid on
 % axis([0 tfinal 0 5])
 
 %% final age distributions
@@ -281,33 +283,51 @@ grid on
 % legend('Final Age dist. (sim.)','Stable Age Dist. (initial)','Final Age dist. (theory)');
 % title('Population Age Distributions')
 
-%% Stability of DFE, only valid when q = 0
-if P.balance_fertility == 1
+%% DFE stability, R0 calculation based on constant sigmoids
+% Theoretical R0 calculation
+if P.balance_fertility == 1 && P.calc_R0 == 1
     C_star = P.Lambda*(P.bm*P.bm*P.bh*P.bh*NM)*P.betaM*P.sigma./...
         (((P.bm*NM + P.bh).^2).*(P.sigma+P.muM).*P.muM);
-    % NB the immunity functions are fixed equal to 1/2 currently so the argument doesn't
-    % matter for them; functions only take scalar input right now
-    F_P = @(p,a) P.rho(1)*P.h*( P.h*exp(-(p+P.rD).*a) - P.h...
-        -(p+P.rD).*exp(-(p+P.h).*a) + p*exp(-(p+P.rD).*a) + P.rD )./((P.h+p)*(P.rD-P.h)*(p+P.rD));
-    G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h + p)).*(1-exp(-(P.h+p).*a)) + (1-P.phi(1))*P.rD*F_P(p,a);
-    H_P = @(p,a) exp(-(P.rA+p).*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p)));
-    zeta_P = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P(p,0:da:age_max)')) - 1;
-    options = optimset('TolX',1e-12);
-    p0 = [-0.02 1]; % [LP,RP] -> need to take care when selecting the endpoints as zeta_P may  blow-up for negative p
-    p_star = fzero(zeta_P,0,options);
-    disp(['p* = ',num2str(p_star)]);
-    if p_star < 0
-        disp('DFE is stable');
+    % NB the immunity functions are assumed constant in this calculation
+    F_P = @(p,a) -P.rho(1)*P.h*( (p+P.h)*exp(-(p+P.rD).*a) - P.h...
+        -(p+P.rD).*exp(-(p+P.h).*a) + P.rD )./((P.h+p)*(P.h-P.rD)*(p+P.rD));
+    G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p)).*(1-exp(-(P.h+p).*a)) + (1-P.phi(1))*P.rD*F_P(p,a);
+    H_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p)).*( ( -P.h + (P.h+p)*exp(-(p+P.rA)*a) + P.rA - (p + P.rA)*exp(-(P.h+p)*a) )./((p + P.rA)*(P.rA - P.h)) )...
+        + ((1-P.phi(1))*P.rD*P.rho(1)*P.h/((P.h+p)*(P.rD-P.h)*(p+P.rD)))*...
+        ( ((P.h -P.rD)/(p+P.rA)-(p+P.rD)/(P.h-P.rA)+(P.h+p)/(P.rD-P.rA))*exp(-(p+P.rA)*a) + ...
+        (p+P.h)*exp(-(p+P.rD)*a)/(P.rA-P.rD) + (P.rD-P.h)/(P.rA+p) + (p+P.rD)*exp(-(P.h+p)*a)/(P.h-P.rA) );
+    zeta_P = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P(p,0:da:age_max)'));
+    R0 = zeta_P(0);
+    disp(['R0 = ',num2str(R0)]);
+    if R0 < 1
+        disp('R0 is less than 1; DFE is stable');
     else
-        disp('DFE is unstable');
+        disp('R0 is greater than 1; DFE is unstable');
     end
-    %% check for multiple zeros in the interval p0
-    dp = 0.0001;
-    X1 = p0(1):dp:p0(2);
-    X2 = X1+dp;
-    root_locations = zeros(1,length(X1));
-    for i = 1:length(root_locations)
-        root_locations(i) = zeta_P(X1(i)).*zeta_P(X2(i))<0;
-    end
-    disp([num2str(sum(root_locations)),' roots of characteristic equation found.']);
 end
+%% Numerical DFE stability calculation, based on constant sigmoids
+if P.balance_fertility == 1 && P.numerical_stability == 1
+    % Compute the Jacobian and stability of the DFE numerically
+    [bH,bM] = biting_rate(1,P.gM/P.muM);
+    Lambda_M = @(x) bM*P.Lambda*da*trapz(exp(-P.muH_int).*(P.betaD*x(:,3)+P.betaA*x(:,4)));
+    Lambda_H = @(x) bH*P.betaM*(P.sigma/(P.sigma+P.muM))*((Lambda_M(x))/(Lambda_M(x) + P.muM));
+    F_PSI = @(x) [[-x(1,1)+1; -Lambda_H(x)*x(2:end,1) + P.phi(1)*P.rD*x(2:end,3) + P.rA*x(2:end,4) - diff(x(:,1))/da];...
+        [-x(1,2); Lambda_H(x)*x(2:end,1) - P.h*x(2:end,2) - diff(x(:,2))/da];...
+        [-x(1,3); P.rho(1)*P.h*x(2:end,2) + P.psi(1)*Lambda_H(x)*x(2:end,4) - P.rD*x(2:end,3) - diff(x(:,3))/da];...
+        [-x(1,4); (1-P.rho(1))*P.h*x(2:end,2) - P.psi(1)*Lambda_H(x)*x(2:end,4) + (1-P.phi(1))*P.rD*x(2:end,3) - P.rA*x(2:end,4) - diff(x(:,4))/da]];
+    error_tolerance = 1e-20;
+    options = optimoptions('fsolve','Display','none','OptimalityTolerance',...
+        error_tolerance);
+    P1 = [ones(length(a),1), 0*ones(length(a),1), 0*ones(length(a),1), 0*ones(length(a),1)];
+    [eq_age,fval,exitflag,output,jacobian] = fsolve(F_PSI,P1,options);
+    % get the eigenvalues of the Jacobian and plot the linearized spectrum
+    temp_eig = sort(real(eig(jacobian)),'descend');
+    re_max = max(temp_eig);
+    if re_max < 0
+        disp(['max real part of eigenvalues at DFE = ',num2str(re_max,'%10.6f'), '; DFE is stable']);
+    else
+        disp(['max real part of eigenvalues = ',num2str(re_max,'%10.6f'), '; DFE is unstable']);
+    end
+end
+%%
+toc
