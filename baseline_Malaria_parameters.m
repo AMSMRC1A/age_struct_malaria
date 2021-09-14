@@ -31,12 +31,12 @@ P.muM = 1/10; % natural mortality rate of mosquitoes
 P.sigma = 1/10; % incubation rate for mosquitoes
 
 %% mortality functions (placeholder parameters)
-b0 = 0;
-b1 = 0.05;
-b2 = 0.505;
-b3 = 0.01;
-b4 = 0.055;
-muH =  b0 + b1*exp(-b2*a/365) + b3*exp(b4*a/365); % natural human mortality rate
+P.b0 = 0;
+P.b1 = 0.05;
+P.b2 = 0.505;
+P.b3 = 0.01;
+P.b4 = 0.055;
+muH =  P.b0 + P.b1*exp(-P.b2*a/365) + P.b3*exp(P.b4*a/365); % natural human mortality rate
 muH = muH/365;
 %% fertility rate (placeholder parameters)
 cc = 4.6;
