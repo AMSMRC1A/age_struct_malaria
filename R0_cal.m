@@ -5,7 +5,7 @@ global P
 % NB the immunity functions are constants right now
 if P.balance_fertility == 1
     alphamax = P.age_max; %% Inf
-    muH_int = @(age) (age./365).*P.b0 + (P.b1./P.b2).*(1-exp(-P.b2.*age./365)) + (P.b3./P.b4).*(-1+exp(P.b4.*age./365));
+    muH_int = P.muH_int_fun;
 %% For D part ----- double integral (alpha, a)
     % error = truncation on age_max & trapz integration
     % if taking age_max = inf, truncate error on age dominates; 

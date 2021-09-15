@@ -1,5 +1,5 @@
 clear all
-% clc
+clc
 format long
 global P
 global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 colour_mat7
@@ -38,6 +38,11 @@ Ctot = NaN(na,nt); Cm = NaN(na,nt); Cac = NaN(na,nt);
 NM = P.gM/P.muM;
 NH = ones(1,length(t));
 
+% Update the fertility and stable age dist. if balanced option is selected
+if P.balance_fertility == 1
+    balance_fertility;
+end
+
 % initial condition
 [SH(:,1),EH(:,1),DH(:,1),AH(:,1),SM(1,1),EM(1,1),IM(1,1)] = Malaria_IC(NH(1),NM);
 [Cm(:,1),Cac(:,1),Ctot(:,1)] = Immunity_IC; % initial immunity and related probability
@@ -50,7 +55,7 @@ if R0_new < 1
 else
     disp('New R0 is greater than 1; DFE is unstable');
 end
-
+keyboard
 %% time evolution
 for n = 1:nt-1
     if mod(n,(nt-1)/5)==0

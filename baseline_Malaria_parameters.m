@@ -38,13 +38,15 @@ P.b3 = 0.01;
 P.b4 = 0.055;
 muH =  P.b0 + P.b1*exp(-P.b2*a/365) + P.b3*exp(P.b4*a/365); % natural human mortality rate
 muH = muH/365;
+muH_int_fun = @(age) (age./365).*P.b0 + (P.b1./P.b2).*(1-exp(-P.b2.*age./365)) + (P.b3./P.b4).*(-1+exp(P.b4.*age./365));        
 %% fertility rate (placeholder parameters)
-cc = 4.6;
-zz = 25;
-alpha = 28;
-ww = 13.5;
-gH =  2*cc.*normpdf((a/365-zz)/ww).*normcdf(alpha*(a/365-zz)/ww)/ww; % 0.05*ones(size(a)); % human fertility rate
+P.cc = 4.6;
+P.zz = 25;
+P.alpha = 28;
+P.ww = 13.5;
+gH =  2*P.cc.*normpdf((a/365-P.zz)/P.ww).*normcdf(P.alpha*(a/365-P.zz)/P.ww)/P.ww; % 0.05*ones(size(a)); % human fertility rate
 gH = gH/365;
+gH_fun = @(age) (2.*P.cc.*normpdf((age./365-P.zz)./P.ww).*normcdf(P.alpha.*(age./365-P.zz)./P.ww)./P.ww)./365;
 %%
 muD = 0*ones(size(a));% 0.05*ones(size(a)); % disease-induced human mortality rate
 w = 1/180*ones(size(a)); % 1/50 transition rate RH -> SH, may also be a function on time t
@@ -55,3 +57,5 @@ P.muD = muD; %
 P.gH = gH; %
 P.w = w;
 P.v = v;
+P.gH_fun = gH_fun;
+P.muH_int_fun = muH_int_fun;
