@@ -1,11 +1,16 @@
-function R0 = R0_cal()
+function R0 = R0_cal_immune()
 global P
 
 % Stability of DFE when q = 0
-% NB the immunity functions are constants right now
+% with immunity functions
 if P.balance_fertility == 1
-    alphamax = inf; %% Inf
+    alphamax = P.age_max; %% Inf
     muH_int = P.muH_int_fun;
+    [~,~,~,~,~,~,CH] = steady_state('DFE'); % steady state for CH - total immunity (function handle)
+    cmin = 0; cmax = 1; k = 2; c = 40;
+    sigmoid = @(x) cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin);
+    rho = @(a) sigmoid(CH(a)); 
+    phi = @(a) sigmoid(CH(a)); 
 %% For D part ----- double integral (alpha, a)
     % error = truncation on age_max & trapz integration
     % if taking age_max = inf, truncate error on age dominates; 
@@ -25,10 +30,18 @@ if P.balance_fertility == 1
 %     D_int1 = trapz(D)*P.da;
     
     %% method - 2 double integral of conti function with Inf limits
-    D_alpha_a = @(alpha,a) exp(-muH_int(alpha)).*exp(-P.rD.*(alpha-a)).*P.rho(1).*(1-exp(-P.h.*a));
-    amax = @(alpha) alpha;
-    D_int = integral2(D_alpha_a,0,alphamax,0,amax,'AbsTol',10^-10,'RelTol',10^-10);
-    
+%     D_alpha_a = @(alpha,a) exp(-muH_int(alpha)).*exp(-P.rD.*(alpha-a)).*rho(a).*(1-exp(-P.h.*a));
+%     amax = @(alpha) alpha;
+%     D_int = integral2(D_alpha_a,0,alphamax,0,amax,'AbsTol',10^-10,'RelTol',10^-10);
+    keyboard
+    D_alpha_a = @(alpha) integral(@(a) exp(-muH_int(alpha)).*exp(-P.rD.*(alpha-a)).*rho(a).*(1-exp(-P.h.*a)), 0, alpha,'ArrayValued',true);
+    D_int = integral(D_alpha_a,0,P.age_max,'ArrayValued',true);
+%     figure_setups;
+%     y = NaN(size(P.a));
+%     for ia = 1:length(P.a)
+%         y(ia) = D_alpha_a(P.a(ia));
+%     end
+%     plot(P.a,y)
     %% method - 3 reference, exact on a (n/a for non-constant immunity), then integrate alpha
 %     F_P = @(a) -P.rho(1)*P.h*((P.h).*exp(-(P.rD).*a) - P.h...
 %         -(P.rD).*exp(-(P.h).*a) + P.rD )./((P.h)*(P.h-P.rD)*(P.rD));
@@ -42,9 +55,9 @@ if P.balance_fertility == 1
     % use age_max method 1 and 2, 10^-6
     %% method 1  double + triple integral on (alpha, a, x)
     A1_alpha_a = @(alpha,a,x) exp(-muH_int(alpha)).*exp(-P.rA.*(alpha-a)).*...
-        (1-P.rho(1)).*(1-exp(-P.h.*a));
+        (1-rho(a)).*(1-exp(-P.h.*a));
     A2_alpha_a_x = @(alpha,a,x) exp(-muH_int(alpha)).*exp(-P.rA.*(alpha-a)).*...
-        P.rD.*(1-P.phi(1)).*exp(-P.rD.*(a-x)).*P.rho(1).*(1-exp(-P.h.*x));
+        P.rD.*(1-phi(a)).*exp(-P.rD.*(a-x)).*rho(x).*(1-exp(-P.h.*x));
     amax = @(alpha) alpha;
     xmax = @(alpha,a) a;
     A1_int = integral2(A1_alpha_a,0,alphamax,0,amax,'AbsTol',10^-10,'RelTol',10^-10);

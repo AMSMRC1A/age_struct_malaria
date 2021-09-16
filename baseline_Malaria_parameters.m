@@ -50,12 +50,14 @@ gH_fun = @(age) (2.*P.cc.*normpdf((age./365-P.zz)./P.ww).*normcdf(P.alpha.*(age.
 %%
 muD = 0*ones(size(a));% 0.05*ones(size(a)); % disease-induced human mortality rate
 w = 1/180*ones(size(a)); % 1/50 transition rate RH -> SH, may also be a function on time t
-v = 0*ones(size(a)); % 0.01 ?? vaccination rate
+v_fun = @(age) 0; % vaccination rate
+v = v_fun(a); 
 
 P.muH = muH; %
 P.muD = muD; % 
 P.gH = gH; %
 P.w = w;
 P.v = v;
+P.v_fun = v_fun;
 P.gH_fun = gH_fun;
 P.muH_int_fun = muH_int_fun;

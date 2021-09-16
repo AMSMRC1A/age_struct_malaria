@@ -1,5 +1,5 @@
 clear all
-clc
+% clc
 format long
 global P
 global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 colour_mat7
@@ -12,7 +12,7 @@ P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth ra
 tfinal = 100*365; % final time in days
 age_max = 60*365; % max ages in days
 P.age_max = age_max;
-dt = 5; % time/age step size in days, default = 5;
+dt = 20; % time/age step size in days, default = 5;
 da = dt;
 t = (0:dt:tfinal)';
 nt = length(t);
@@ -48,7 +48,8 @@ end
 [Cm(:,1),Cac(:,1),Ctot(:,1)] = Immunity_IC; % initial immunity and related probability
 
 %% Stability of DFE when q = 0
-R0_new = R0_cal();
+R0_new = R0_cal_immune();
+% R0_new = R0_cal();
 disp(['New R0 = ',num2str(R0_new)]);
 if R0_new < 1
     disp('New R0 is less than 1; DFE is stable');
