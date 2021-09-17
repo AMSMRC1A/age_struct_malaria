@@ -8,7 +8,6 @@ global colour_r1 colour_r2
 tic
 
 %% numerical config
-P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
 tfinal = 100*365; % final time in days
 age_max = 60*365; % max ages in days
 P.age_max = age_max;
@@ -26,7 +25,7 @@ P.dt = dt;
 P.da = da;
 
 % model parameters - rates are in 1/day
-baseline_Malaria_parameters;
+Malaria_parameters_baseline;
 
 % allocation
 % SH, EH, etc.. = cell averages

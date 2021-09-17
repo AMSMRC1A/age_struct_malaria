@@ -23,8 +23,8 @@ end
 
 % Construct the stable age distribution using p_hat
 P.muH_int = muH_int(P.a);
-P.Lambda = 1/(da.*trapz(exp(-P.p_hat*P.a-P.muH_int))); % needed for R0 calculation later so make global
-n_tilde = P.Lambda*exp(-P.p_hat*P.a-P.muH_int);
+Lambda = 1/(da.*trapz(exp(-P.p_hat*P.a-P.muH_int)));
+n_tilde = Lambda*exp(-P.p_hat*P.a-P.muH_int);
 P.n_tilde = n_tilde; % need this elsewhere in Malaria_IC
 
 end

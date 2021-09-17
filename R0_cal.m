@@ -1,4 +1,4 @@
-function R0 = R0_cal_immune()
+function R0 = R0_cal()
 global P
 
 % Stability of DFE when q = 0
@@ -27,7 +27,8 @@ if P.balance_fertility == 1
     A_int = A1_int+A2_int;
 %% calculate R0
     [bH,bM] = biting_rate(1,P.gM/P.muM);  % assume NH=1; NH(end) for numerical simulation is > 1
-    RHM = bH*P.Lambda*(P.betaD*D_int+P.betaA*A_int);
+    Lambda = 1/ integral(@(a) exp(-muH_int(a)), 0, alphamax);
+    RHM = bH*Lambda*(P.betaD*D_int+P.betaA*A_int);
     RMH = bM*P.betaM*P.sigma/(P.sigma+P.muM)./P.muM;
     R0 = RHM*RMH;
 end
