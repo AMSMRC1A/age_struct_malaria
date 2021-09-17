@@ -3,7 +3,7 @@ function balance_fertility
 global P
 
 if exist('balanced_births.mat','file') % need to re-run the mat file if the death rates are updated!!
-    load('balanced_births.mat','balanced_births','fun_balanced_births')
+    load('balanced_births.mat','fun_balanced_births')
 else
     disp('calculating balanced fertility profile...hit enter')
     pause
@@ -16,12 +16,11 @@ else
     options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
     [balanced_births_fine,fval,exitflag,output,jacobian] = fsolve(F2,gH_fine,options); % start from current fertility
     fun_balanced_births = griddedInterpolant(a_fine,balanced_births_fine);
-    balanced_births = fun_balanced_births(P.a);
-    save('balanced_births.mat','balanced_births','fun_balanced_births');
+    save('balanced_births.mat','fun_balanced_births');
 end
 
-P.gH = balanced_births;
 P.gH_fun = fun_balanced_births;
+P.gH = fun_balanced_births(P.a);
 
 %% check if new growth factor is approximately zero
 % F3 = @(p) da.*trapz(balanced_births.*exp(-p*a-P.muH_int)) - 1;

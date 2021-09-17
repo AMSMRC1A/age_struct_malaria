@@ -15,7 +15,7 @@ P.cS = 0.75; % SH weight
 P.cE = 0.1; % EH weight 
 P.cA = 0.1; % AH weight
 P.cD = 0.05; % DH weight
-P.cV = 0; % weight for vaccination
+P.cV = 0.1; % weight for vaccination
 P.m = 1; % fraction of new-born immunity relative to mother’s
 
 %% mosquito related parameters/rates
@@ -50,7 +50,8 @@ gH_fun = @(age) (2.*P.cc.*normpdf((age./365-P.zz)./P.ww).*normcdf(P.alpha.*(age.
 %%
 muD = 0*ones(size(a));% 0.05*ones(size(a)); % disease-induced human mortality rate
 w = 1/180*ones(size(a)); % 1/50 transition rate RH -> SH, may also be a function on time t
-v_fun = @(age) 0; % vaccination rate
+P.v0 = 0.5;
+v_fun = @(age) P.v0*ones(size(age)); % constant vaccination rate, **if changed, need to update Cac steadystate as well**
 v = v_fun(a); 
 
 P.muH = muH; %

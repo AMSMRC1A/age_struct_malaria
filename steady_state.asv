@@ -11,9 +11,10 @@ switch lstate
         S = @(alpha) 1;
         E = @(alpha) 0;
         D = @(alpha) 0;
-        A = @(alpha) 0;        
-        % Cac  exact expression obtained based on simple v(alpha)
-        Cac = @(alpha) P.cV*exp(-alpha/P.dac).*(P.v0+P.v0*P.dac*(exp(alpha/P.dac)-1));
+        A = @(alpha) 0;
+        % provide v(a) expression and integrate to get exact formula for Cac*
+        % Cac
+        Cac = @(alpha) P.cV*exp(-alpha/P.dac).*(0.1+0.1*P.dac*(exp(alpha/P.dac)-1));
         % Cm
         Cm0 = P.m*integral(@(alpha) gH(alpha).*exp(-muH_int(alpha)).*Cac(alpha), 0, P.age_max);        
         Cm = @(alpha) Cm0.*exp(-alpha./P.dm);        
