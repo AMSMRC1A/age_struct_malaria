@@ -1,4 +1,5 @@
 %% sigmoidal function for converting immunity to probabilties
+% return function handle
 function fun = sigmoid_prob_fun(lprob)
 
 switch lprob

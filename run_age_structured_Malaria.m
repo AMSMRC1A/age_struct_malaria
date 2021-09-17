@@ -48,14 +48,15 @@ end
 [Cm(:,1),Cac(:,1),Ctot(:,1)] = Immunity_IC; % initial immunity and related probability
 
 %% Stability of DFE when q = 0
-R0_new = R0_cal_immune();
-% R0_new = R0_cal();
+R0_new = R0_cal();
+% R0_2 = R0_cal_no_immune();
 disp(['New R0 = ',num2str(R0_new)]);
 if R0_new < 1
     disp('New R0 is less than 1; DFE is stable');
 else
     disp('New R0 is greater than 1; DFE is unstable');
 end
+% R0_new - R0_2
 keyboard
 %% time evolution
 for n = 1:nt-1
