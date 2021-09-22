@@ -12,15 +12,15 @@ P.dm = 1*365; % half life of maternal immunity
 P.c1 = 1; % weight for acquired immunity
 P.c2 = 1; % weight for maternal immunity
 P.cS = 0.75; % SH weight
-P.cE = 0.1; % EH weight 
+P.cE = 0.1; % EH weight  ~~ AH
 P.cA = 0.1; % AH weight
 P.cD = 0.05; % DH weight
-P.cV = 0.1; % weight for vaccination
+P.cV = 0.75; % weight for vaccination ~~ SH
 P.m = 1; % fraction of new-born immunity relative to mother’s
 
 %% mosquito related parameters/rates
 P.bm = 2;%7;%0.67; % desired biting rate per mosquito
-P.bh = 0.5;%18; % tolerated biting rate per human
+P.bh = 18; % tolerated biting rate per human
 
 P.betaM = 0.125; % infectivity of mosquitoes
 P.betaD = 0.35; % infectivity of DH
@@ -37,7 +37,7 @@ P.b2 = 0.505;
 P.b3 = 0.01;
 P.b4 = 0.055;
 
-%% fertility rate (placeholder parameters)
+%% fertility rate (placeholder parameters) -- probability not used later...
 P.cc = 4.6;
 P.zz = 25;
 P.alpha = 28;
