@@ -1,5 +1,5 @@
 global P
-
+a = P.a;
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
 
 P.rD = 1/180; % recovery rate for DH
@@ -22,7 +22,7 @@ P.m = 1; % fraction of new-born immunity relative to mother’s
 P.bm = 2;%7;%0.67; % desired biting rate per mosquito
 P.bh = 18; % tolerated biting rate per human
 
-P.betaM = 0.125; % infectivity of mosquitoes
+P.betaM = 0.125;  P.betaM_lower = 0.1125; P.betaM_upper = 0.25; % infectivity of mosquitoes
 P.betaD = 0.35; % infectivity of DH
 P.betaA = 0.03; % infectivity of AH
 
@@ -44,7 +44,7 @@ P.alpha = 28;
 P.ww = 13.5;
 
 %%
-P.muD = 0;  % disease-induced human mortality rate
+P.muD = 0*ones(size(a));  % disease-induced human mortality rate
 P.v0 = 0.5; % vaccination rate parameter (constant rate in age)
 P.v0_lower = 0.1;  P.v0_upper = 0.8;
 Malaria_parameters_transform;

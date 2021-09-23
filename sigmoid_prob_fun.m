@@ -13,8 +13,8 @@ switch lprob
         error('not defined probability parameter')
 end
 
-fun = @(x) cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin);
-%     fun = @(x) 0.5*ones(size(x));
+% fun = @(x) cmax*((1-cmin)*c^k./(c^k+x.^k)+cmin);
+    fun = @(x) 0.5*ones(size(x));
 end
 
 % input x should be the immunity level (C_s)

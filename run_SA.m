@@ -20,10 +20,9 @@ P.dt = dt;
 P.da = da;
 
 %% SA setting
-lQ = 'R0';  % R0
-lP_list = {'v0'}; % v0
+lQ = 'stability';  % R0
+lP_list = {'betaM'}; % v0
 Malaria_parameters_baseline;
-
 %%
 tic
 if flag_disp; disp(['QOI =  ', lQ]); end
@@ -45,7 +44,7 @@ for iP = 1:length(lP_list)
     %% extended SA
     P_lower = P.([lP,'_lower']);
     P_upper = P.([lP,'_upper']);
-    ngrid = 21;
+    ngrid = 6;
     
     % allocation
     P_vals = linspace(P_lower,P_upper,ngrid)';%

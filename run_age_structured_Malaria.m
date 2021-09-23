@@ -37,11 +37,6 @@ Ctot = NaN(na,nt); Cm = NaN(na,nt); Cac = NaN(na,nt);
 NM = P.gM/P.muM;
 NH = ones(1,length(t));
 
-% Update the fertility and stable age dist. if balanced option is selected
-if P.balance_fertility == 1
-    balance_fertility;
-end
-
 % initial condition
 [SH(:,1),EH(:,1),DH(:,1),AH(:,1),SM(1,1),EM(1,1),IM(1,1)] = Malaria_IC(NH(1),NM);
 [Cm(:,1),Cac(:,1),Ctot(:,1)] = Immunity_IC; % initial immunity and related probability
@@ -56,7 +51,7 @@ else
     disp('New R0 is greater than 1; DFE is unstable');
 end
 % R0_new - R0_2
-keyboard
+
 %% time evolution
 for n = 1:nt-1
     if mod(n,(nt-1)/5)==0
@@ -73,7 +68,6 @@ for n = 1:nt-1
     EH(1,n+1) = 0;
     DH(1,n+1) = 0;
     AH(1,n+1) = 0;
-    
     SH(2:end,n+1) = (SH(1:end-1,n)+P.dt*(P.phi(1:end-1)*P.rD.*DH(1:end-1,n)+P.rA*AH(1:end-1,n))) ./ (1+(lamH+P.muH(2:end))*P.dt);
     EH(2:end,n+1) = (EH(1:end-1,n)+P.dt*lamH*SH(2:end,n+1)) ./ (1+(P.h+P.muH(2:end))*P.dt);
     AH(2:end,n+1) = ((1-P.dt*P.rA)*AH(1:end-1,n)+P.dt*((1-P.rho(1:end-1))*P.h.*EH(2:end,n+1)+(1-P.phi(1:end-1)).*P.rD.*DH(1:end-1,n)))...
@@ -127,17 +121,17 @@ axis_years(gca,tfinal); % change to x-axis to years if needed
 grid on
 axis([0 tfinal 0 max(Nh)+0.1]);
 %% Age profiles at tfinal
-% figure_setups;
-% plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
-% plot(a,EH(:,end),'--','Color',colour_mat3);
-% plot(a,AH(:,end),'-.','Color',colour_mat2);
-% plot(a,DH(:,end),'-','Color',colour_mat7);
-% plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
-% legend('SH','EH','AH', 'DH','PH');
-% title('Final Age Dist.');
-% axis_years(gca,age_max); % change to x-axis to years if needed
-% grid on
-% axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
+figure_setups;
+plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
+plot(a,EH(:,end),'--','Color',colour_mat3);
+plot(a,AH(:,end),'-.','Color',colour_mat2);
+plot(a,DH(:,end),'-','Color',colour_mat7);
+plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
+legend('SH','EH','AH', 'DH','PH');
+title('Final Age Dist.');
+axis_years(gca,age_max); % change to x-axis to years if needed
+grid on
+axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
 %% Age proportions at tfinal
 figure_setups;
 plot(a,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
@@ -237,47 +231,47 @@ axis([0 age_max 0 1.1]);
 % grid on
 % axis([0 tfinal 0 5])
 %% Stability of DFE via characteristic equation, only valid when q = 0
-if P.balance_fertility == 1
-    C_star = P.Lambda*(P.bm*P.bm*P.bh*P.bh*NM)*P.betaM*P.sigma./...
-        (((P.bm*NM + P.bh).^2).*(P.sigma+P.muM).*P.muM);
-    % NB the immunity functions are constants right now
-    F_P = @(p,a) -P.rho(1)*P.h*( (p+P.h)*exp(-(p+P.rD).*a) - P.h...
-        -(p+P.rD).*exp(-(p+P.h).*a) + P.rD )./((P.h+p)*(P.h-P.rD)*(p+P.rD));
-    %G_P = @(p,a) ( (p+P.rD)*exp(-(p+P.h)*a)*(-P.rho(1)*P.h + P.h + P.rD*(P.rho(1)*P.phi(1)-1))...
-    %    - (P.rD - P.h)*(p*(P.rho(1)-1) + P.rD*(P.rho(1)*P.phi(1)-1) )...
-    %    - ( P.rho(1)*P.rD*(P.phi(1)-1)*(P.h+p) )*exp(-(p+P.rD)*a) )./((P.h+p)*(P.rD-P.h)*(p+P.rD));
-    G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p)).*(1-exp(-(P.h+p).*a)) + (1-P.phi(1))*P.rD*F_P(p,a);
-    %H_P = @(p,a) ( (-1+exp(-(p+P.rA)*a))*P.h + p + P.rA - exp(-a*P.h)*(p+P.rA) )./((p+P.rA)*(p+P.rA-P.h)); % just for the example rho=0, phi = 1
-    %H_P2 = @(p,a) exp(-(P.rA+p)*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p))); % this is not accurate enough, old version
-    H_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p)).*( ( -P.h + (P.h+p)*exp(-(p+P.rA)*a) + P.rA - (p + P.rA)*exp(-(P.h+p)*a) )./((p + P.rA)*(P.rA - P.h)) )...
-        + ((1-P.phi(1))*P.rD*P.rho(1)*P.h/((P.h+p)*(P.rD-P.h)*(p+P.rD)))*...
-        ( ((P.h -P.rD)/(p+P.rA)-(p+P.rD)/(P.h-P.rA)+(P.h+p)/(P.rD-P.rA))*exp(-(p+P.rA)*a) + ...
-        (p+P.h)*exp(-(p+P.rD)*a)/(P.rA-P.rD) + (P.rD-P.h)/(P.rA+p) + (p+P.rD)*exp(-(P.h+p)*a)/(P.h-P.rA) );
-    zeta_P = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P(p,0:da:age_max)'));
-    %zeta_P2 = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P2(p,0:da:age_max)'));
-    R0 = zeta_P(0);
-    disp(['R0 = ',num2str(R0)]);
-    if R0 < 1
-        disp('R0 is less than 1; DFE is stable');
-    else
-        disp('R0 is greater than 1; DFE is unstable');
-    end
-end
+% if P.balance_fertility == 1
+%     C_star = P.K*(P.bm*P.bm*P.bh*P.bh*NM)*P.betaM*P.sigma./...
+%         (((P.bm*NM + P.bh).^2).*(P.sigma+P.muM).*P.muM);
+%     % NB the immunity functions are constants right now
+%     F_P = @(p,a) -P.rho(1)*P.h*( (p+P.h)*exp(-(p+P.rD).*a) - P.h...
+%         -(p+P.rD).*exp(-(p+P.h).*a) + P.rD )./((P.h+p)*(P.h-P.rD)*(p+P.rD));
+%     %G_P = @(p,a) ( (p+P.rD)*exp(-(p+P.h)*a)*(-P.rho(1)*P.h + P.h + P.rD*(P.rho(1)*P.phi(1)-1))...
+%     %    - (P.rD - P.h)*(p*(P.rho(1)-1) + P.rD*(P.rho(1)*P.phi(1)-1) )...
+%     %    - ( P.rho(1)*P.rD*(P.phi(1)-1)*(P.h+p) )*exp(-(p+P.rD)*a) )./((P.h+p)*(P.rD-P.h)*(p+P.rD));
+%     G_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p)).*(1-exp(-(P.h+p).*a)) + (1-P.phi(1))*P.rD*F_P(p,a);
+%     %H_P = @(p,a) ( (-1+exp(-(p+P.rA)*a))*P.h + p + P.rA - exp(-a*P.h)*(p+P.rA) )./((p+P.rA)*(p+P.rA-P.h)); % just for the example rho=0, phi = 1
+%     %H_P2 = @(p,a) exp(-(P.rA+p)*a).*da.*trapz(G_P(p,0:da:a).*exp((0:da:a).*(P.rA+p))); % this is not accurate enough, old version
+%     H_P = @(p,a) (((1-P.rho(1))*P.h)./(P.h+p)).*( ( -P.h + (P.h+p)*exp(-(p+P.rA)*a) + P.rA - (p + P.rA)*exp(-(P.h+p)*a) )./((p + P.rA)*(P.rA - P.h)) )...
+%         + ((1-P.phi(1))*P.rD*P.rho(1)*P.h/((P.h+p)*(P.rD-P.h)*(p+P.rD)))*...
+%         ( ((P.h -P.rD)/(p+P.rA)-(p+P.rD)/(P.h-P.rA)+(P.h+p)/(P.rD-P.rA))*exp(-(p+P.rA)*a) + ...
+%         (p+P.h)*exp(-(p+P.rD)*a)/(P.rA-P.rD) + (P.rD-P.h)/(P.rA+p) + (p+P.rD)*exp(-(P.h+p)*a)/(P.h-P.rA) );
+%     zeta_P = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P(p,0:da:age_max)'));
+%     %zeta_P2 = @(p) C_star*da*trapz(exp(-P.muH_int).*(P.betaD.*F_P(p,0:da:age_max)' + P.betaA.*H_P2(p,0:da:age_max)'));
+%     R0 = zeta_P(0);
+%     disp(['R0 = ',num2str(R0)]);
+%     if R0 < 1
+%         disp('R0 is less than 1; DFE is stable');
+%     else
+%         disp('R0 is greater than 1; DFE is unstable');
+%     end
+% end
 R0_new - R0
 keyboard
 %% Solve for the Jacobian of the system numerically
-[bH,bM] = biting_rate(1,P.gM/P.muM);
-Lambda_M = @(x) bM*P.Lambda*da*trapz(exp(-P.muH_int).*(P.betaD*x(:,3)+P.betaA*x(:,4)));
-Lambda_H = @(x) bH*P.betaM*(P.sigma/(P.sigma+P.muM))*((Lambda_M(x))/(Lambda_M(x) + P.muM));
-F_PSI = @(x) [[-x(1,1)+1; -Lambda_H(x)*x(2:end,1) + P.phi(1)*P.rD*x(2:end,3) + P.rA*x(2:end,4) - diff(x(:,1))/da];...
-    [-x(1,2); Lambda_H(x)*x(2:end,1) - P.h*x(2:end,2) - diff(x(:,2))/da];...
-    [-x(1,3); P.rho(1)*P.h*x(2:end,2) + P.psi(1)*Lambda_H(x)*x(2:end,4) - P.rD*x(2:end,3) - diff(x(:,3))/da];...
-    [-x(1,4); (1-P.rho(1))*P.h*x(2:end,2) - P.psi(1)*Lambda_H(x)*x(2:end,4) + (1-P.phi(1))*P.rD*x(2:end,3) - P.rA*x(2:end,4) - diff(x(:,4))/da]];
-error_tolerance = 1e-20;
-options = optimoptions('fsolve','Display','none','OptimalityTolerance',...
-    error_tolerance);
-% P0 = [SH(:,end)./PH_final, EH(:,end)./PH_final, DH(:,end)./PH_final,AH(:,end)./PH_final];
-% [eq_age,fval,exitflag,output,jacobian] = fsolve(F_PSI,P0,options); % start from current fertility
+% [bH,bM] = biting_rate(1,P.gM/P.muM);
+% Lambda_M = @(x) bM*P.Lambda*da*trapz(exp(-P.muH_int).*(P.betaD*x(:,3)+P.betaA*x(:,4)));
+% Lambda_H = @(x) bH*P.betaM*(P.sigma/(P.sigma+P.muM))*((Lambda_M(x))/(Lambda_M(x) + P.muM));
+% F_PSI = @(x) [[-x(1,1)+1; -Lambda_H(x)*x(2:end,1) + P.phi(1)*P.rD*x(2:end,3) + P.rA*x(2:end,4) - diff(x(:,1))/da];...
+%     [-x(1,2); Lambda_H(x)*x(2:end,1) - P.h*x(2:end,2) - diff(x(:,2))/da];...
+%     [-x(1,3); P.rho(1)*P.h*x(2:end,2) + P.psi(1)*Lambda_H(x)*x(2:end,4) - P.rD*x(2:end,3) - diff(x(:,3))/da];...
+%     [-x(1,4); (1-P.rho(1))*P.h*x(2:end,2) - P.psi(1)*Lambda_H(x)*x(2:end,4) + (1-P.phi(1))*P.rD*x(2:end,3) - P.rA*x(2:end,4) - diff(x(:,4))/da]];
+% error_tolerance = 1e-20;
+% options = optimoptions('fsolve','Display','none','OptimalityTolerance',...
+%     error_tolerance);
+% % P0 = [SH(:,end)./PH_final, EH(:,end)./PH_final, DH(:,end)./PH_final,AH(:,end)./PH_final];
+% % [eq_age,fval,exitflag,output,jacobian] = fsolve(F_PSI,P0,options); % start from current fertility
 
 % figure_setups;
 % plot(a,eq_age(:,1),'-.','Color',colour_mat1); hold on;

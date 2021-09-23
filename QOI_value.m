@@ -13,6 +13,8 @@ end
 switch lQ
     case 'R0'    
         Q_val  = R0_cal();
+    case 'stability'
+        
     otherwise
         keyboard
 end

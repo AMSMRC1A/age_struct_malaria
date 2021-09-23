@@ -1,6 +1,7 @@
 function find_stable_age()
+% find the stable age distribution for a general birth and death rates 
+
 global P
-da = P.da;
 
 % natural human mortality rate
 muH_int = P.muH_int_fun; 
@@ -22,10 +23,8 @@ if P.balance_fertility == 1
 end
 
 % Construct the stable age distribution using p_hat
-P.muH_int = muH_int(P.a);
-Lambda = 1/(da.*trapz(exp(-P.p_hat*P.a-P.muH_int)));
-n_tilde = Lambda*exp(-P.p_hat*P.a-P.muH_int);
-P.n_tilde = n_tilde; % need this elsewhere in Malaria_IC
+P.K = 1/integral(@(a) exp(-P.p_hat*a-P.muH_int_fun(a)),0,Inf);
+P.PH_stable = P.K*exp(-P.p_hat*P.a-P.muH_int);
 
 end
 %%
