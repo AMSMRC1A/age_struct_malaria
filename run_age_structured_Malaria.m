@@ -129,6 +129,7 @@ plot(a,DH(:,end),'-','Color',colour_mat7);
 plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
 legend('SH','EH','AH', 'DH','PH');
 title('Final Age Dist.');
+xlabel('age');
 axis_years(gca,age_max); % change to x-axis to years if needed
 grid on
 axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
@@ -257,8 +258,7 @@ axis([0 age_max 0 1.1]);
 %         disp('R0 is greater than 1; DFE is unstable');
 %     end
 % end
-R0_new - R0
-keyboard
+
 %% Solve for the Jacobian of the system numerically
 % [bH,bM] = biting_rate(1,P.gM/P.muM);
 % Lambda_M = @(x) bM*P.Lambda*da*trapz(exp(-P.muH_int).*(P.betaD*x(:,3)+P.betaA*x(:,4)));
@@ -301,8 +301,8 @@ keyboard
 % title('Linearized spectrum at equilibrium');
 % xlim([min(temp_eig) re_max+0.1]);
 %% Check if DFE is stable numerically (regardless of time stepped simulation)
-P1 = [ones(length(a),1), 0*ones(length(a),1), 0*ones(length(a),1), 0*ones(length(a),1)];
-[eq_age,fval,exitflag,output,jacobian] = fsolve(F_PSI,P1,options);
+% P1 = [ones(length(a),1), 0*ones(length(a),1), 0*ones(length(a),1), 0*ones(length(a),1)];
+% [eq_age,fval,exitflag,output,jacobian] = fsolve(F_PSI,P1,options);
 
 % figure_setups;
 % plot(a,eq_age(:,1),'-','Color',colour_mat1); hold on;
@@ -314,13 +314,13 @@ P1 = [ones(length(a),1), 0*ones(length(a),1), 0*ones(length(a),1), 0*ones(length
 % title('Final Age Dist. Proportions (DFE)');
 
 % get the eigenvalues of the Jacobian and plot the linearized spectrum
-temp_eig = sort(real(eig(jacobian)),'descend');
-re_max = max(temp_eig);
-if re_max < 0
-    disp(['max real part of eigenvalues at DFE = ',num2str(re_max,'%10.6f'), '; DFE is stable']);
-else
-    disp(['max real part of eigenvalues = ',num2str(re_max,'%10.6f'), '; DFE is unstable']);
-end
+% temp_eig = sort(real(eig(jacobian)),'descend');
+% re_max = max(temp_eig);
+% if re_max < 0
+%     disp(['max real part of eigenvalues at DFE = ',num2str(re_max,'%10.6f'), '; DFE is stable']);
+% else
+%     disp(['max real part of eigenvalues = ',num2str(re_max,'%10.6f'), '; DFE is unstable']);
+% end
 % figure_setups;
 % scatter(real(eig(jacobian)),imag(eig(jacobian)));
 % grid on;

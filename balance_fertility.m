@@ -9,7 +9,7 @@ else
     pause
     gH = P.gH_fun;
     muH_int = P.muH_int_fun;
-    da_fine = 2; % fine grid for approximating new birth
+    da_fine = 5; % fine grid for approximating new birth
     a_fine = (0:da_fine:P.age_max)';
     gH_fine = gH(a_fine);
     F2 = @(x) x.*(da_fine.*trapz(x.*exp(-muH_int(a_fine))) - 1); % add zero solution to artificially exclude negatives

@@ -51,7 +51,7 @@ for i = 1:length(param)
         [-x(1,4); (1-P.rho)*P.h*x(2:end,2) - P.psi*Lambda_H(x)*x(2:end,4) + (1-P.phi)*P.rD*x(2:end,3) - P.rA*x(2:end,4) - diff(x(:,4))/da]];
     % solve for the endemic equilibrium
     P1 = [0.4*ones(length(a),1), 0.2*ones(length(a),1), 0.2*ones(length(a),1), 0.2*ones(length(a),1)]; % initial guess for the DFE
-    [eq_age,fval,~,~,jacobian] = fsolve(F_PSI,P1,options);
+    [eq_age,fval,~,~,jacobian] = fsolve(F_PSI,P1,options);    
     sol_norm_endemic(i) = da*trapz(eq_age(:,1))/365; % convert to years
     if plot_equilibrium == 1
         % plot the solution of the nonlinear solver
