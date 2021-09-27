@@ -20,8 +20,9 @@ P.dt = dt;
 P.da = da;
 
 %% SA setting
-lQ = 'stability';  % R0
-lP_list = {'betaM'}; % v0
+lQ = 'R0';  % R0 RHM RMH EIR
+lP_list = {'v0'}; 
+% 'v0' 'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma'
 Malaria_parameters_baseline;
 %%
 tic
@@ -44,7 +45,7 @@ for iP = 1:length(lP_list)
     %% extended SA
     P_lower = P.([lP,'_lower']);
     P_upper = P.([lP,'_upper']);
-    ngrid = 6;
+    ngrid = 11;
     
     % allocation
     P_vals = linspace(P_lower,P_upper,ngrid)';%
@@ -52,7 +53,6 @@ for iP = 1:length(lP_list)
     
     for i=1:ngrid
         display(['I am working on simulation ', num2str(i)])
-        P_vals(i)
         P.(lP) = P_vals(i);
         Malaria_parameters_transform;
         Q_vals(i) = QOI_value(lQ);
@@ -61,13 +61,14 @@ for iP = 1:length(lP_list)
     %   plotting
     figure_setups; hold on
     plot(P_vals,Q_vals);
+    plot(P_baseline,Q_baseline,'r*','MarkerSize',20);
     xlabel(lP)
     ylabel(lQ)
 end
 toc
-% [~,index] = sort(abs(Qp_rescale_baseline),'descend');
-% Qp_rescale_baseline = Qp_rescale_baseline(index);
-% lP_list = lP_list(index);
+[~,index] = sort(abs(Qp_rescale_baseline),'descend');
+Qp_rescale_baseline = Qp_rescale_baseline(index);
+lP_list = lP_list(index);
 disp('========')
 disp(lQ)
 SI_index = round(Qp_rescale_baseline,2);
@@ -75,3 +76,13 @@ SS = num2str(SI_index);
 for ip = 1:length(lP_list)
     display([SS(ip,:), '    ', lP_list{ip}])
 end
+%% generate output
+% fname = sprintf('sensitivity_table_h.tex');
+% Qlen = 1; Plen  = length(lP_list);
+% latextable(SI_index', 'Horiz', lP_list, 'Vert', {lQ},...
+%     'Hline', [0:Qlen,NaN], 'Vline', [0:Plen,NaN],...
+%     'name', fname, 'format', '%.2g');
+% fname = sprintf('sensitivity_table_v.tex');
+% latextable(SI_index, 'Horiz', {lQ}, 'Vert', lP_list,...
+%     'Hline', [0:Plen,NaN], 'Vline', [0:Qlen,NaN],...
+%     'name', fname, 'format', '%.2g');

@@ -1,4 +1,4 @@
-function R0 = R0_cal()
+function [R0,RHM,RMH] = R0_cal()
 global P
 
 % Stability of DFE when q = 0
@@ -31,5 +31,6 @@ if P.balance_fertility == 1
     RHM = bH*Lambda*(P.betaD*D_int+P.betaA*A_int);
     RMH = bM*P.betaM*P.sigma/(P.sigma+P.muM)./P.muM;
     R0 = RHM*RMH;
+    R0 = sqrt(R0);
 end
 end

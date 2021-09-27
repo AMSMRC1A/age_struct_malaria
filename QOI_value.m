@@ -13,12 +13,18 @@ end
 switch lQ
     case 'R0'    
         Q_val  = R0_cal();
+    case 'RHM'
+        [~,Q_val,~]  = R0_cal();
+    case 'RMH'
+        [~,~,Q_val]  = R0_cal();
+    case 'EIR_EE'
+    case 'EE'
     case 'stability'
         
     otherwise
         keyboard
 end
 
-save(FileName,'Q_val')
+% save(FileName,'Q_val')
 
 end

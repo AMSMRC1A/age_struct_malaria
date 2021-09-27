@@ -21,10 +21,16 @@ rho = 1/2;
 Lambda_M = bM*da*trapz(P.betaD*DH + P.betaA*AH);
 Lambda_H = bH*P.betaM*(P.sigma/(P.sigma+P.muM))*((Lambda_M)/(Lambda_M + P.muM));
 
-SHt = -Lambda_H.*SH(2:end) + phi*P.rD*DH(2:end) + P.rA*AH(2:end) - diff(SH)/da;
-EHt = Lambda_H.*SH(2:end) - P.h*EH(2:end) - diff(EH)/da;
-DHt = rho*P.h*EH(2:end) + psi*Lambda_H.*AH(2:end) - P.rD*DH(2:end) - diff(DH)/da;
-AHt = (1-rho)*P.h*EH(2:end) - psi*Lambda_H.*AH(2:end) - P.rA*AH(2:end) + (1-phi)*P.rD*DH(2:end)  - diff(AH)/da;
-xt = [SHt; EHt; DHt; AHt];
+SHa = -Lambda_H.*SH(2:end) + phi*P.rD*DH(2:end) + P.rA*AH(2:end) - diff(SH)/da;
+EHa = Lambda_H.*SH(2:end) - P.h*EH(2:end) - diff(EH)/da;
+DHa = rho*P.h*EH(2:end) + psi*Lambda_H.*AH(2:end) - P.rD*DH(2:end) - diff(DH)/da;
+AHa = (1-rho)*P.h*EH(2:end) - psi*Lambda_H.*AH(2:end) - P.rA*AH(2:end) + (1-phi)*P.rD*DH(2:end)  - diff(AH)/da;
+
+% include boundary condition
+SHa = [SH(1)-1; SHa];
+EHa = [EH(1); EHa];
+DHa = [DH(1); DHa];
+AHa = [AH(1); AHa];
+xt = [SHa; EHa; DHa; AHa];
 
 end
