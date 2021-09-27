@@ -36,16 +36,9 @@ switch lQ
         % use numerical simulation
         [SH, EH, DH, AH, SM, EM, IM, ~, ~, ~] = age_structured_Malaria;
         PH = SH+EH+DH+AH; % total human at age a, t = n
-        F_number = @(x) human_model_der_fun2(x);
+        F = @(x) human_model_der_fun2(x);
         x_EE = [SH(:,end);EH(:,end);DH(:,end);AH(:,end)];
-        if norm(F_number(x_EE)) > 10^-5
-            disp('EE not achieved')
-            keyboard
-        end
-        F_prop = @(x) human_model_der_fun(x);
-        x_EE_prop = [SH(:,end)./PH(:,end);EH(:,end)./PH(:,end);DH(:,end)./PH(:,end);AH(:,end)./PH(:,end)];
-        norm(F_prop(x_EE_prop))
-        keyboard
+        if norm(F(x_EE))
         %% plot
         figure_setups; hold on;
         plot(a,SH(:,end),'-','Color',colour_mat1);
@@ -66,14 +59,27 @@ switch lQ
         plot(a,AH(:,end)./PH(:,end),'-','Color',colour_mat7);
         plot(a,PH(:,end)./PH(:,end),'-k');
         legend('SH prop (numercial)','EH prop (numercial)','AH prop (numercial)', 'DH prop (numercial)','PH (numercial)');
+        keyboard
+        %% plot
+%         figure_setups; hold on;
+%         plot(t,SM,'b-'); hold on;
+%         plot(t,EM,'-','Color',colour_r1);
+%         plot(t,IM,'r-.');
+%         plot(t,SM+EM+IM,'-.')
+%         legend('SM','EM','IM','$N_M$');
+%         title('mosquito population size by stages')
+%         axis_years(gca,t(end)); % change to x-axis to years if needed
+%         grid on
+%         axis([0 t(end) 0 5])
+%         keyboard
     case 'EE_fsolve'
-        F_number = @(x) human_model_der_fun(x);
+        F = @(x) human_model_der_fun(x);
 %         F = @(x) human_model_der_fun2(x);
         x0 = [P.PH_stable(1); 0.1*ones(length(P.a)-1,1).*P.PH_stable(2:end); 0; 0.07*ones(length(P.a)-1,1).*P.PH_stable(2:end);...
             0; 0.2*ones(length(P.a)-1,1).*P.PH_stable(2:end); 0; 0.7*ones(length(P.a)-1,1).*P.PH_stable(2:end)]; 
         error_tolerance = 1e-20;
         options = optimoptions('fsolve','Display','none','OptimalityTolerance', error_tolerance);
-        [xsol,error,~,~,~] = fsolve(F_number,x0,options);
+        [xsol,error,~,~,~] = fsolve(F,x0,options);
         keyboard
         x_EE = reshape(xsol,[P.na,4]);
         %% plot

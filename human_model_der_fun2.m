@@ -1,4 +1,4 @@
-function xt = human_model_der_fun(x)
+function xt = human_model_der_fun2(x)
 % x = proportion of population: for general setting (including changing population)
 % return xt for 2:end
 global P
@@ -21,16 +21,16 @@ P.psi = sigmoid_prob(NaN(size(P.a)), 'psi'); % prob. AH -> DH
 Lambda_M = bM*da*trapz(P.betaD*DH + P.betaA*AH);
 Lambda_H = bH*P.betaM*(P.sigma/(P.sigma+P.muM))*(Lambda_M/(Lambda_M + P.muM));
 
-SHa = -Lambda_H.*SH(2:end) + P.rD*P.phi(2:end).*DH(2:end) + P.rA*AH(2:end) - diff(SH)/da;
-EHa = Lambda_H.*SH(2:end) - P.h*EH(2:end) - diff(EH)/da;
-DHa = P.rho(2:end).*P.h.*EH(2:end) + P.psi(2:end).*Lambda_H.*AH(2:end) - P.rD*DH(2:end) - diff(DH)/da;
-AHa = (1-P.rho(2:end)).*P.h.*EH(2:end) - P.psi(2:end).*Lambda_H.*AH(2:end) - P.rA*AH(2:end) + P.rD*(1-P.phi(2:end)).*DH(2:end)  - diff(AH)/da;
+SHa = -Lambda_H.*SH(2:end) + P.rD*P.phi(2:end).*DH(2:end) + P.rA*AH(2:end) - diff(SH)/da - P.muH(2:end).*SH(2:end);
+EHa = Lambda_H.*SH(2:end) - P.h*EH(2:end) - diff(EH)/da - P.muH(2:end).*EH(2:end);
+DHa = P.rho(2:end).*P.h.*EH(2:end) + P.psi(2:end).*Lambda_H.*AH(2:end) - P.rD*DH(2:end) - diff(DH)/da - P.muH(2:end).*DH(2:end);
+AHa = (1-P.rho(2:end)).*P.h.*EH(2:end) - P.psi(2:end).*Lambda_H.*AH(2:end) - P.rA*AH(2:end) + P.rD*(1-P.phi(2:end)).*DH(2:end)  - diff(AH)/da - P.muH(2:end).*AH(2:end);
 
 % include boundary condition
-SHa = [SH(1)-1; SHa];
+birth = P.PH_stable(1);
+SHa = [SH(1)-birth; SHa];
 EHa = [EH(1); EHa];
 DHa = [DH(1); DHa];
 AHa = [AH(1); AHa];
 xt = [SHa; EHa; DHa; AHa];
-
 end

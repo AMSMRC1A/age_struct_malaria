@@ -8,6 +8,7 @@ SH = xmat(:,1);
 EH = xmat(:,2);
 DH = xmat(:,3);
 AH = xmat(:,4);
+NH 
 
 da = P.da;
 
@@ -32,5 +33,5 @@ EHa = [EH(1); EHa];
 DHa = [DH(1); DHa];
 AHa = [AH(1); AHa];
 xt = [SHa; EHa; DHa; AHa];
-
+keyboard
 end

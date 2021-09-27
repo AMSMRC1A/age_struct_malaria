@@ -30,7 +30,7 @@ Malaria_parameters_baseline;
 error_tolerance = 1e-20;
 options = optimoptions('fsolve','Display','none','OptimalityTolerance', error_tolerance);
 plot_equilibrium = 1; % can set to zero if working with the DFE
-param = [0.001, 0.003];
+param = [0.003];
 % param = [0.001, 0.003, 0.005, 0.01, 0.05, 0.1, 0.15, 0.25];
 for i = 1:length(param)
 P.betaM = param(i);
@@ -92,9 +92,11 @@ for i = 1:length(param)
         S = load(FileName,'x_DFE','ee');
         x_DFE = S.x_DFE;
         ee = S.ee;
+        keyboard
     else
         x0 = [0.9*ones(length(a),1); 0.1*ones(length(a),1); 0*ones(length(a),1); 0*ones(length(a),1)]; % initial guess for the DFE
-        [xsol,~,~,~,jacobian] = fsolve(F,x0,options);
+        [xsol,err,~,~,jacobian] = fsolve(F,x0,options);
+        keyboard
         x_DFE = reshape(xsol,[P.na,4]);
         jacobian([1,P.na+1,2*P.na+1,3*P.na+1],:)=0; % zero out the rows
         jacobian(:,[1,P.na+1,2*P.na+1,3*P.na+1])=0; % zero out the columns

@@ -1,4 +1,6 @@
-clear all;  close all;  clc; format long;
+clear all;  
+% close all;  
+clc; format long;
 global P lP
 flag_disp = 1;
 
@@ -18,10 +20,11 @@ P.na = na;
 P.nt = nt;
 P.dt = dt;
 P.da = da;
+P.t = t;
 
 %% SA setting
-lQ = 'R0';  % R0 RHM RMH EIR
-lP_list = {'v0'}; 
+lQ = 'EE_numerical';  % R0 RHM RMH EIR  EE_fsolve EE_numerical
+lP_list = {'betaM'}; 
 % 'v0' 'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma'
 Malaria_parameters_baseline;
 %%

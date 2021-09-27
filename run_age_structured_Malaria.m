@@ -23,11 +23,12 @@ P.na = na;
 P.nt = nt;
 P.dt = dt;
 P.da = da;
+P.t = t;
 
 % model parameters - rates are in 1/day
 Malaria_parameters_baseline;
-P.betaM = 0.001;
-Malaria_parameters_transform;
+% P.betaM = 0.001;
+% Malaria_parameters_transform;
 % allocation
 % SH, EH, etc.. = cell averages
 SH = NaN(na,nt); EH = NaN(na,nt); DH = NaN(na,nt); AH = NaN(na,nt);
@@ -52,7 +53,7 @@ else
     disp('New R0 is greater than 1; DFE is unstable');
 end
 % R0_new - R0_2
-keyboard
+
 %% time evolution
 for n = 1:nt-1
     if mod(n,(nt-1)/5)==0
@@ -109,37 +110,37 @@ end
 PH_final = SH(:,end)+EH(:,end)+DH(:,end)+AH(:,end); % total human at age a, t = n
 NH(end) = trapz(PH_final)*da;
 %% EIR
-[bh,bm] = biting_rate(NH,NM);
-EIR = bh.*IM./NM*365;
-figure_setups;
-plot(t,EIR,'b-'); hold on;
-keyboard
+% [bh,bm] = biting_rate(NH,NM);
+% EIR = bh.*IM./NM*365;
+% figure_setups;
+% plot(t,EIR,'b-'); hold on;
+
 %% Population size versus time
-figure_setups;
-Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da;
-plot(t,trapz(SH,1)*da,'-','Color',colour_mat1); hold on;
-plot(t,trapz(EH,1)*da,'--','Color',colour_mat3);
-plot(t,trapz(AH,1)*da,'-.','Color',colour_mat2);
-plot(t,trapz(DH,1)*da,'-','Color',colour_mat7);
-plot(t,Nh,'-.k')
-legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$','Location','NorthWest');
-title('Population size vs time');
-axis_years(gca,tfinal); % change to x-axis to years if needed
-grid on
-axis([0 tfinal 0 max(Nh)+0.1]);
+% figure_setups;
+% Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da;
+% plot(t,trapz(SH,1)*da,'-','Color',colour_mat1); hold on;
+% plot(t,trapz(EH,1)*da,'--','Color',colour_mat3);
+% plot(t,trapz(AH,1)*da,'-.','Color',colour_mat2);
+% plot(t,trapz(DH,1)*da,'-','Color',colour_mat7);
+% plot(t,Nh,'-.k')
+% legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$','Location','NorthWest');
+% title('Population size vs time');
+% axis_years(gca,tfinal); % change to x-axis to years if needed
+% grid on
+% axis([0 tfinal 0 max(Nh)+0.1]);
 %% Age profiles at tfinal
-figure_setups;
-plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
-plot(a,EH(:,end),'--','Color',colour_mat3);
-plot(a,AH(:,end),'-.','Color',colour_mat2);
-plot(a,DH(:,end),'-','Color',colour_mat7);
-plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
-legend('SH','EH','AH', 'DH','PH');
-title('Final Age Dist.');
-xlabel('age');
-axis_years(gca,age_max); % change to x-axis to years if needed
-grid on
-axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
+% figure_setups;
+% plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
+% plot(a,EH(:,end),'--','Color',colour_mat3);
+% plot(a,AH(:,end),'-.','Color',colour_mat2);
+% plot(a,DH(:,end),'-','Color',colour_mat7);
+% plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
+% legend('SH','EH','AH', 'DH','PH');
+% title('Final Age Dist.');
+% xlabel('age');
+% axis_years(gca,age_max); % change to x-axis to years if needed
+% grid on
+% axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
 %% Age proportions at tfinal
 figure_setups;
 plot(a,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
@@ -228,16 +229,16 @@ axis([0 age_max 0 1.1]);
 % axis([0 age_max 0 max(max(Cm(:,end)),max(Cac(:,end)))*1.1]);
 % grid on
 %% Mosquito infection dynamics
-figure_setups;
-plot(t,SM,'b-'); hold on;
-plot(t,EM,'-','Color',colour_r1);
-plot(t,IM,'r-.');
-plot(t,SM+EM+IM,'-.')
-legend('SM','EM','IM','$N_M$');
-title('mosquito population size by stages')
-axis_years(gca,tfinal); % change to x-axis to years if needed
-grid on
-axis([0 tfinal 0 5])
+% figure_setups;
+% plot(t,SM,'b-'); hold on;
+% plot(t,EM,'-','Color',colour_r1);
+% plot(t,IM,'r-.');
+% plot(t,SM+EM+IM,'-.')
+% legend('SM','EM','IM','$N_M$');
+% title('mosquito population size by stages')
+% axis_years(gca,tfinal); % change to x-axis to years if needed
+% grid on
+% axis([0 tfinal 0 5])
 %% Stability of DFE via characteristic equation, only valid when q = 0
 % if P.balance_fertility == 1
 %     C_star = P.K*(P.bm*P.bm*P.bh*P.bh*NM)*P.betaM*P.sigma./...
