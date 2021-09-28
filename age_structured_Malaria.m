@@ -1,4 +1,5 @@
 function [SH, EH, DH, AH, SM, EM, IM, Cm, Cac, Ctot] = age_structured_Malaria()
+% initial run of system
 global P
 
 na = P.na;

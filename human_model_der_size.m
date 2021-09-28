@@ -17,14 +17,17 @@ P.phi = sigmoid_prob(NaN(size(P.a)), 'phi'); % prob. of DH -> RH
 P.rho = sigmoid_prob(NaN(size(P.a)), 'rho'); % prob. of severely infected, EH -> DH
 P.psi = sigmoid_prob(NaN(size(P.a)), 'psi'); % prob. AH -> DH
 
-% Lambda_M = bM*P.K*da*trapz(exp(-P.muH_int).*(P.betaD*DH + P.betaA*AH));
 Lambda_M = bM*da*trapz(P.betaD*DH + P.betaA*AH);
 Lambda_H = bH*P.betaM*(P.sigma/(P.sigma+P.muM))*(Lambda_M/(Lambda_M + P.muM));
 
-SHa = -Lambda_H.*SH(2:end) + P.rD*P.phi(2:end).*DH(2:end) + P.rA*AH(2:end) - diff(SH)/da - P.muH(2:end).*SH(2:end);
-EHa = Lambda_H.*SH(2:end) - P.h*EH(2:end) - diff(EH)/da - P.muH(2:end).*EH(2:end);
-DHa = P.rho(2:end).*P.h.*EH(2:end) + P.psi(2:end).*Lambda_H.*AH(2:end) - P.rD*DH(2:end) - diff(DH)/da - P.muH(2:end).*DH(2:end);
-AHa = (1-P.rho(2:end)).*P.h.*EH(2:end) - P.psi(2:end).*Lambda_H.*AH(2:end) - P.rA*AH(2:end) + P.rD*(1-P.phi(2:end)).*DH(2:end)  - diff(AH)/da - P.muH(2:end).*AH(2:end);
+SHa = -Lambda_H.*SH(2:end) + P.rD*P.phi(2:end).*DH(2:end) + P.rA*AH(2:end) - P.muH(2:end).*SH(2:end) - ...
+    [(-3*SH(1)+4*SH(2)-SH(3))/(2*da); (SH(3:end)-SH(1:end-2))/(2*da)]; % diff(SH)/da;
+EHa = Lambda_H.*SH(2:end) - P.h*EH(2:end) - P.muH(2:end).*EH(2:end) - ...
+    [(-3*EH(1)+4*EH(2)-EH(3))/(2*da); (EH(3:end)-EH(1:end-2))/(2*da)]; % diff(EH)/da;
+DHa = P.rho(2:end).*P.h.*EH(2:end) + P.psi(2:end).*Lambda_H.*AH(2:end) - P.rD*DH(2:end) - P.muH(2:end).*DH(2:end) - ...
+    [(-3*DH(1)+4*DH(2)-DH(3))/(2*da); (DH(3:end)-DH(1:end-2))/(2*da)]; % diff(DH)/da;
+AHa = (1-P.rho(2:end)).*P.h.*EH(2:end) - P.psi(2:end).*Lambda_H.*AH(2:end) - P.rA*AH(2:end) + P.rD*(1-P.phi(2:end)).*DH(2:end) - P.muH(2:end).*AH(2:end) - ...
+    [(-3*AH(1)+4*AH(2)-AH(3))/(2*da); (AH(3:end)-AH(1:end-2))/(2*da)]; % diff(AH)/da;
 
 % include boundary condition
 birth = P.PH_stable(1);
