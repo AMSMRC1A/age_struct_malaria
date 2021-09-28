@@ -1,4 +1,4 @@
-function xt = human_model_der_fun_no_a(x)
+function xt = human_model_der_prop_no_da(x)
 % x = proportion of population: for general setting (including changing population)
 % return xt for 2:end
 global P

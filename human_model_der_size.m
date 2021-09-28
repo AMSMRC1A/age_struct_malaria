@@ -1,4 +1,4 @@
-function xt = human_model_der_fun2(x)
+function xt = human_model_der_size(x)
 % x = number of population: for general setting (including changing population)
 % return xt for 2:end
 global P
