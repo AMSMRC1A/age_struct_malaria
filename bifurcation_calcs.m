@@ -3,22 +3,26 @@ global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 c
 global colour_r1 colour_r2
 tic
 %% setup parameters, stable age dist, etc.
-P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
+tfinal = 100*365; % final time in days
 age_max = 60*365; % max ages in days
 P.age_max = age_max;
-da = 20; % age step in days
+dt = 20; % time/age step size in days, default = 5;
+da = dt;
+t = (0:dt:tfinal)';
+nt = length(t);
 a = (0:da:age_max)';
 na = length(a);
 
 P.a = a;
 P.na = na;
+P.nt = nt;
+P.dt = dt;
 P.da = da;
 
 % model parameters - rates are in 1/day
-baseline_Malaria_parameters;
-find_stable_age;
+Malaria_parameters_baseline;
 %% Set range for the bifurcation parameter
-param = 0.15:0.025:0.25; % changing P.betaM the mosquito desired bites
+param = 0.1125:0.025:0.25; % changing P.betaM the mosquito desired bites
 %% options 
 error_tolerance = 1e-20;
 options = optimoptions('fsolve','Display','none','OptimalityTolerance',...
@@ -38,7 +42,8 @@ for i = 1:length(param)
     P.psi = 1/2;
     P.rho = 1/2;
     [bH,bM] = biting_rate(1,P.gM/P.muM);
-    Lambda_M = @(x) bM*P.Lambda*da*trapz(exp(-P.muH_int).*(P.betaD*x(:,3)+P.betaA*x(:,4)));
+    Lambda = 1/(da.*trapz(exp(-P.p_hat*P.a-P.muH_int)));
+    Lambda_M = @(x) bM*Lambda*da*trapz(exp(-P.muH_int).*(P.betaD*x(:,3)+P.betaA*x(:,4)));
     Lambda_H = @(x) bH*P.betaM*(P.sigma/(P.sigma+P.muM))*((Lambda_M(x))/(Lambda_M(x) + P.muM));
     F_PSI = @(x) [[-x(1,1)+1; -Lambda_H(x)*x(2:end,1) + P.phi*P.rD*x(2:end,3) + P.rA*x(2:end,4) - diff(x(:,1))/da];...
         [-x(1,2); Lambda_H(x)*x(2:end,1) - P.h*x(2:end,2) - diff(x(:,2))/da];...
@@ -46,7 +51,7 @@ for i = 1:length(param)
         [-x(1,4); (1-P.rho)*P.h*x(2:end,2) - P.psi*Lambda_H(x)*x(2:end,4) + (1-P.phi)*P.rD*x(2:end,3) - P.rA*x(2:end,4) - diff(x(:,4))/da]];
     % solve for the endemic equilibrium
     P1 = [0.4*ones(length(a),1), 0.2*ones(length(a),1), 0.2*ones(length(a),1), 0.2*ones(length(a),1)]; % initial guess for the DFE
-    [eq_age,fval,~,~,jacobian] = fsolve(F_PSI,P1,options);
+    [eq_age,fval,~,~,jacobian] = fsolve(F_PSI,P1,options);    
     sol_norm_endemic(i) = da*trapz(eq_age(:,1))/365; % convert to years
     if plot_equilibrium == 1
         % plot the solution of the nonlinear solver
@@ -79,9 +84,15 @@ for i = 1:length(param)
     temp_eig = sort(real(eig(jacobian)),'descend');
     re_max_DFE(i) = max(temp_eig);
 end
+%figure_setups;
+% scatter(real(eig(jacobian)),imag(eig(jacobian)));
+% grid on;
+% xline(0,'r','LineWidth',2);
+% title('Linearized spectrum at DFE');
+% xlim([min(temp_eig) re_max+0.1]);
 %% Plot the results
 %figure_setups;
-figure(100);
+figure(9);
 hold on;
 error_tolerance = 1e-6;
 % endemic equilibrium plotting
