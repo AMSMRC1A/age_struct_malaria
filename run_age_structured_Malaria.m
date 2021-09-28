@@ -9,9 +9,9 @@ tic
 
 %% numerical config
 tfinal = 100*365; % final time in days
-age_max = 60*365; % max ages in days
+age_max = 80*365; % max ages in days
 P.age_max = age_max;
-dt = 20; % time/age step size in days, default = 5;
+dt = 5; % time/age step size in days, default = 5;
 da = dt;
 t = (0:dt:tfinal)';
 nt = length(t);
@@ -129,18 +129,18 @@ NH(end) = trapz(PH_final)*da;
 % grid on
 % axis([0 tfinal 0 max(Nh)+0.1]);
 %% Age profiles at tfinal
-% figure_setups;
-% plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
-% plot(a,EH(:,end),'--','Color',colour_mat3);
-% plot(a,AH(:,end),'-.','Color',colour_mat2);
-% plot(a,DH(:,end),'-','Color',colour_mat7);
-% plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
-% legend('SH','EH','AH', 'DH','PH');
-% title('Final Age Dist.');
-% xlabel('age');
-% axis_years(gca,age_max); % change to x-axis to years if needed
-% grid on
-% axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
+figure_setups;
+plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
+plot(a,EH(:,end),'--','Color',colour_mat3);
+plot(a,AH(:,end),'-.','Color',colour_mat2);
+plot(a,DH(:,end),'-','Color',colour_mat7);
+plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
+legend('SH','EH','AH', 'DH','PH');
+title('Final Age Dist.');
+xlabel('age');
+axis_years(gca,age_max); % change to x-axis to years if needed
+grid on
+axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
 %% Age proportions at tfinal
 figure_setups;
 plot(a,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
@@ -153,7 +153,7 @@ title('Final Age Dist. Proportions');
 xlabel('age');
 axis_years(gca,age_max); % change to x-axis to years if needed
 grid on
-axis([0 age_max 0 1.1]);
+axis([0 age_max 0 1]);
 %% Population proportions versus time
 % figure_setups;
 % plot(t,trapz(SH,1)*da./Nh,'-','Color',colour_mat1); hold on;

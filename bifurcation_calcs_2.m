@@ -47,46 +47,46 @@ for i = 1:length(param)
     P.betaM = param(i);
     F = @(x) human_model_der_fun(x);
     %% solve for EE
-    FileName = ['Results/Bifur/EE_',num2str(param(i),5),'.mat'];
-    if exist(FileName,'file') % Q_val already calculated before
-        S = load(FileName,'x_EE','ee');
-        x_EE = S.x_EE;
-        ee = S.ee;
-    else
-        x0 = [1; 0.4*ones(length(a)-1,1); 0; 0.2*ones(length(a)-1,1); 0; 0.2*ones(length(a)-1,1); 0; 0.2*ones(length(a)-1,1)]; % initial guess for the EE
-        [xsol,~,~,~,jacobian] = fsolve(F,x0,options);
-        x_EE = reshape(xsol,[P.na,4]);
-        jacobian([1,P.na+1,2*P.na+1,3*P.na+1],:)=0; % zero out the rows
-        jacobian(:,[1,P.na+1,2*P.na+1,3*P.na+1])=0; % zero out the columns
-        ee = eig(jacobian);
-        ee(ee==0)=[];
-        save(FileName,'x_EE','ee')
-    end
-    if plot_equilibrium == 1
-        % plot the solution of the nonlinear solver
-        figure_setups; hold on;
-        plot(a,x_EE(:,1).*P.PH_stable,'-','Color',colour_mat1); 
-        plot(a,x_EE(:,2).*P.PH_stable,'-','Color',colour_mat3);
-        plot(a,x_EE(:,3).*P.PH_stable,'-','Color',colour_mat2);
-        plot(a,x_EE(:,4).*P.PH_stable,'-','Color',colour_mat7);
-        plot(a,sum(x_EE,2).*P.PH_stable,'-k');
-        legend('SH (solver)','EH (solver)','DH (solver)', 'AH (solver)', 'PH (solver)');
-        title('Final Age Dist.');
-        xlabel('age');
-        axis_years(gca,age_max); % change to x-axis to years if needed
-        grid on
-        axis([0 age_max 0 max(sum(x_EE,2).*P.PH_stable)]);
-    end
-    sol_norm_EE(i) = da*trapz(x_EE(:,1).*P.PH_stable);
-    re_max_EE(i) = max(real(ee));
-    if re_max_EE(i) < 0
-       disp(['max real part of eigenvalues = ',num2str(re_max_EE(i),'%10.6f'), '; EE is stable']);
-    else
-       disp(['max real part of eigenvalues = ',num2str(re_max_EE(i),'%10.6f'), '; EE is unstable']);
-    end
-    toc
+%     FileName = ['Results/Bifur/EE_',num2str(param(i),5),'.mat'];
+%     if exist(FileName,'file') % Q_val already calculated before
+%         S = load(FileName,'x_EE','ee');
+%         x_EE = S.x_EE;
+%         ee = S.ee;
+%     else
+%         x0 = [1; 0.4*ones(length(a)-1,1); 0; 0.2*ones(length(a)-1,1); 0; 0.2*ones(length(a)-1,1); 0; 0.2*ones(length(a)-1,1)]; % initial guess for the EE
+%         [xsol,~,~,~,jacobian] = fsolve(F,x0,options);
+%         x_EE = reshape(xsol,[P.na,4]);
+%         jacobian([1,P.na+1,2*P.na+1,3*P.na+1],:)=0; % zero out the rows
+%         jacobian(:,[1,P.na+1,2*P.na+1,3*P.na+1])=0; % zero out the columns
+%         ee = eig(jacobian);
+%         ee(ee==0)=[];
+%         save(FileName,'x_EE','ee')
+%     end
+%     if plot_equilibrium == 1
+%         % plot the solution of the nonlinear solver
+%         figure_setups; hold on;
+%         plot(a,x_EE(:,1).*P.PH_stable,'-','Color',colour_mat1); 
+%         plot(a,x_EE(:,2).*P.PH_stable,'-','Color',colour_mat3);
+%         plot(a,x_EE(:,3).*P.PH_stable,'-','Color',colour_mat2);
+%         plot(a,x_EE(:,4).*P.PH_stable,'-','Color',colour_mat7);
+%         plot(a,sum(x_EE,2).*P.PH_stable,'-k');
+%         legend('SH (solver)','EH (solver)','DH (solver)', 'AH (solver)', 'PH (solver)');
+%         title('Final Age Dist.');
+%         xlabel('age');
+%         axis_years(gca,age_max); % change to x-axis to years if needed
+%         grid on
+%         axis([0 age_max 0 max(sum(x_EE,2).*P.PH_stable)]);
+%     end
+%     sol_norm_EE(i) = da*trapz(x_EE(:,1).*P.PH_stable);
+%     re_max_EE(i) = max(real(ee));
+%     if re_max_EE(i) < 0
+%        disp(['max real part of eigenvalues = ',num2str(re_max_EE(i),'%10.6f'), '; EE is stable']);
+%     else
+%        disp(['max real part of eigenvalues = ',num2str(re_max_EE(i),'%10.6f'), '; EE is unstable']);
+%     end
+%     toc
     %% Solve for DFE
-    tic
+    
     FileName = ['Results/Bifur/DFE_',num2str(param(i),5),'.mat'];
     if exist(FileName,'file') % Q_val already calculated before
         S = load(FileName,'x_DFE','ee');
@@ -95,14 +95,22 @@ for i = 1:length(param)
         keyboard
     else
         x0 = [0.9*ones(length(a),1); 0.1*ones(length(a),1); 0*ones(length(a),1); 0*ones(length(a),1)]; % initial guess for the DFE
-        [xsol,err,~,~,jacobian] = fsolve(F,x0,options);
-        keyboard
+        tic
+        [xsol,err,~,~,~] = fsolve(F,x0,options);
+        toc
         x_DFE = reshape(xsol,[P.na,4]);
-        jacobian([1,P.na+1,2*P.na+1,3*P.na+1],:)=0; % zero out the rows
-        jacobian(:,[1,P.na+1,2*P.na+1,3*P.na+1])=0; % zero out the columns
-        ee = eig(jacobian);
+%         jacobian([1, 2, P.na+1, P.na+2, 2*P.na+1, 2*P.na+2, 3*P.na+1, 3*P.na+2],:)=0; % zero out the rows
+%         jacobian(:,[1, 2, P.na+1, P.na+2, 2*P.na+1, 2*P.na+2, 3*P.na+1, 3*P.na+2])=0; % zero out the columns
+        tic
+        F_no_a = @(x) human_model_der_fun_no_a(x);
+        xsol([1, P.na+1, 2*P.na+1, 3*P.na+1]) = [];
+        [x,~,~,~,~,~,jacobian] = lsqnonlin(F_no_a,xsol,[],[],optimset('MaxIter',0));
+        keyboard
+        ee = eig(full(jacobian));
+        toc
         ee(ee==0)=[];
         save(FileName,'x_DFE','ee')
+        keyboard
     end
     sol_norm_DFE(i) = da*trapz(x_DFE(:,1).*P.PH_stable); % convert to years    
     re_max_DFE(i) = max(real(ee));

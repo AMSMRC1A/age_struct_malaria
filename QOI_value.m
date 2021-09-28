@@ -36,15 +36,16 @@ switch lQ
         % use numerical simulation
         [SH, EH, DH, AH, SM, EM, IM, ~, ~, ~] = age_structured_Malaria;
         PH = SH+EH+DH+AH; % total human at age a, t = n
+        F_prop = @(x) human_model_der_fun(x);
         F_number = @(x) human_model_der_fun2(x);
         x_EE = [SH(:,end);EH(:,end);DH(:,end);AH(:,end)];
         if norm(F_number(x_EE)) > 10^-5
             disp('EE not achieved')
             keyboard
         end
-        F_prop = @(x) human_model_der_fun(x);
+        max(max(abs(F_number(x_EE))))     
         x_EE_prop = [SH(:,end)./PH(:,end);EH(:,end)./PH(:,end);DH(:,end)./PH(:,end);AH(:,end)./PH(:,end)];
-        norm(F_prop(x_EE_prop))
+        max(max(abs(F_prop(x_EE_prop))))  
         keyboard
         %% plot
         figure_setups; hold on;
@@ -65,52 +66,71 @@ switch lQ
         plot(a,DH(:,end)./PH(:,end),'-','Color',colour_mat2);
         plot(a,AH(:,end)./PH(:,end),'-','Color',colour_mat7);
         plot(a,PH(:,end)./PH(:,end),'-k');
-        legend('SH prop (numercial)','EH prop (numercial)','AH prop (numercial)', 'DH prop (numercial)','PH (numercial)');
+        legend('SH prop (numercial)','EH prop (numercial)','DH prop (numercial)', 'AH prop (numercial)','PH (numercial)');
     case 'EE_fsolve'
-        F_number = @(x) human_model_der_fun(x);
-%         F = @(x) human_model_der_fun2(x);
-        x0 = [P.PH_stable(1); 0.1*ones(length(P.a)-1,1).*P.PH_stable(2:end); 0; 0.07*ones(length(P.a)-1,1).*P.PH_stable(2:end);...
-            0; 0.2*ones(length(P.a)-1,1).*P.PH_stable(2:end); 0; 0.7*ones(length(P.a)-1,1).*P.PH_stable(2:end)]; 
-        error_tolerance = 1e-20;
+        error_tolerance = 1e-25;
         options = optimoptions('fsolve','Display','none','OptimalityTolerance', error_tolerance);
-        [xsol,error,~,~,~] = fsolve(F_number,x0,options);
-        keyboard
-        x_EE = reshape(xsol,[P.na,4]);
-        %% plot
-        figure_setups; hold on;
-%         plot(a,x_EE(:,1).*P.PH_stable,'-','Color',colour_mat1); 
-%         plot(a,x_EE(:,2).*P.PH_stable,'-','Color',colour_mat3);
-%         plot(a,x_EE(:,3).*P.PH_stable,'-','Color',colour_mat2);
-%         plot(a,x_EE(:,4).*P.PH_stable,'-','Color',colour_mat7);
-%         plot(a,sum(x_EE,2).*P.PH_stable,'-k');
-%         axis([0 age_max 0 max(sum(x_EE,2).*P.PH_stable)]);
-        plot(a,x_EE(:,1),'-','Color',colour_mat1); 
-        plot(a,x_EE(:,2),'-','Color',colour_mat3);
-        plot(a,x_EE(:,3),'-','Color',colour_mat2);
-        plot(a,x_EE(:,4),'-','Color',colour_mat7);
-        plot(a,sum(x_EE,2),'-k');
-        keyboard
-        axis([0 age_max 0 max(sum(x_EE,2))]);
-        legend('SH (solver)','EH (solver)','DH (solver)', 'AH (solver)', 'PH (solver)');
-        title('Final Age Dist.');
-        xlabel('age');
-        axis_years(gca,P.age_max); % change to x-axis to years if needed
-        grid on
-        figure_setups; hold on;
+        F_prop = @(x) human_model_der_fun(x);
+        x0 = [1; 0.4*ones(length(a)-1,1); 0; 0.2*ones(length(a)-1,1); 0; 0.2*ones(length(a)-1,1); 0; 0.2*ones(length(a)-1,1)]; % initial guess for the EE
+        [xsol,error,~,~,jacobian] = fsolve(F_prop,x0,options);
+
+        
+%         F_number = @(x) human_model_der_fun2(x);
+%         x_EE = reshape(xsol,[P.na,4]);
+%         figure_setups; hold on;
 %         plot(a,x_EE(:,1),'-','Color',colour_mat1); 
 %         plot(a,x_EE(:,2),'-','Color',colour_mat3);
 %         plot(a,x_EE(:,3),'-','Color',colour_mat2);
 %         plot(a,x_EE(:,4),'-','Color',colour_mat7);
 %         plot(a,sum(x_EE,2),'-k');
-
-        plot(a,x_EE(:,1)./P.PH_stable,'-','Color',colour_mat1); 
-        plot(a,x_EE(:,2)./P.PH_stable,'-','Color',colour_mat3);
-        plot(a,x_EE(:,3)./P.PH_stable,'-','Color',colour_mat2);
-        plot(a,x_EE(:,4)./P.PH_stable,'-','Color',colour_mat7);
-        plot(a,sum(x_EE,2)./P.PH_stable,'-k');
-
-        legend('SH prop (solver)','EH prop (solver)','DH prop (solver)', 'AH prop (solver)', 'PH prop (solver)');
-        keyboard
+%         axis([0 age_max 0 1]);
+%         legend('SH prop (solver)','EH prop (solver)','DH prop (solver)', 'AH prop (solver)', 'PH prop (solver)');
+%         title('Final Age Dist.');
+%         xlabel('age');
+%         axis_years(gca,P.age_max); % change to x-axis to years if needed
+%         grid on
+%         x_EE1(:,1) = x_EE(:,1).*P.PH_stable;
+%         x_EE1(:,2) = x_EE(:,2).*P.PH_stable;
+%         x_EE1(:,3) = x_EE(:,3).*P.PH_stable;
+%         x_EE1(:,4) = x_EE(:,4).*P.PH_stable;
+%         figure_setups; hold on;
+%         plot(a,x_EE1(:,1),'-','Color',colour_mat1); 
+%         plot(a,x_EE1(:,2),'-','Color',colour_mat3);
+%         plot(a,x_EE1(:,3),'-','Color',colour_mat2);
+%         plot(a,x_EE1(:,4),'-','Color',colour_mat7);
+%         plot(a,sum(x_EE1,2),'-k');        
+%         axis([0 age_max 0 max(sum(x_EE1,2))]);
+%         legend('SH prop (solver)','EH prop (solver)','DH prop (solver)', 'AH prop (solver)', 'PH prop (solver)');
+%         title('Final Age Dist.');
+%         xlabel('age');
+%         axis_years(gca,P.age_max); % change to x-axis to years if needed
+%         grid on
+%         keyboard
+        
+%         x0 = reshape(x_EE1,P.na*4,1);
+%         [xsol,error,~,~,~] = fsolve(F_number,x0,options);
+%         max(max(abs(error)))
+%         x_EE2 = reshape(xsol,[P.na,4]);
+%         figure_setups; hold on;
+%         plot(a,x_EE2(:,1),'-','Color',colour_mat1); 
+%         plot(a,x_EE2(:,2),'-','Color',colour_mat3);
+%         plot(a,x_EE2(:,3),'-','Color',colour_mat2);
+%         plot(a,x_EE2(:,4),'-','Color',colour_mat7);
+%         plot(a,sum(x_EE2,2),'-k');
+%         axis([0 age_max 0 max(sum(x_EE2,2))]);
+%         legend('SH prop (solver)','EH prop (solver)','DH prop (solver)', 'AH prop (solver)', 'PH prop (solver)');
+%         title('Final Age Dist.');
+%         xlabel('age');
+%         axis_years(gca,P.age_max); % change to x-axis to years if needed
+%         grid on
+%         keyboard
+%         x_EE(:,1) = x_EE(:,1)./P.PH_stable;
+%         x_EE(:,2) = x_EE(:,2)./P.PH_stable;
+%         x_EE(:,3) = x_EE(:,3)./P.PH_stable;
+%         x_EE(:,4) = x_EE(:,4)./P.PH_stable;
+%         rr = F_prop(reshape(x_EE,P.na*4,1))
+%         max(max(abs(rr)))
+%         keyboard
     case 'stability'
         
     otherwise

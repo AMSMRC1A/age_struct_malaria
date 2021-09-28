@@ -6,9 +6,9 @@ flag_disp = 1;
 
 %% numerical config
 tfinal = 100*365; % final time in days
-age_max = 60*365; % max ages in days
+age_max = 80*365; % max ages in days
 P.age_max = age_max;
-dt = 20; % time/age step size in days, default = 5;
+dt = 10; % time/age step size in days, default = 5;
 da = dt;
 t = (0:dt:tfinal)';
 nt = length(t);
@@ -23,7 +23,7 @@ P.da = da;
 P.t = t;
 
 %% SA setting
-lQ = 'EE_numerical';  % R0 RHM RMH EIR  EE_fsolve EE_numerical
+lQ = 'EE_fsolve';  % R0 RHM RMH EIR  EE_fsolve EE_numerical
 lP_list = {'betaM'}; 
 % 'v0' 'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma'
 Malaria_parameters_baseline;

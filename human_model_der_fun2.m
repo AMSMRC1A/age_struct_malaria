@@ -1,5 +1,5 @@
 function xt = human_model_der_fun2(x)
-% x = proportion of population: for general setting (including changing population)
+% x = number of population: for general setting (including changing population)
 % return xt for 2:end
 global P
 % X(alpha,group)
