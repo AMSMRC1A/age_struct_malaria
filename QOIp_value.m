@@ -7,7 +7,7 @@ factor = 0.001;
 if flag_disp; disp(['dp=',num2str(factor)]); end
 
 switch lP
-    case {'v0','bh','bm','betaM','betaD','betaA','muM','MHr','sigma'} % use local numerical derivatives
+    case {'v0','bh','bm','betaM','betaD','betaA','muM','MHr','sigma','rho0','psi0','phi0'} % use local numerical derivatives
         P_base = P.(lP);  
         delta_P = abs(P_base * factor);
         P.(lP) = P_base-delta_P; % p_lower 

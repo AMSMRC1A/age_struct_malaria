@@ -26,7 +26,11 @@ switch lQ
     case 'RMH'
         [~,~,Q_val]  = R0_cal();
     case 'EE-infected'
-        Q_val = 1-da*trapz(SH(:,1).*P.PH_stable);        
+        Q_val = 1-da*trapz(SH);       
+    case 'EE-DA'
+        Q_val = 1-da*trapz(SH)-da*trapz(EH);
+    case 'EE-D-frac'
+        Q_val = trapz(DH)/trapz(DH+AH);
     case 'EE-EDA'
         NH = trapz(SH+EH+DH+AH)*da; 
         Q_val = [trapz(EH)*da/NH; trapz(DH)*da/NH; trapz(AH)*da/NH];

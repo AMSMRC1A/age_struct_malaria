@@ -23,9 +23,10 @@ P.da = da;
 P.t = t;
 
 %% SA setting
-lQ = 'R0';  % R0 RHM RMH EE-EIR EE-EDA EE-infected
-lP_list = {'bh', 'MHr'}; 
+lQ = 'EE-DA';  % R0 RHM RMH EE-EIR EE-EDA EE-infected EE-D-frac
+lP_list = {'phi0'}; 
 % 'v0' 'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma'
+% 'rho0','psi0','phi0'
 SA_index = 1;
 Malaria_parameters_baseline;
 %%
