@@ -27,8 +27,9 @@ P.t = t;
 
 % model parameters - rates are in 1/day
 Malaria_parameters_baseline;
-% P.betaM = 0.001;
-% Malaria_parameters_transform;
+P.MHr = 2;
+Malaria_parameters_transform;
+
 % allocation
 % SH, EH, etc.. = cell averages
 SH = NaN(na,nt); EH = NaN(na,nt); DH = NaN(na,nt); AH = NaN(na,nt);
@@ -42,17 +43,6 @@ NH = ones(1,length(t));
 % initial condition
 [SH(:,1),EH(:,1),DH(:,1),AH(:,1),SM(1,1),EM(1,1),IM(1,1)] = Malaria_IC(NH(1),NM);
 [Cm(:,1),Cac(:,1),Ctot(:,1)] = Immunity_IC; % initial immunity and related probability
-
-%% Stability of DFE when q = 0
-R0_new = R0_cal();
-% R0_2 = R0_cal_no_immune();
-disp(['New R0 = ',num2str(R0_new)]);
-if R0_new < 1
-    disp('New R0 is less than 1; DFE is stable');
-else
-    disp('New R0 is greater than 1; DFE is unstable');
-end
-% R0_new - R0_2
 
 %% time evolution
 for n = 1:nt-1
@@ -110,8 +100,10 @@ end
 PH_final = SH(:,end)+EH(:,end)+DH(:,end)+AH(:,end); % total human at age a, t = n
 NH(end) = trapz(PH_final)*da;
 %% EIR
-% [bh,bm] = biting_rate(NH,NM);
-% EIR = bh.*IM./NM*365;
+[bh,bm] = biting_rate(NH,NM);
+EIR = bh.*IM./NM*365;
+EIR_EE = EIR(end)
+R0 = R0_cal()
 % figure_setups;
 % plot(t,EIR,'b-'); hold on;
 
@@ -129,31 +121,31 @@ NH(end) = trapz(PH_final)*da;
 % grid on
 % axis([0 tfinal 0 max(Nh)+0.1]);
 %% Age profiles at tfinal
-figure_setups;
-plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
-plot(a,EH(:,end),'--','Color',colour_mat3);
-plot(a,AH(:,end),'-.','Color',colour_mat2);
-plot(a,DH(:,end),'-','Color',colour_mat7);
-plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
-legend('SH','EH','AH', 'DH','PH');
-title('Final Age Dist.');
-xlabel('age');
-axis_years(gca,age_max); % change to x-axis to years if needed
-grid on
-axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
+% figure_setups;
+% plot(a,SH(:,end),'-','Color',colour_mat1); hold on;
+% plot(a,EH(:,end),'--','Color',colour_mat3);
+% plot(a,AH(:,end),'-.','Color',colour_mat2);
+% plot(a,DH(:,end),'-','Color',colour_mat7);
+% plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)),'-.k');
+% legend('SH','EH','AH', 'DH','PH');
+% title('Final Age Dist.');
+% xlabel('age');
+% axis_years(gca,age_max); % change to x-axis to years if needed
+% grid on
+% axis([0 age_max 0 max(max(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end)))]);
 %% Age proportions at tfinal
-figure_setups;
-plot(a,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
-plot(a,EH(:,end)./PH_final,'-','Color',colour_mat3);
-plot(a,AH(:,end)./PH_final,'-','Color',colour_mat2);
-plot(a,DH(:,end)./PH_final,'-','Color',colour_mat7);
-plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end))./PH_final,'-k');
-legend('SH','EH','AH', 'DH','PH');
-title('Final Age Dist. Proportions');
-xlabel('age');
-axis_years(gca,age_max); % change to x-axis to years if needed
-grid on
-axis([0 age_max 0 1]);
+% figure_setups;
+% plot(a,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
+% plot(a,EH(:,end)./PH_final,'-','Color',colour_mat3);
+% plot(a,AH(:,end)./PH_final,'-','Color',colour_mat2);
+% plot(a,DH(:,end)./PH_final,'-','Color',colour_mat7);
+% plot(a,(SH(:,end)+AH(:,end)+EH(:,end)+DH(:,end))./PH_final,'-k');
+% legend('SH','EH','AH', 'DH','PH');
+% title('Final Age Dist. Proportions');
+% xlabel('age');
+% axis_years(gca,age_max); % change to x-axis to years if needed
+% grid on
+% axis([0 age_max 0 1]);
 %% Population proportions versus time
 % figure_setups;
 % plot(t,trapz(SH,1)*da./Nh,'-','Color',colour_mat1); hold on;
