@@ -40,6 +40,7 @@ I_frac_DFE = NaN(1,length(param));
 for i = 1:length(param)
     disp(['progress = ',num2str((i-1)/(length(param))*100),'%']);
     P.betaM = param(i);
+    Malaria_parameters_transform;
     F_prop = @(x) human_model_der_prop(x);
     %% solve for EE
     tic

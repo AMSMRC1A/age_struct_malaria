@@ -8,7 +8,7 @@ flag_disp = 1;
 tfinal = 100*365; % final time in days
 age_max = 80*365; % max ages in days
 P.age_max = age_max;
-dt = 10; % time/age step size in days, default = 5;
+dt = 20; % time/age step size in days, default = 5;
 da = dt;
 t = (0:dt:tfinal)';
 nt = length(t);
@@ -23,9 +23,9 @@ P.da = da;
 P.t = t;
 
 %% SA setting
-lQ = 'EE_fsolve';  % R0 RHM RMH EIR  EE_fsolve EE_numerical
-lP_list = {'betaM'}; 
-% 'v0' 'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma'
+lQ = 'R0';  % R0 RHM RMH EE_EIR   EE_EDA
+lP_list = {'bh'}; % 'v0' 'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma'
+SA_index = 1;
 Malaria_parameters_baseline;
 %%
 tic
@@ -39,45 +39,58 @@ for iP = 1:length(lP_list)
     Malaria_parameters_baseline;
     P_baseline = P.(lP);
     Q_baseline = QOI_value(lQ);
-
-    % SI index at baseline
-    Qp_baseline = QOIp_value(lQ,lP);
-    Qp_rescale_baseline(iP,:) = Qp_baseline'.*P_baseline'./Q_baseline;
     
-
+    if SA_index
+        % SI index at baseline
+        Qp_baseline = QOIp_value(lQ,lP);
+        if length(Qp_rescale_baseline)==1
+            Qp_rescale_baseline(iP,:) = Qp_baseline'.*P_baseline'./Q_baseline;
+        else
+            Qp_rescale_baseline(iP,:) = norm(Qp_baseline'.*P_baseline'./Q_baseline,Inf);
+        end
+    end
+    
     %% extended SA
     P_lower = P.([lP,'_lower']);
     P_upper = P.([lP,'_upper']);
-    ngrid = 11;
+    ngrid = 3; % default = 11
     
     % allocation
     P_vals = linspace(P_lower,P_upper,ngrid)';%
-    Q_vals = NaN(length(P_vals),1);
+    Q_vals = NaN(length(P_vals),length(Q_baseline));
     
     for i=1:ngrid
         display(['I am working on simulation ', num2str(i)])
         P.(lP) = P_vals(i);
         Malaria_parameters_transform;
-        Q_vals(i) = QOI_value(lQ);
+        Q_vals(i,:) = QOI_value(lQ)';
     end
     
-    %   plotting
+    %% plotting
     figure_setups; hold on
-    plot(P_vals,Q_vals);
+    plot(P_vals,Q_vals(:,ivar));
     plot(P_baseline,Q_baseline,'r*','MarkerSize',20);
     xlabel(lP)
-    ylabel(lQ)
+    ylabel(lQ)    
+%     figure_setups; hold on
+%     area(P_vals,Q_vals)
+%     plot([P_baseline, P_baseline],[0,1],'k-')
+%     legend('E','D','A')
+%     xlabel(lP)
+%     ylabel(lQ)
 end
 toc
-[~,index] = sort(abs(Qp_rescale_baseline),'descend');
-Qp_rescale_baseline = Qp_rescale_baseline(index);
-lP_list = lP_list(index);
-disp('========')
-disp(lQ)
-SI_index = round(Qp_rescale_baseline,2);
-SS = num2str(SI_index);
-for ip = 1:length(lP_list)
-    display([SS(ip,:), '    ', lP_list{ip}])
+if SA_index
+    [~,index] = sort(abs(Qp_rescale_baseline),'descend');
+    Qp_rescale_baseline = Qp_rescale_baseline(index);
+    lP_list = lP_list(index);
+    disp('========')
+    disp(lQ)
+    SI_index = Qp_rescale_baseline;
+    SS = num2str(SI_index);
+    for ip = 1:length(lP_list)
+        display([SS(ip,:), '    ', lP_list{ip}])
+    end
 end
 %% generate output
 % fname = sprintf('sensitivity_table_h.tex');
