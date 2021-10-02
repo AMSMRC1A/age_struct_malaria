@@ -1,5 +1,6 @@
 function [S,E,D,A,Cac,Cm,CH] = steady_state(lstate)
 % return function handles for 'DFE', numerical for 'EE'
+% all variables are pop size
 global P
 
 gH = P.gH_fun; % feritlity function handle
@@ -27,12 +28,16 @@ switch lstate
         a_new = (0:da_new:P.age_max)'; na_new = length(a_new);
         a_old = P.a; na_old = P.na; nt_old = P.nt; dt_old = P.dt; da_old = P.da; t_old = P.t; % save
         P.a = a_new; P.na = na_new; P.nt = nt_new; P.dt = dt_new; P.da = da_new; P.t = t_new;
+        tic
         [SH, EH, DH, AH, ~, ~, ~, ~, ~, ~] = age_structured_Malaria();
+        toc
         P.a = a_old; P.na = na_old; P.nt = nt_old; P.dt = dt_old; P.da = da_old; P.t = t_old; % recover
         x0 = [SH(:,end)./P.PH_stable;EH(:,end)./P.PH_stable;DH(:,end)./P.PH_stable;AH(:,end)./P.PH_stable];
         options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
         F_prop = @(x) human_model_der_prop(x);
+        tic
         [xsol,err,~,~,~] = fsolve(F_prop,x0,options);
+        toc
         if max(max(abs(err)))>10^-5
             disp('not converged')
             keyboard

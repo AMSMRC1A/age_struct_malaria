@@ -13,8 +13,12 @@ if strcmp(lQ(1:2),'EE')
         EE = load(FileName_EE,'SH','EH','DH','AH');
         SH = EE.SH; EH = EE.EH; DH = EE.DH; AH = EE.AH;
     else
+        if R0_cal()<1
+            disp('EE DNE')
+            keyboard
+        end
         [SH,EH,DH,AH,~,~,~] = steady_state('EE');
-        save(FileName_EE,'SH','EH','DH','AH')
+%         save(FileName_EE,'SH','EH','DH','AH')
     end
 end
 

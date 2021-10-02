@@ -2,6 +2,8 @@ global P
 a = P.a;
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
 
+% P.rD = 1/30;
+% P.rA = 1/60;
 P.rD = 1/180; % recovery rate for DH
 P.rA = 1/360; % recovery rate for AH
 P.h = 1/15; % incubation rate in human
@@ -17,11 +19,16 @@ P.cA = 0.1; % AH weight
 P.cD = 0.05; % DH weight
 P.cV = 0.75; % weight for vaccination ~~ SH
 P.m = 1; % fraction of new-born immunity relative to mother’s
+%% progression probabilities parameters
+P.rho0 = 0.5;  P.rho0_lower = 0;  P.rho0_upper = 1; 
+P.phi0 = 0.5;  P.phi0_lower = 0;  P.phi0_upper = 1; 
+P.psi0 = 0.5;  P.psi0_lower = 0;  P.psi0_upper = 1; 
 
 %% mosquito related parameters/rates
 P.bh = 5; P.bh_lower = 2; P.bh_upper = 19;% tolerated biting rate per human
 P.bm = 0.6; P.bm_lower = 0.4; P.bm_upper = 0.7; % desired biting rate per mosquito
 
+% P.betaM = 0.08;
 P.betaM = 0.25; P.betaM_lower = 0.125; P.betaM_upper = 0.3; % infectivity of mosquitoes
 P.betaD = 0.35; P.betaD_lower = 0.3; P.betaD_upper = 0.4; % infectivity of DH
 P.betaA = 0.03; P.betaA_lower = 0.02; P.betaA_upper = 0.04; % infectivity of AH
