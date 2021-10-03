@@ -13,10 +13,6 @@ da = P.da;
 
 [bH,bM] = biting_rate(1,P.gM/P.muM);
 
-P.phi = sigmoid_prob(NaN(size(P.a)), 'phi'); % prob. of DH -> RH
-P.rho = sigmoid_prob(NaN(size(P.a)), 'rho'); % prob. of severely infected, EH -> DH
-P.psi = sigmoid_prob(NaN(size(P.a)), 'psi'); % prob. AH -> DH
-
 Lambda_M = bM*P.K*da*trapz(exp(-P.muH_int).*(P.betaD*DH + P.betaA*AH));
 Lambda_H = bH*P.betaM*(P.sigma/(P.sigma+P.muM))*(Lambda_M/(Lambda_M + P.muM));
 

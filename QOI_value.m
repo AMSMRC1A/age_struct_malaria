@@ -9,8 +9,17 @@ da = P.da;
 if strcmp(lQ(1:2),'EE')
     FileName_EE = ['Results/SA/EE_',lP,'_',num2str(P.(lP),5),'.mat'];
     if exist(FileName_EE,'file') % EE calculated before
-        disp('load EE results...');
-        EE = load(FileName_EE,'SH','EH','DH','AH');
+%         disp('load EE results...');
+        EE = load(FileName_EE,'SH','EH','DH','AH','P');
+        AA = EE.P; % load
+        BB = P; % current
+        fields = {'v_fun','muH_int_fun','gH_fun'};
+        AA = rmfield(AA,fields); BB = rmfield(BB,fields);
+        [~,d1,d2] = comp_struct(AA,BB,0,0,10^-16);
+        if ~isempty(d1) || ~isempty(d2)
+            disp('baseline values changed, need to recal EE: remove old EE files to other places')
+            keyboard
+        end
         SH = EE.SH; EH = EE.EH; DH = EE.DH; AH = EE.AH;
     else
         if R0_cal()<1
@@ -18,7 +27,7 @@ if strcmp(lQ(1:2),'EE')
             keyboard
         end
         [SH,EH,DH,AH,~,~,~] = steady_state('EE');
-%         save(FileName_EE,'SH','EH','DH','AH')
+        save(FileName_EE,'SH','EH','DH','AH','P')
     end
 end
 

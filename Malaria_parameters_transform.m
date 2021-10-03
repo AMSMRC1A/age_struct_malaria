@@ -1,6 +1,9 @@
 global P
 
 a = P.a;
+P.rho = sigmoid_prob(NaN(size(a)), 'rho');
+P.phi = sigmoid_prob(NaN(size(a)), 'phi');
+P.psi = sigmoid_prob(NaN(size(a)), 'psi');
 
 %% mortality functions (Burkina Faso parameters)
 muH =  P.b0 + P.b1*exp(-P.b2*a/365) + P.b3*exp(P.b4*a/365); % natural human mortality rate

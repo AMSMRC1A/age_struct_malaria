@@ -1,6 +1,6 @@
 clear all;  
 close all;  
-% clc; 
+clc; 
 format long;
 global P lP
 flag_disp = 1;
@@ -24,7 +24,7 @@ P.da = da;
 P.t = t;
 
 %% SA setting
-lQ = 'EE-D-frac';  % R0 RHM RMH EE-EIR EE-EDA EE-infected EE-D-frac
+lQ = 'EE-infected';  % R0 RHM RMH EE-EIR EE-EDA EE-infected EE-D-frac
 lP_list = {'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma','rho0','psi0','phi0'}; 
 % 'v0' 'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma'
 % 'rho0','psi0','phi0'
@@ -56,7 +56,7 @@ for iP = 1:length(lP_list)
     %% extended SA
     P_lower = P.([lP,'_lower']);
     P_upper = P.([lP,'_upper']);
-    ngrid = 3; % default = 11
+    ngrid = 11; % default = 11
     
     % allocation
     P_vals = linspace(P_lower,P_upper,ngrid)';%
