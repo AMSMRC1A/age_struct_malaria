@@ -5,7 +5,7 @@ global P
 na = P.na;
 nt = P.nt;
 da = P.da;
-t = P.t; 
+t = P.t;
 
 % allocation
 % SH, EH, etc.. = cell averages
@@ -23,9 +23,9 @@ NH = ones(1,length(t));
 
 %% time evolution
 for n = 1:nt-1
-%     if mod(n,(nt-1)/5)==0
-%         disp(['progress = ',num2str(n/(nt-1)*100),'%']);
-%     end
+    %     if mod(n,(nt-1)/5)==0
+    %         disp(['progress = ',num2str(n/(nt-1)*100),'%']);
+    %     end
     PH = SH(:,n)+EH(:,n)+DH(:,n)+AH(:,n); % total human at age a, t = n
     NH(n) = trapz(PH)*da; % total human population at t=n;
     NM = SM(1,n)+EM(1,n)+IM(1,n);
@@ -62,7 +62,7 @@ for n = 1:nt-1
     lamHp1 = FOI_H(bHp1,IM(1,n+1),NMp1);
     % neglecting disease induced mortality in Cac
     Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
-        + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1) ;
+        + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1);
     Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muH(2:end)));
     Cm(2:end,n+1) = Cm(1:end-1,n)/(1+P.dt/P.dac);
     % Cm is now per person but Cac is pooled so need to multiply Cm by PH

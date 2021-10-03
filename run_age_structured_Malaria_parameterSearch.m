@@ -27,7 +27,11 @@ P.na = na;
 P.nt = nt;
 P.dt = dt;
 P.da = da;
-baseline_Malaria_parameters; % set parameters
+
+% model parameters - rates are in 1/day
+Malaria_parameters_baseline;
+P.MHr = 2;
+Malaria_parameters_transform;
 
 halfmaximal_var = [1];
 gM_var = [0.01 0.05 0.1 0.5 1]; % NB muM = 1/10, NM = gM/muM baseline

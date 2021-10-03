@@ -11,18 +11,18 @@ switch lstate
         S = @(alpha) 1;
         E = @(alpha) 0;
         D = @(alpha) 0;
-        A = @(alpha) 0;        
+        A = @(alpha) 0;
         % Cac  exact expression obtained based on simple v(alpha)
         Cac = @(alpha) P.cV*exp(-alpha/P.dac).*(P.v0+P.v0*P.dac*(exp(alpha/P.dac)-1));
         % Cm
-        Cm0 = P.m*integral(@(alpha) gH(alpha).*exp(-muH_int(alpha)).*Cac(alpha), 0, P.age_max);        
-        Cm = @(alpha) Cm0.*exp(-alpha./P.dm);        
+        Cm0 = P.m*integral(@(alpha) gH(alpha).*exp(-muH_int(alpha)).*Cac(alpha), 0, P.age_max);
+        Cm = @(alpha) Cm0.*exp(-alpha./P.dm);
         % CH
-        CH = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha);     
+        CH = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha);
     case 'EE'
         % ***only tested for no immunity feedback***
         % use rough numerical simulation for an initial guess
-        dt_new = 20; da_new = dt_new; 
+        dt_new = 20; da_new = dt_new;
         tfinal_new = 10*365; % run for 10 years to get closer to EE
         t_new = (0:dt_new:tfinal_new)'; nt_new = length(t_new);
         a_new = (0:da_new:P.age_max)'; na_new = length(a_new);
@@ -49,7 +49,7 @@ switch lstate
         A = x_EE(:,4).*P.PH_stable;
         Cac = NaN(size(S)); % not implemented
         Cm = NaN(size(S));  % not implemented
-        CH = P.c1*Cac+P.c2*Cm; % not implemented       
+        CH = P.c1*Cac+P.c2*Cm; % not implemented
     otherwise
         error('undefined steady state label...')
 end
