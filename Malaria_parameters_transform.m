@@ -1,6 +1,9 @@
 global P
 
 a = P.a;
+
+P.muD = 0*ones(size(a));  % disease-induced human mortality rate
+
 P.rho = sigmoid_prob(NaN(size(a)), 'rho');
 P.phi = sigmoid_prob(NaN(size(a)), 'phi');
 P.psi = sigmoid_prob(NaN(size(a)), 'psi');

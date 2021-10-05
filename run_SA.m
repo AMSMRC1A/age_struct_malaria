@@ -25,7 +25,7 @@ P.t = t;
 
 %% SA setting
 lQ = 'EE-infected';  % R0 RHM RMH EE-EIR EE-EDA EE-infected EE-D-frac
-lP_list = {'bh', 'bm'}; %{'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma','rho0','psi0','phi0'}; 
+lP_list = {'bh'}; %{'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma','rho0','psi0','phi0'}; 
 % 'v0' 'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma'
 % 'rho0','psi0','phi0'
 SA_index = 1;

@@ -30,9 +30,9 @@ P.da = da;
 
 % model parameters - rates are in 1/day
 Malaria_parameters_baseline;
-P.MHr = 2;
 Malaria_parameters_transform;
 
+keyboard
 halfmaximal_var = [1];
 gM_var = [0.01 0.05 0.1 0.5 1]; % NB muM = 1/10, NM = gM/muM baseline
 final_immunity = zeros(na,length(gM_var));
@@ -99,7 +99,7 @@ for ii = 1:length(halfmaximal_var)
             Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
                 + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1);
             Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muH(2:end)));
-            Cm(2:end,n+1) = Cm(1:end-1,n)/(1+P.dt/P.dac);
+            Cm(2:end,n+1) = Cm(1:end-1,n)/(1+P.dt/P.dm);
             % Cm is now per person but Cac is pooled so need to multiply Cm by PH
             % to get total maternal immunity contribution to the pool
             Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1).*PHp1; % total immunity from acquired and maternal sources

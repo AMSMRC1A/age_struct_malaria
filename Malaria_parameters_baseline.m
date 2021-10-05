@@ -1,5 +1,4 @@
 global P
-a = P.a;
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
 
 % P.rD = 1/30;
@@ -51,6 +50,5 @@ P.alpha = 28;
 P.ww = 13.5;
 
 %%
-P.muD = 0*ones(size(a));  % disease-induced human mortality rate
 P.v0 = 0.5; P.v0_lower = 0.1;  P.v0_upper = 0.8; % vaccination rate parameter (constant rate in age)
 Malaria_parameters_transform;

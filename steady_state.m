@@ -1,4 +1,4 @@
-function [S,E,D,A,Cac,Cm,CH] = steady_state(lstate)
+function [S,E,D,A,Cac,Cm,Ctot] = steady_state(lstate)
 % return function handles for 'DFE', numerical for 'EE'
 % all variables are pop size
 global P
@@ -18,21 +18,26 @@ switch lstate
         Cm0 = P.m*integral(@(alpha) gH(alpha).*exp(-muH_int(alpha)).*Cac(alpha), 0, P.age_max);
         Cm = @(alpha) Cm0.*exp(-alpha./P.dm);
         % CH
-        CH = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha);
+        Ctot = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha);
     case 'EE'
         % ***only tested for no immunity feedback***
         % use rough numerical simulation for an initial guess
-        dt_new = 20; da_new = dt_new;
-        tfinal_new = 10*365; % run for 10 years to get closer to EE
+        dt_new = 5; da_new = dt_new;
+        tfinal_new = 50*365; % run for 10 years to get closer to EE
         t_new = (0:dt_new:tfinal_new)'; nt_new = length(t_new);
         a_new = (0:da_new:P.age_max)'; na_new = length(a_new);
         a_old = P.a; na_old = P.na; nt_old = P.nt; dt_old = P.dt; da_old = P.da; t_old = P.t; % save
         P.a = a_new; P.na = na_new; P.nt = nt_new; P.dt = dt_new; P.da = da_new; P.t = t_new;
+        Malaria_parameters_transform;
         tic
-        [SH, EH, DH, AH, ~, ~, ~, ~, ~, ~] = age_structured_Malaria();
+        [SH, EH, DH, AH, ~, ~, ~, ~, Cac, ~] = age_structured_Malaria();
         toc
         P.a = a_old; P.na = na_old; P.nt = nt_old; P.dt = dt_old; P.da = da_old; P.t = t_old; % recover
-        x0 = [SH(:,end)./P.PH_stable;EH(:,end)./P.PH_stable;DH(:,end)./P.PH_stable;AH(:,end)./P.PH_stable];
+        Malaria_parameters_transform;
+        keyboard
+        SH0 = interp()
+        x0 = [SH(:,end)./P.PH_stable;EH(:,end)./P.PH_stable;DH(:,end)./P.PH_stable;AH(:,end)./P.PH_stable;...
+             Cac(:,end)./P.PH_stable];
         options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
         F_prop = @(x) human_model_der_prop(x);
         tic
@@ -42,14 +47,16 @@ switch lstate
             disp('not converged')
             keyboard
         end
-        x_EE = reshape(xsol,[P.na,4]);
+        keyboard
+        x_EE = reshape(xsol,[P.na,5]);
         S = x_EE(:,1).*P.PH_stable;
         E = x_EE(:,2).*P.PH_stable;
         D = x_EE(:,3).*P.PH_stable;
         A = x_EE(:,4).*P.PH_stable;
-        Cac = NaN(size(S)); % not implemented
-        Cm = NaN(size(S));  % not implemented
-        CH = P.c1*Cac+P.c2*Cm; % not implemented
+        Cac = x_EE(:,5).*P.PH_stable; 
+        Cm0 = P.m*trapz(P.gH.*Cac)*P.da/P.PH_stable(1);
+        Cm = Cm0.*exp(-P.a./P.dm).*P.PH_stable;
+        Ctot = P.c1*Cac+P.c2*Cm;
     otherwise
         error('undefined steady state label...')
 end
