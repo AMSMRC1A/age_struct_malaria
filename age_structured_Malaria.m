@@ -63,11 +63,11 @@ for n = 1:nt-1
     % neglecting disease induced mortality in Cac
     Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
         + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1);
-    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muH(2:end)));
-    Cm(2:end,n+1) = Cm(1:end-1,n)/(1+P.dt/P.dac);
+    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muH(2:end) + P.muD(2:end).*DH(2:end,n+1)./PHp1(2:end) ));
+    Cm(2:end,n+1) = Cm(1:end-1,n)/(1+P.dt/(P.dm + P.muH(2:end) + P.muD(2:end).*DH(2:end,n+1)./PHp1(2:end)));
     % Cm is now per person but Cac is pooled so need to multiply Cm by PH
     % to get total immunity contribution
-    Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1).*PHp1; % total immunity from acquired and maternal sources
+    Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1); % total immunity from acquired and maternal sources
     % update progression probability based on immunity Ctot
     P.phi = sigmoid_prob(Ctot(:,n+1), 'phi'); % prob. of DH -> RH
     P.rho = sigmoid_prob(Ctot(:,n+1), 'rho'); % prob. of severely infected, EH -> DH
