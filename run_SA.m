@@ -1,6 +1,6 @@
 clear all;  
-close all;  
-clc; 
+% close all;  
+% clc; 
 format long;
 global P lP
 flag_disp = 1;

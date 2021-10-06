@@ -1,11 +1,6 @@
-function [SH, EH, DH, AH, SM, EM, IM, Cm, Cac, Ctot] = age_structured_Malaria()
+function [SH, EH, DH, AH, SM, EM, IM, Cm, Cac, Ctot] = age_structured_Malaria(na,da,nt)
 % initial run of system
 global P
-
-na = P.na;
-nt = P.nt;
-da = P.da;
-t = P.t;
 
 % allocation
 % SH, EH, etc.. = cell averages
@@ -15,7 +10,7 @@ SM = NaN(1,nt); EM = NaN(1,nt); IM = NaN(1,nt);
 % per-person immunity level or \tilde(Ctotal) \tilde(Cm) \tilde(Cac) on overleaf
 Ctot = NaN(na,nt); Cm = NaN(na,nt); Cac = NaN(na,nt);
 NM = P.gM/P.muM;
-NH = ones(1,length(t));
+NH = ones(1,nt);
 
 % initial condition
 [SH(:,1),EH(:,1),DH(:,1),AH(:,1),SM(1,1),EM(1,1),IM(1,1)] = Malaria_IC(NH(1),NM);

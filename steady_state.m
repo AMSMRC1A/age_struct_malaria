@@ -21,23 +21,23 @@ switch lstate
         Ctot = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha);
     case 'EE'
         % ***only tested for no immunity feedback***
-        % use rough numerical simulation for an initial guess
-        dt_new = 5; da_new = dt_new;
-        tfinal_new = 50*365; % run for 10 years to get closer to EE
-        t_new = (0:dt_new:tfinal_new)'; nt_new = length(t_new);
-        a_new = (0:da_new:P.age_max)'; na_new = length(a_new);
-        a_old = P.a; na_old = P.na; nt_old = P.nt; dt_old = P.dt; da_old = P.da; t_old = P.t; % save
-        P.a = a_new; P.na = na_new; P.nt = nt_new; P.dt = dt_new; P.da = da_new; P.t = t_new;
-        Malaria_parameters_transform;
+        % use numerical simulation for an initial guess
+        dt = 20; tfinal= 10*365; % run for a few years to get closer to EE
+        t = (0:dt:tfinal)'; nt = length(t);
         tic
-        [SH, EH, DH, AH, ~, ~, ~, ~, Cac, ~] = age_structured_Malaria();
-        toc
-        P.a = a_old; P.na = na_old; P.nt = nt_old; P.dt = dt_old; P.da = da_old; P.t = t_old; % recover
+        [SH, EH, DH, AH, ~, ~, ~, ~, Cac, ~] = age_structured_Malaria(P.na,P.da,nt);
+        toc                
+        %% run solver on a coarser grid to speed up
+        da_fine = P.da; da_coarse = 100; P.da = da_coarse; 
+        a_fine = P.a; a_coarse = (0:da_coarse:P.age_max)'; P.a = a_coarse;
+        na_fine = P.na; na_coarse = length(a_coarse); P.na = na_coarse;
         Malaria_parameters_transform;
-        keyboard
-        SH0 = interp()
-        x0 = [SH(:,end)./P.PH_stable;EH(:,end)./P.PH_stable;DH(:,end)./P.PH_stable;AH(:,end)./P.PH_stable;...
-             Cac(:,end)./P.PH_stable];
+        SH0 = interp1(a_fine,SH(:,end),a_coarse)./P.PH_stable; 
+        EH0 = interp1(a_fine,EH(:,end),a_coarse)./P.PH_stable;
+        DH0 = interp1(a_fine,DH(:,end),a_coarse)./P.PH_stable;
+        AH0 = interp1(a_fine,AH(:,end),a_coarse)./P.PH_stable;
+        Cac0 = interp1(a_fine,Cac(:,end),a_coarse)./P.PH_stable;
+        x0 = [SH0;EH0;DH0;AH0;Cac0];
         options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
         F_prop = @(x) human_model_der_prop(x);
         tic
@@ -46,14 +46,22 @@ switch lstate
         if max(max(abs(err)))>10^-5
             disp('not converged')
             keyboard
-        end
-        keyboard
+        end       
         x_EE = reshape(xsol,[P.na,5]);
-        S = x_EE(:,1).*P.PH_stable;
-        E = x_EE(:,2).*P.PH_stable;
-        D = x_EE(:,3).*P.PH_stable;
-        A = x_EE(:,4).*P.PH_stable;
-        Cac = x_EE(:,5).*P.PH_stable; 
+        S_coarse = x_EE(:,1);
+        E_coarse = x_EE(:,2);
+        D_coarse = x_EE(:,3);
+        A_coarse = x_EE(:,4);
+        Cac_coarse = x_EE(:,5);      
+        %% return the values on fine grid with interpolation
+        % recover numerical config
+        P.da = da_fine; P.a = a_fine; P.na = na_fine;
+        Malaria_parameters_transform;
+        S = interp1(a_coarse,S_coarse,a_fine).*P.PH_stable; 
+        E = interp1(a_coarse,E_coarse,a_fine).*P.PH_stable; 
+        D = interp1(a_coarse,D_coarse,a_fine).*P.PH_stable; 
+        A = interp1(a_coarse,A_coarse,a_fine).*P.PH_stable; 
+        Cac = interp1(a_coarse,Cac_coarse,a_fine).*P.PH_stable; 
         Cm0 = P.m*trapz(P.gH.*Cac)*P.da/P.PH_stable(1);
         Cm = Cm0.*exp(-P.a./P.dm).*P.PH_stable;
         Ctot = P.c1*Cac+P.c2*Cm;

@@ -29,29 +29,28 @@ if strcmp(lQ(1:2),'EE')
             keyboard
         end
         [SH,EH,DH,AH,Cac,Cm,Ctot] = steady_state('EE');
-        keyboard
         %%
         figure_setups; hold on;
-        plot(a,SH,'-','Color',colour_mat1);
-        plot(a,EH,'-','Color',colour_mat3);
-        plot(a,DH,'-','Color',colour_mat2);
-        plot(a,AH,'-','Color',colour_mat7);
-        plot(a,SH+EH+DH+AH,'-k');
+        plot(a/365,SH,'-','Color',colour_mat1);
+        plot(a/365,EH,'-','Color',colour_mat3);
+        plot(a/365,DH,'-','Color',colour_mat2);
+        plot(a/365,AH,'-','Color',colour_mat7);
+        plot(a/365,SH+EH+DH+AH,'-k');
         legend('SH (solver)','EH (solver)','DH (solver)', 'AH (solver)', 'PH (solver)');
         title('Final Age Dist.');
         xlabel('age');
-        axis_years(gca,P.age_max); % change to x-axis to years if needed
         grid on
-        axis([0 P.age_max 0 max(SH+EH+DH+AH)]);
+        axis([0 P.age_max/365 0 max(SH+EH+DH+AH)]);
+        
         figure_setups; hold on;
-        plot(a,Cac,'-.r');
-        plot(a,Cm,'-.b');
-        plot(a,Ctot,'-.k');
+        plot(a/365,Cac,'-.r');
+        plot(a/365,Cm,'-.b');
+        plot(a/365,Ctot,'-.k');
         xlabel('age (years)')
-        legend('$C_{ac}$','$C_{m}$','$C_{total}$','Location','SouthEast');
+        legend('Acquired','Maternal','Total','Location','SouthEast');
         title('Immun dist.');
-        axis_years(gca,P.age_max);
-        axis([0 P.age_max 0 max(max(Cm),max(Cac))*1.1]);
+        axis([0 P.age_max/365 0 max(Ctot)*1.1]);
+        grid on
         keyboard
 %         save(FileName_EE,'SH','EH','DH','AH','P')
     end
