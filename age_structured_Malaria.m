@@ -60,13 +60,12 @@ for n = 1:nt-1
     NMp1 = SM(1,n+1)+EM(1,n+1)+IM(1,n+1);
     [bHp1,~] = biting_rate(NHp1,NMp1);
     lamHp1 = FOI_H(bHp1,IM(1,n+1),NMp1);
-    % neglecting disease induced mortality in Cac
+    % Cm and Cac are both pooled immunity
     Qnp1 = f(lamHp1).*(P.cS*SH(2:end,n+1) + P.cE*EH(2:end,n+1) + P.cA*AH(2:end,n+1) ...
         + P.cD*DH(2:end,n+1)) + P.cV*P.v(2:end).*SH(2:end,n+1);
-    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1 + P.dt*(1./P.dac + P.muH(2:end) + P.muD(2:end).*DH(2:end,n+1)./PHp1(2:end) ));
-    Cm(2:end,n+1) = Cm(1:end-1,n)/(1+P.dt/(P.dm + P.muH(2:end) + P.muD(2:end).*DH(2:end,n+1)./PHp1(2:end)));
-    % Cm is now per person but Cac is pooled so need to multiply Cm by PH
-    % to get total immunity contribution
+    mup1 = P.muH(2:end) + P.muD(2:end).*DH(2:end,n+1)./PHp1(2:end);
+    Cac(2:end,n+1) = (Cac(1:end-1,n)+P.dt*Qnp1)./(1+P.dt*(1/P.dac+mup1));
+    Cm(2:end,n+1) = Cm(1:end-1,n)./(1+P.dt*(1/P.dm+mup1));
     Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1); % total immunity from acquired and maternal sources
     % update progression probability based on immunity Ctot
     P.phi = sigmoid_prob(Ctot(:,n+1), 'phi'); % prob. of DH -> RH
