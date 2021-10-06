@@ -5,7 +5,7 @@ I want to:
 1. Run a single simulation -> run_age_structured_Malaria.m 
 2. Run bifurcation analysis -> bifurcation_calcs.m
 3. Run sensitivity analysis -> run_SA.m
-4. Calibrate sigmoids -> run_age_structured_Malaria_parameterSearch.m
+4. Calibrate sigmoids -> run_parameter_search.m
 
 NB Some results are saved to named directories so the codebase folder should be downloaded in full and it's structure preserved so as not to introduce bugs.
 
@@ -21,7 +21,7 @@ bifurcation_calcs.m (script) -> runs continuation algorithm tracking stability o
 
 run_SA.m (script) -> runs sensitivity analysis of the model against each of a list of selected parameters. Calls Malaria_parameters_baseline.m to set the parameters [currently has some bugs]
 
-run_age_structured_Malaria_parameterSearch.m (script) -> version of run_age_structured_Malaria.m to search the parameter space and assess impact of parameter changes in the sigmoids psi, phi and rho on the immunity distributions and endemic equilibrium
+run_parameter_search.m (script) -> version of run_age_structured_Malaria.m to search the parameter space and assess impact of parameter changes in the sigmoids psi, phi and rho on the immunity distributions and endemic equilibrium
 
 
 
