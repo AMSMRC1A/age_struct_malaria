@@ -29,14 +29,14 @@ P.dt = dt;
 P.da = da;
 P.t = t;
 
-L = [100]; % 50 seems most interesting, gives a threshold around age 20
+L = [25]; % 25 seems most interesting, gives a threshold around age 5 or so
 beta_M_var = [0.25]; % use this parameter to adjust the EIR
 final_immunity = zeros(na,length(beta_M_var));
 final_EIR = zeros(1,length(beta_M_var));
 for ii = 1:length(L)
-    P.L = L(ii);
     % model parameters - rates are in 1/day
     Malaria_parameters_baseline;
+    P.L = L(ii);
     for jj = 1:length(beta_M_var)
         P.betaM = beta_M_var(jj);
         %% This section is one simulation
@@ -50,28 +50,29 @@ for ii = 1:length(L)
             final_immunity(:,jj) = Ctot(:,end)./PH_final;
             [bH,~] = biting_rate(NH(end),NM);
             lamH = FOI_H(bH,IM(1,end),NM);
-            final_EIR(1,jj) = lamH/P.betaM; 
+            final_EIR(1,jj) = lamH/P.betaM;
             disp(['EIR = ',num2str(final_EIR(1,jj),'%10.6f')]);
+            R0 = R0_cal()
         end
         %% Plot the sigmoids
         if P.sigmoid_surfs == 1
             figure_setups;
-            % commented plots are for cross sections at the final time
-            %     dI = max(Ctot(:,end)./PHp1)/1000;
-            %     dom = 0:dI:max(Ctot(:,end)./PHp1);
-            %     subplot(2,2,1), plot(dom,sigmoid_prob(dom, 'phi')); title('$\phi$'); xlabel('immunity pp'); ylabel('prob.');
-            %     subplot(2,2,2), plot(dom,sigmoid_prob(dom, 'rho')); title('$\rho$'); xlabel('immunity pp'); ylabel('prob.');
-            %     subplot(2,2,3), plot(dom,sigmoid_prob(dom, 'psi')); title('$\psi$'); xlabel('immunity pp'); ylabel('prob.');
-            %     grid on
             PH = SH+EH+DH+AH;
-            subplot(2,2,1), imagesc(t/365,a/365,sigmoid_prob(Ctot./PH, 'phi'),[0 1]); colorbar; title('$\phi$'); xlabel('time')
+            subplot(2,2,1), imagesc(t/365,a/365,sigmoid_prob(Ctot./PH, 'phi'),[0 1]); colorbar; title('$\phi(\tilde{C}_{tot})$'); xlabel('time'); ylabel('age');
             set(gca,'YDir','normal');
             grid on
-            subplot(2,2,2), imagesc(t/365,a/365,sigmoid_prob(Ctot./PH, 'rho'),[0 1]); colorbar; title('$\rho$'); xlabel('time')
+            subplot(2,2,2), imagesc(t/365,a/365,sigmoid_prob(Ctot./PH, 'rho'),[0 1]); colorbar; title('$\rho(\tilde{C}_{tot})$'); xlabel('time'); ylabel('age');
             set(gca,'YDir','normal');
             grid on
-            subplot(2,2,3), imagesc(t/365,a/365,sigmoid_prob(Ctot./PH, 'psi'),[0 1]); colorbar; title('$\psi$'); xlabel('time')
+            subplot(2,2,3), imagesc(t/365,a/365,sigmoid_prob(Ctot./PH, 'psi'),[0 1]); colorbar; title('$\psi(\tilde{C}_{tot})$'); xlabel('time'); ylabel('age');
             set(gca,'YDir','normal');
+            grid on
+            % Immunity distribution
+            PH = SH+EH+DH+AH;
+            subplot(2,2,4), plot(a/365,Ctot(:,end)./PH(:,end),'-.');
+            xlabel('age')
+            title('$\tilde{C}_{total}(t)$');
+            axis_years(gca,age_max); % change to x-axis to years if needed
             grid on
         end
         %% Plot the results
@@ -111,12 +112,6 @@ for ii = 1:length(L)
             title('Final Age Props.');
             xlabel('age');
             axis_years(gca,age_max); % change to x-axis to years if needed
-            grid on
-            % Immunity related figures
-            PH = SH+EH+DH+AH;
-            subplot(2,2,4), plot(a/365,Ctot(:,end)./PH(:,end),'-.');
-            xlabel('age')
-            title('$\tilde{C}_{total}(t)$');
             grid on
         end
     end
