@@ -1,6 +1,6 @@
 clear all
 % close all
-clc
+% clc
 format long
 global P
 global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 colour_mat7
@@ -44,44 +44,20 @@ for i = 1:length(param)
     P.(lP) = param(i);
     Malaria_parameters_transform;
     F_prop = @(x) human_model_der_prop(x);
+    options = optimoptions('fsolve','Display','none','MaxIterations',50);
+    tic
     %% solve for EE
     if R0_cal()>1
-        tic
         FileName = ['Results/Bifur/EE_',num2str(param(i),'%2.4f'),'.mat'];
         if exist(FileName,'file') % Q_val already calculated before
             S = load(FileName,'x_EE','ee');
             x_EE = S.x_EE;
             ee = S.ee;
         else
-            tfinal = 10*365; % run for 10 years to get closer to EE
-            t = (0:dt:tfinal)';
-            nt = length(t);
-            P.nt = nt;
-            P.t = t;
-            [SH, EH, DH, AH, ~, ~, ~, ~, ~, ~] = age_structured_Malaria();
-%             figure_setups;
-%             Nh = (trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da;
-%             plot(t,trapz(SH,1)*da./Nh,'-','Color',colour_mat1); hold on;
-%             plot(t,trapz(EH,1)*da./Nh,'--','Color',colour_mat3);
-%             plot(t,trapz(AH,1)*da./Nh,'-.','Color',colour_mat2);
-%             plot(t,trapz(DH,1)*da./Nh,'-','Color',colour_mat7);
-%             plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da./Nh,'-.k');
-%             legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$');
-%             title('Population proportions vs time');
-%             axis_years(gca,tfinal); % change to x-axis to years if needed
-%             xlabel('time');
-%             grid on
-%             axis([0 tfinal 0 1.1]);
-%             keyboard
-            x0 = [SH(:,end)./P.PH_stable;EH(:,end)./P.PH_stable;DH(:,end)./P.PH_stable;AH(:,end)./P.PH_stable];
-            error_tolerance = 1e-25;
-            options = optimoptions('fsolve','Display','none','OptimalityTolerance', error_tolerance);
-            [xsol,err,~,~,jacobian] = fsolve(F_prop,x0,options);
-            if max(max(abs(err)))>10^-5
-                disp('not converged')
-                keyboard
-            end
-            x_EE = reshape(xsol,[P.na,4]);
+            [S,E,D,A,Cac,~,~] = steady_state('EE');           
+            x0 = [S./P.PH_stable;E./P.PH_stable;D./P.PH_stable;A./P.PH_stable;Cac./P.PH_stable];   
+            [xsol,err,~,~,jacobian] = fsolve(F_prop,x0,options);           
+            x_EE = reshape(xsol,[P.na,5]);
             jacobian([1,P.na+1,2*P.na+1,3*P.na+1],:)=0; % zero out the rows
             jacobian(:,[1,P.na+1,2*P.na+1,3*P.na+1])=0; % zero out the columns
             ee = eig(jacobian);
@@ -115,18 +91,18 @@ for i = 1:length(param)
         %     else
         %        disp(['max real part of eigenvalues = ',num2str(re_max_EE(i),'%10.6f'), '; EE is unstable']);
         %     end
-        toc
     end
-    %% Solve for DFE
+    toc
     tic
+    %% Solve for DFE
     FileName = ['Results/Bifur/DFE_',num2str(param(i),'%2.4f'),'.mat'];
     if exist(FileName,'file') % Q_val already calculated before
         S = load(FileName,'x_DFE','ee');
         x_DFE = S.x_DFE;
         ee = S.ee;
-    else
-        x0 = [ones(length(a),1); 0*ones(length(a),1); 0*ones(length(a),1); 0*ones(length(a),1)]; % initial guess for the DFE
-        options = optimoptions('fsolve','Display','none','MaxIterations',0);
+    else 
+        [~,~,~,~,Cac,~,~] = steady_state('DFE','numerical');
+        x0 = [ones(length(a),1); 0*ones(length(a),1); 0*ones(length(a),1); 0*ones(length(a),1); Cac./P.PH_stable]; % initial guess for the DFE
         [xsol_DFE,err,~,~,jacobian] = fsolve(F_prop,x0,options);
         if max(max(abs(err)))>10^-5
             disp('not converged')
@@ -136,7 +112,7 @@ for i = 1:length(param)
         jacobian(:,[1, P.na+1, 2*P.na+1, 3*P.na+1]) = 0; % zero out the columns
         ee = eig(jacobian);
         ee(ee==0)=[];
-        x_DFE = reshape(xsol_DFE,[P.na,4]);
+        x_DFE = reshape(xsol_DFE,[P.na,5]);
         %         save(FileName,'x_DFE','ee')
     end
     if norm(F_prop(x_DFE),Inf) > 10^-5

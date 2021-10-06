@@ -63,9 +63,9 @@ for n = 1:nt-1
     Cm(2:end,n+1) = Cm(1:end-1,n)./(1+P.dt*(1/P.dm+mup1));
     Ctot(:,n+1) = P.c1*Cac(:,n+1)+P.c2*Cm(:,n+1); % total immunity from acquired and maternal sources
     % update progression probability based on immunity Ctot
-    P.phi = sigmoid_prob(Ctot(:,n+1), 'phi'); % prob. of DH -> RH
-    P.rho = sigmoid_prob(Ctot(:,n+1), 'rho'); % prob. of severely infected, EH -> DH
-    P.psi = sigmoid_prob(Ctot(:,n+1), 'psi'); % prob. AH -> DH
+    P.phi = sigmoid_prob(Ctot(:,n+1)./PHp1, 'phi'); % prob. of DH -> RH
+    P.rho = sigmoid_prob(Ctot(:,n+1)./PHp1, 'rho'); % prob. of severely infected, EH -> DH
+    P.psi = sigmoid_prob(Ctot(:,n+1)./PHp1, 'psi'); % prob. AH -> DH
 end
 
 end

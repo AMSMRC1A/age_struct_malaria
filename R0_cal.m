@@ -5,7 +5,8 @@ global P
 if P.balance_fertility == 1
     alphamax = P.age_max; %% Inf
     muH_int = P.muH_int_fun;
-    [~,~,~,~,~,~,CH] = steady_state('DFE'); % steady state for CH - total immunity (function handle)
+    [~,~,~,~,~,~,CH] = steady_state('DFE','handle'); % steady state for CH - total immunity (function handle)
+    CH = @(a) CH(a)./P.PH_stable_fun(a);
     sigmoid_rho = sigmoid_prob_fun('rho'); % return a function handle
     sigmoid_phi = sigmoid_prob_fun('phi'); % return a function handle
     rho = @(a) sigmoid_rho(CH(a)); 

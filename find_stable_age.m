@@ -25,6 +25,7 @@ end
 % Construct the stable age distribution using p_hat
 P.K = 1/integral(@(a) exp(-P.p_hat*a-P.muH_int_fun(a)),0,Inf);
 P.PH_stable = P.K*exp(-P.p_hat*P.a-P.muH_int);
+P.PH_stable_fun = @(a) P.K.*exp(-P.p_hat.*a-muH_int(a));
 
 end
 %%

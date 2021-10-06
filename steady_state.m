@@ -1,32 +1,46 @@
-function [S,E,D,A,Cac,Cm,Ctot] = steady_state(lstate)
-% return function handles for 'DFE', numerical for 'EE'
+function [S,E,D,A,Cac,Cm,Ctot] = steady_state(lstate,lreturn)
+% lreturn = 'handle' return function handles for 'DFE'
+% lreturn = 'numerical' return numerical values
 % all variables are pop size
 global P
 
 gH = P.gH_fun; % feritlity function handle
 muH_int = P.muH_int_fun; % death function handle M
-
 switch lstate
-    case 'DFE'
-        S = @(alpha) 1;
-        E = @(alpha) 0;
-        D = @(alpha) 0;
-        A = @(alpha) 0;
-        % Cac  exact expression obtained based on simple v(alpha)
-        Cac = @(alpha) P.cV*exp(-alpha/P.dac).*(P.v0+P.v0*P.dac*(exp(alpha/P.dac)-1));
+    case 'DFE'     
+        S = @(alpha) 1*ones(size(alpha)).*P.PH_stable_fun(alpha);
+        E = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
+        D = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
+        A = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
+        % Cac exact expression obtained based on simple v(alpha)
+        Cac_prop = @(alpha) P.cV*exp(-alpha/P.dac).*(P.v0+P.v0*P.dac*(exp(alpha/P.dac)-1));
         % Cm
-        Cm0 = P.m*integral(@(alpha) gH(alpha).*exp(-muH_int(alpha)).*Cac(alpha), 0, P.age_max);
-        Cm = @(alpha) Cm0.*exp(-alpha./P.dm);
+        Cm0 = P.m*integral(@(alpha) gH(alpha).*exp(-muH_int(alpha)).*Cac_prop(alpha), 0, P.age_max);
+        Cm_prop = @(alpha) Cm0.*exp(-alpha./P.dm);
         % CH
+        Cac = @(alpha) Cac_prop(alpha).*P.PH_stable_fun(alpha);
+        Cm = @(alpha) Cm_prop(alpha).*P.PH_stable_fun(alpha);
         Ctot = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha);
+        
+        if strcmp(lreturn,'handle')
+            return
+        elseif strcmp(lreturn,'numerical')
+            a = P.a;
+            S = S(a);
+            E = E(a);
+            D = D(a);
+            A = A(a);
+            Cac = Cac(a);
+            Cm = Cm(a);
+            Ctot = Ctot(a);
+        end
+        
     case 'EE'
         % ***only tested for no immunity feedback***
         % use numerical simulation for an initial guess
         dt = 20; tfinal= 10*365; % run for a few years to get closer to EE
         t = (0:dt:tfinal)'; nt = length(t);
-        tic
         [SH, EH, DH, AH, ~, ~, ~, ~, Cac, ~] = age_structured_Malaria(P.na,P.da,nt);
-        toc                
         %% run solver on a coarser grid to speed up
         da_fine = P.da; da_coarse = 100; P.da = da_coarse; 
         a_fine = P.a; a_coarse = (0:da_coarse:P.age_max)'; P.a = a_coarse;
@@ -40,9 +54,7 @@ switch lstate
         x0 = [SH0;EH0;DH0;AH0;Cac0];
         options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
         F_prop = @(x) human_model_der_prop(x);
-        tic
         [xsol,err,~,~,~] = fsolve(F_prop,x0,options);
-        toc
         if max(max(abs(err)))>10^-5
             disp('not converged')
             keyboard
