@@ -31,7 +31,7 @@ Malaria_parameters_baseline;
 plot_equilibrium = 0; % can set to zero if working with the DFE
 % bifurcating parameters
 lP = 'betaM'; 
-param = [0.01:0.01:0.5].^2;
+param = [0.25];
 % lP = 'bh';
 % param = [sqrt(0.05):sqrt(0.1)/10:sqrt(5)].^2;
 %% Check if stable numerically
@@ -68,6 +68,7 @@ for i = 1:length(param)
             disp('EE not achieved')
             keyboard
         end
+        %disp('check 1');
         if plot_equilibrium == 1
             % plot proportion
             figure_setups; hold on;
@@ -86,6 +87,7 @@ for i = 1:length(param)
         end
         I_frac_EE(i) = 1-da*trapz((x_EE(:,1)+x_EE(:,2)).*P.PH_stable);
         re_max_EE(i) = max(real(ee));
+        %disp('check 2');
         %     if re_max_EE(i) < 0
         %        disp(['max real part of eigenvalues = ',num2str(re_max_EE(i),'%10.6f'), '; EE is stable']);
         %     else
@@ -108,6 +110,7 @@ for i = 1:length(param)
             disp('not converged')
             keyboard
         end
+        %disp('check 3');
         jacobian([1, P.na+1, 2*P.na+1, 3*P.na+1],:) = 0; % zero out the rows
         jacobian(:,[1, P.na+1, 2*P.na+1, 3*P.na+1]) = 0; % zero out the columns
         ee = eig(jacobian);

@@ -23,21 +23,21 @@ P.rho0 = 0.5;  P.rho0_lower = 0;  P.rho0_upper = 1; % these are deprecated
 P.phi0 = 0.5;  P.phi0_lower = 0;  P.phi0_upper = 1;
 P.psi0 = 0.5;  P.psi0_lower = 0;  P.psi0_upper = 1;
 
-P.L = 50; % effective range is [0,L]
+P.L = 25; % effective range is [0,L]
 P.phi_f_0 = 0.1; % value at zero
 P.phi_f_1 = 0.9; % value at L (function saturates to this value)
 P.phi_t_2 = 0.5; % threshold value (as a fraction of L)
-P.phi_s_2 = 0.1; % sigmoid steepness, smaller is steeper
+P.phi_s_2 = 0.15; % sigmoid steepness, smaller is steeper
 
 P.rho_f_0 = 0.9; % value at zero
 P.rho_f_1 = 0.1; % value at L (function saturates to this value)
 P.rho_t_2 = 0.5; % threshold value (as a fraction of L)
-P.rho_s_2 = 0.1; % sigmoid steepness, smaller is steeper
+P.rho_s_2 = 0.15; % sigmoid steepness, smaller is steeper
 
 P.psi_f_0 = 0.9; % value at zero
 P.psi_f_1 = 0.1; % value at L (function saturates to this value)
 P.psi_t_2 = 0.5; % threshold value (as a fraction of L)
-P.psi_s_2 = 0.1; % sigmoid steepness, smaller is steeper
+P.psi_s_2 = 0.15; % sigmoid steepness, smaller is steeper
 
 %% mosquito related parameters/rates
 P.bh = 5; P.bh_lower = 2; P.bh_upper = 19;% tolerated biting rate per human

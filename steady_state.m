@@ -46,14 +46,17 @@ switch lstate
         a_fine = P.a; a_coarse = (0:da_coarse:P.age_max)'; P.a = a_coarse;
         na_fine = P.na; na_coarse = length(a_coarse); P.na = na_coarse;
         Malaria_parameters_transform;
-        SH0 = interp1(a_fine,SH(:,end),a_coarse)./P.PH_stable; 
-        EH0 = interp1(a_fine,EH(:,end),a_coarse)./P.PH_stable;
-        DH0 = interp1(a_fine,DH(:,end),a_coarse)./P.PH_stable;
-        AH0 = interp1(a_fine,AH(:,end),a_coarse)./P.PH_stable;
-        Cac0 = interp1(a_fine,Cac(:,end),a_coarse)./P.PH_stable;
-        x0 = [SH0;EH0;DH0;AH0;Cac0];
-        options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
+        SH0 = interp1(a_fine,SH(:,end),a_coarse);%./P.PH_stable; 
+        EH0 = interp1(a_fine,EH(:,end),a_coarse);%./P.PH_stable;
+        DH0 = interp1(a_fine,DH(:,end),a_coarse);%./P.PH_stable;
+        AH0 = interp1(a_fine,AH(:,end),a_coarse);%./P.PH_stable;
+        Cac0 = interp1(a_fine,Cac(:,end),a_coarse);%./P.PH_stable;
+        PH0 = SH0 + EH0 + AH0 + DH0;
+        x0 = [SH0./PH0; EH0./PH0; DH0./PH0; AH0./PH0; Cac0./PH0];
+        %options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
+        options = optimoptions('fsolve','OptimalityTolerance', 1e-10);
         F_prop = @(x) human_model_der_prop(x);
+        %keyboard;
         [xsol,err,~,~,~] = fsolve(F_prop,x0,options);
         if max(max(abs(err)))>10^-5
             disp('not converged')
@@ -75,7 +78,8 @@ switch lstate
         A = interp1(a_coarse,A_coarse,a_fine).*P.PH_stable; 
         Cac = interp1(a_coarse,Cac_coarse,a_fine).*P.PH_stable; 
         Cm0 = P.m*trapz(P.gH.*Cac)*P.da/P.PH_stable(1);
-        Cm = Cm0.*exp(-P.a./P.dm).*P.PH_stable;
+        Cm = Cm0.*exp(-P.a./P.dm);%.*P.PH_stable; 
+        % doesn't this divide by PH twice without the comment?
         Ctot = P.c1*Cac+P.c2*Cm;
     otherwise
         error('undefined steady state label...')

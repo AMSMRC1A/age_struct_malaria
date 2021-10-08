@@ -17,6 +17,17 @@ da = P.da;
 Lambda_M = bM*P.K*da*trapz(exp(-P.muH_int).*(P.betaD*DH + P.betaA*AH));
 Lambda_H = bH*P.betaM*(P.sigma/(P.sigma+P.muM))*(Lambda_M/(Lambda_M + P.muM));
 
+% update progression probability based on immunity Ctot, previously this
+% was not updated so presumably was leftover from time stepping as a global
+% variable
+PH_temp = SH + EH + AH + DH;
+Cm0 = P.m*trapz(P.gH.*Cac)*P.da/PH_temp(1);
+Cm = Cm0.*exp(-P.a./P.dm);
+Ctot = P.c1*Cac + P.c2*Cm;
+P.phi = sigmoid_prob(Ctot, 'phi'); % prob. of DH -> RH
+P.rho = sigmoid_prob(Ctot, 'rho'); % prob. of severely infected, EH -> DH
+P.psi = sigmoid_prob(Ctot, 'psi'); % prob. AH -> DH
+
 SHa = -Lambda_H.*SH(2:end) + P.rD*P.phi(2:end).*DH(2:end) + P.rA*AH(2:end) - ...
     [(-3*SH(1)+4*SH(2)-SH(3))/(2*da); (SH(3:end)-SH(1:end-2))/(2*da)]; % diff(SH)/da;
 EHa = Lambda_H.*SH(2:end) - P.h*EH(2:end) - ...
