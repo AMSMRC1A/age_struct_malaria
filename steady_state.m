@@ -7,34 +7,34 @@ global P
 gH = P.gH_fun; % feritlity function handle
 muH_int = P.muH_int_fun; % death function handle M
 switch lstate
-    case 'DFE'     
-        S = @(alpha) 1*ones(size(alpha)).*P.PH_stable_fun(alpha);
-        E = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
-        D = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
-        A = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
-        % Cac exact expression obtained based on simple v(alpha)
-        Cac_prop = @(alpha) P.cV*exp(-alpha/P.dac).*(P.v0+P.v0*P.dac*(exp(alpha/P.dac)-1));
-        % Cm
-        Cm0 = P.m*integral(@(alpha) gH(alpha).*exp(-muH_int(alpha)).*Cac_prop(alpha), 0, P.age_max);
-        Cm_prop = @(alpha) Cm0.*exp(-alpha./P.dm);
-        % CH
-        Cac = @(alpha) Cac_prop(alpha).*P.PH_stable_fun(alpha);
-        Cm = @(alpha) Cm_prop(alpha).*P.PH_stable_fun(alpha);
-        Ctot = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha);
-        
+    case 'DFE'   
         if strcmp(lreturn,'handle')
-            return
+            S = @(alpha) 1*ones(size(alpha)).*P.PH_stable_fun(alpha);
+            E = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
+            D = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
+            A = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
+            % Cac exact expression obtained based on simple v(alpha)
+            Cac_prop = @(alpha) P.cV*exp(-alpha/P.dac).*(P.v0+P.v0*P.dac*(exp(alpha/P.dac)-1));
+            % Cm
+            Cm0 = P.m*integral(@(alpha) gH(alpha).*exp(-muH_int(alpha)).*Cac_prop(alpha), 0, P.age_max);
+            Cm_prop = @(alpha) Cm0.*exp(-alpha./P.dm);
+            % CH
+            Cac = @(alpha) Cac_prop(alpha).*P.PH_stable_fun(alpha);
+            Cm = @(alpha) Cm_prop(alpha).*P.PH_stable_fun(alpha);
+            Ctot = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha);
         elseif strcmp(lreturn,'numerical')
             a = P.a;
-            S = S(a);
-            E = E(a);
-            D = D(a);
-            A = A(a);
-            Cac = Cac(a);
-            Cm = Cm(a);
-            Ctot = Ctot(a);
+            S = 1*ones(size(a)).*P.PH_stable;
+            E = 0*ones(size(a)).*P.PH_stable;
+            D = 0*ones(size(a)).*P.PH_stable;
+            A = 0*ones(size(a)).*P.PH_stable;
+            % Cac exact expression obtained based on simple v(alpha)
+            Cac_prop = P.cV*exp(-a./P.dac).*(P.v0+P.v0*P.dac*(exp(a./P.dac)-1));
+            Cac = Cac_prop.*P.PH_stable;
+            Cm0 = P.m*trapz(P.gH.*exp(-P.muH_int).*Cac_prop)*P.da;
+            Cm = Cm0.*exp(-a./P.dm).*P.PH_stable;
+            Ctot = P.c1*Cac+P.c2*Cm;
         end
-        
     case 'EE'
         % ***only tested for no immunity feedback***
         % use numerical simulation for an initial guess
@@ -46,15 +46,14 @@ switch lstate
         a_fine = P.a; a_coarse = (0:da_coarse:P.age_max)'; P.a = a_coarse;
         na_fine = P.na; na_coarse = length(a_coarse); P.na = na_coarse;
         Malaria_parameters_transform;
-        SH0 = interp1(a_fine,SH(:,end),a_coarse);%./P.PH_stable; 
-        EH0 = interp1(a_fine,EH(:,end),a_coarse);%./P.PH_stable;
-        DH0 = interp1(a_fine,DH(:,end),a_coarse);%./P.PH_stable;
-        AH0 = interp1(a_fine,AH(:,end),a_coarse);%./P.PH_stable;
-        Cac0 = interp1(a_fine,Cac(:,end),a_coarse);%./P.PH_stable;
+        SH0 = interp1(a_fine,SH(:,end),a_coarse);
+        EH0 = interp1(a_fine,EH(:,end),a_coarse);
+        DH0 = interp1(a_fine,DH(:,end),a_coarse);
+        AH0 = interp1(a_fine,AH(:,end),a_coarse);
+        Cac0 = interp1(a_fine,Cac(:,end),a_coarse);
         PH0 = SH0 + EH0 + AH0 + DH0;
         x0 = [SH0./PH0; EH0./PH0; DH0./PH0; AH0./PH0; Cac0./PH0];
-        %options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
-        options = optimoptions('fsolve','OptimalityTolerance', 1e-10);
+        options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
         F_prop = @(x) human_model_der_prop(x);
         %keyboard;
         [xsol,err,~,~,~] = fsolve(F_prop,x0,options);
@@ -78,8 +77,7 @@ switch lstate
         A = interp1(a_coarse,A_coarse,a_fine).*P.PH_stable; 
         Cac = interp1(a_coarse,Cac_coarse,a_fine).*P.PH_stable; 
         Cm0 = P.m*trapz(P.gH.*Cac)*P.da/P.PH_stable(1);
-        Cm = Cm0.*exp(-P.a./P.dm);%.*P.PH_stable; 
-        % doesn't this divide by PH twice without the comment?
+        Cm = Cm0.*exp(-P.a./P.dm).*P.PH_stable; 
         Ctot = P.c1*Cac+P.c2*Cm;
     otherwise
         error('undefined steady state label...')

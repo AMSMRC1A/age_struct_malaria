@@ -17,11 +17,9 @@ da = P.da;
 Lambda_M = bM*P.K*da*trapz(exp(-P.muH_int).*(P.betaD*DH + P.betaA*AH));
 Lambda_H = bH*P.betaM*(P.sigma/(P.sigma+P.muM))*(Lambda_M/(Lambda_M + P.muM));
 
-% update progression probability based on immunity Ctot, previously this
-% was not updated so presumably was leftover from time stepping as a global
-% variable
-PH_temp = SH + EH + AH + DH;
-Cm0 = P.m*trapz(P.gH.*Cac)*P.da/PH_temp(1);
+% update progression probability based on immunity Ctot
+% PH_temp = SH + EH + AH + DH  -> P.PH_stable; should be the actual PH, not PH tilde
+Cm0 = P.m*trapz(P.gH.*Cac.*P.PH_stable)*P.da/P.PH_stable(1);
 Cm = Cm0.*exp(-P.a./P.dm);
 Ctot = P.c1*Cac + P.c2*Cm;
 P.phi = sigmoid_prob(Ctot, 'phi'); % prob. of DH -> RH
@@ -29,15 +27,15 @@ P.rho = sigmoid_prob(Ctot, 'rho'); % prob. of severely infected, EH -> DH
 P.psi = sigmoid_prob(Ctot, 'psi'); % prob. AH -> DH
 
 SHa = -Lambda_H.*SH(2:end) + P.rD*P.phi(2:end).*DH(2:end) + P.rA*AH(2:end) - ...
-    [(-3*SH(1)+4*SH(2)-SH(3))/(2*da); (SH(3:end)-SH(1:end-2))/(2*da)]; % diff(SH)/da;
+     [(-3*SH(1)+4*SH(2)-SH(3))/(2*da); (SH(3:end)-SH(1:end-2))/(2*da)]; % diff(SH)/da;
 EHa = Lambda_H.*SH(2:end) - P.h*EH(2:end) - ...
-    [(-3*EH(1)+4*EH(2)-EH(3))/(2*da); (EH(3:end)-EH(1:end-2))/(2*da)]; % diff(EH)/da;
+     [(-3*EH(1)+4*EH(2)-EH(3))/(2*da); (EH(3:end)-EH(1:end-2))/(2*da)]; % diff(EH)/da;
 DHa = P.rho(2:end).*P.h.*EH(2:end) + P.psi(2:end).*Lambda_H.*AH(2:end) - P.rD*DH(2:end) -...
-    [(-3*DH(1)+4*DH(2)-DH(3))/(2*da); (DH(3:end)-DH(1:end-2))/(2*da)]; % diff(DH)/da;
+     [(-3*DH(1)+4*DH(2)-DH(3))/(2*da); (DH(3:end)-DH(1:end-2))/(2*da)]; %  diff(DH)/da;
 AHa = (1-P.rho(2:end)).*P.h.*EH(2:end) - P.psi(2:end).*Lambda_H.*AH(2:end) - P.rA*AH(2:end) + P.rD*(1-P.phi(2:end)).*DH(2:end)  - ...
-    [(-3*AH(1)+4*AH(2)-AH(3))/(2*da); (AH(3:end)-AH(1:end-2))/(2*da)]; % diff(AH)/da;
+     [(-3*AH(1)+4*AH(2)-AH(3))/(2*da); (AH(3:end)-AH(1:end-2))/(2*da)]; % diff(AH)/da;
 Caca = f(Lambda_H)*(P.cS*SH(2:end)+P.cE*EH(2:end)+P.cA*AH(2:end)+P.cD*DH(2:end)) + P.cV*P.v(2:end).*SH(2:end) - 1/P.dac*Cac(2:end) - ...
-    [(-3*Cac(1)+4*Cac(2)-Cac(3))/(2*da); (Cac(3:end)-Cac(1:end-2))/(2*da)]; % diff(Cac)/da;
+     [(-3*Cac(1)+4*Cac(2)-Cac(3))/(2*da); (Cac(3:end)-Cac(1:end-2))/(2*da)]; % diff(Cac)/da;
 
 Cac0 = P.cV*P.v(1);
 % include boundary condition

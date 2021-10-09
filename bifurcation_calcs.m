@@ -10,7 +10,7 @@ global colour_r1 colour_r2
 tfinal = 100*365; % final time in days
 age_max = 60*365; % max ages in days
 P.age_max = age_max;
-dt = 50; % time/age step size in days, default = 50; could go dt = 200 (still robust)
+dt = 100; % time/age step size in days, default = 50; could go dt = 200 (still robust)
 da = dt;
 t = (0:dt:tfinal)';
 nt = length(t);
@@ -31,7 +31,8 @@ Malaria_parameters_baseline;
 plot_equilibrium = 0; % can set to zero if working with the DFE
 % bifurcating parameters
 lP = 'betaM'; 
-param = [0.25];
+param = [0.01:0.05:0.5].^2;
+% param = [0.01:0.01:0.5].^2;
 % lP = 'bh';
 % param = [sqrt(0.05):sqrt(0.1)/10:sqrt(5)].^2;
 %% Check if stable numerically
@@ -46,6 +47,7 @@ for i = 1:length(param)
     F_prop = @(x) human_model_der_prop(x);
     options = optimoptions('fsolve','Display','none','MaxIterations',50);
     tic
+    R0_cal()
     %% solve for EE
     if R0_cal()>1
         FileName = ['Results/Bifur/EE_',num2str(param(i),'%2.4f'),'.mat'];
@@ -58,8 +60,8 @@ for i = 1:length(param)
             x0 = [S./P.PH_stable;E./P.PH_stable;D./P.PH_stable;A./P.PH_stable;Cac./P.PH_stable];   
             [xsol,err,~,~,jacobian] = fsolve(F_prop,x0,options);           
             x_EE = reshape(xsol,[P.na,5]);
-            jacobian([1,P.na+1,2*P.na+1,3*P.na+1],:)=0; % zero out the rows
-            jacobian(:,[1,P.na+1,2*P.na+1,3*P.na+1])=0; % zero out the columns
+            jacobian([1,P.na+1,2*P.na+1,3*P.na+1, 4*P.na+1],:)=0; % zero out the rows
+            jacobian(:,[1,P.na+1,2*P.na+1,3*P.na+1, 4*P.na+1])=0; % zero out the columns
             ee = eig(jacobian);
             ee(ee==0)=[];
             %         save(FileName,'x_EE','ee')
@@ -111,8 +113,8 @@ for i = 1:length(param)
             keyboard
         end
         %disp('check 3');
-        jacobian([1, P.na+1, 2*P.na+1, 3*P.na+1],:) = 0; % zero out the rows
-        jacobian(:,[1, P.na+1, 2*P.na+1, 3*P.na+1]) = 0; % zero out the columns
+        jacobian([1, P.na+1, 2*P.na+1, 3*P.na+1, 4*P.na+1],:) = 0; % zero out the rows
+        jacobian(:,[1, P.na+1, 2*P.na+1, 3*P.na+1, 4*P.na+1]) = 0; % zero out the columns
         ee = eig(jacobian);
         ee(ee==0)=[];
         x_DFE = reshape(xsol_DFE,[P.na,5]);

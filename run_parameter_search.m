@@ -1,5 +1,6 @@
 clear all
 clc
+close all
 format long
 global P
 global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 colour_mat7
@@ -8,8 +9,8 @@ global colour_r1 colour_r2
 tic
 %% numerical config
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
-P.solution_plots = 1; % toggle solution plots
-P.sigmoid_surfs = 1; % toggle surfaces from the sigmoids
+P.solution_plots = 0; % toggle solution plots
+P.sigmoid_surfs = 0; % toggle surfaces from the sigmoids
 P.age_aEIR_surf = 1;
 
 tfinal = 200*365; % final time in days
@@ -30,15 +31,17 @@ P.da = da;
 P.t = t;
 
 L = [25]; % 25 seems most interesting, gives a threshold around age 5 or so
-beta_M_var = [0.25]; % use this parameter to adjust the EIR
-final_immunity = zeros(na,length(beta_M_var));
-final_EIR = zeros(1,length(beta_M_var));
+EIR_var = 'betaM'; % use this parameter to adjust the EIR
+var_list = [0.05:0.01:0.07, 0.08, 0.1];
+final_immunity = zeros(na,length(var_list));
+final_EIR = zeros(1,length(var_list));
 for ii = 1:length(L)
     % model parameters - rates are in 1/day
     Malaria_parameters_baseline;
     P.L = L(ii);
-    for jj = 1:length(beta_M_var)
-        P.betaM = beta_M_var(jj);
+    for jj = 1:length(var_list)
+        P.(EIR_var) = var_list(jj);
+        Malaria_parameters_transform;
         %% This section is one simulation
         [SH, EH, DH, AH, SM, EM, IM, Cm, Cac, Ctot] = age_structured_Malaria(na,da,nt);
         PH = SH+EH+DH+AH;
@@ -50,7 +53,7 @@ for ii = 1:length(L)
             final_immunity(:,jj) = Ctot(:,end)./PH_final;
             [bH,~] = biting_rate(NH(end),NM);
             lamH = FOI_H(bH,IM(1,end),NM);
-            final_EIR(1,jj) = lamH/P.betaM;
+            final_EIR(1,jj) = lamH/P.betaM*365;
             disp(['EIR = ',num2str(final_EIR(1,jj),'%10.6f')]);
             R0 = R0_cal()
         end
@@ -118,9 +121,15 @@ for ii = 1:length(L)
 end
 %% Plot the age vs aEIR surface to mirror the R-B paper
 if P.age_aEIR_surf == 1
-    imagesc(a/365,final_EIR,final_immunity'); title('Immunity levels');
+    figure_setups;
+    imagesc(a/365,final_EIR,final_immunity'); 
+    xlim([0 10])
+    xlabel('age')
+    ylabel('EIR')
+    title('Immunity levels');
     set(gca,'YDir','normal');
     grid on
+    colormap jet
     colorbar;
 end
 %%

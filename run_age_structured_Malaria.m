@@ -12,7 +12,7 @@ tic
 tfinal = 100*365; % final time in days
 age_max = 80*365; % max ages in days
 P.age_max = age_max;
-dt = 5; % time/age step size in days, default = 5;
+dt = 20; % time/age step size in days, default = 5;
 da = dt;
 t = (0:dt:tfinal)';
 nt = length(t);
@@ -59,10 +59,10 @@ R0 = R0_cal()
 figure_setups;
 plot(a/365,SH(:,end),'-','Color',colour_mat1); hold on;
 plot(a/365,EH(:,end),'--','Color',colour_mat3);
-plot(a/365,AH(:,end),'-.','Color',colour_mat2);
-plot(a/365,DH(:,end),'-','Color',colour_mat7);
+plot(a/365,DH(:,end),'-','Color',colour_mat2);
+plot(a/365,AH(:,end),'-','Color',colour_mat7);
 plot(a/365,PH_final,'-.k');
-legend('SH','EH','AH', 'DH','PH');
+legend('SH','EH','DH', 'AH','PH');
 title('Final Age Dist.');
 xlabel('age');
 grid on
