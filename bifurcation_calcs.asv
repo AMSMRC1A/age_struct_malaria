@@ -35,7 +35,7 @@ Malaria_parameters_baseline;
 plot_equilibrium = 1; % can set to zero if working with the DFE
 % bifurcating parameters
 lP = 'betaM'; 
-param = [0.05:0.05:0.75].^2;
+param = [0.1:0.025:0.25].^2;
 % param = [0.01:0.01:0.5].^2;
 % lP = 'bh';
 % param = [sqrt(0.05):sqrt(0.1)/10:sqrt(5)].^2;
@@ -175,7 +175,7 @@ grid on; grid minor
 xlabel('$\mathcal{R}_0(\beta_M)$');
 ylabel('Infected pop.');
 axis([0 max(R0_DFE_EE) 0 1])
-legend([h1 h3 h5], {'AH (stable)','DH (stable)','AH+DH (stable)'},'Location','nw')
+legend([h1 h3 h5], {'AH stable','DH stable','AH+DH stable'},'Location','nw')
 %% Plot versus the input parameter
 % figure_setups;
 % hold on;
