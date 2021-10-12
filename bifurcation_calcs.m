@@ -171,20 +171,24 @@ h1 = plot(R0_DFE_EE(ind_stable), I_frac_A(ind_stable),'Color',colour_mat2,'Marke
 h3 = plot(R0_DFE_EE(ind_stable), I_frac_D(ind_stable),'Color',colour_mat7,'Marker','.','MarkerSize',30);
 %h4 = plot(R0_DFE_EE(ind_unstable), I_frac_D(ind_unstable),'Color',colour_mat7,'Marker','^','MarkerSize',5);
 h5 = plot(R0_DFE_EE(ind_stable), I_frac(ind_stable),'b-','Marker','.','MarkerSize',30);
+h6 = plot(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
 grid on; grid minor
 xlabel('$\mathcal{R}_0(\beta_M)$');
 ylabel('Infected pop.');
 axis([0 max(R0_DFE_EE) 0 1])
-legend([h1 h3 h5], {'AH (stable)','DH (stable)','AH+DH (stable)'},'Location','nw')
+legend([h1 h3 h5 h6], {'AH (stable)','DH (stable)','AH+DH (stable)','AH+DH (unstable)'},'Location','nw')
 %% Plot versus the input parameter
-% figure_setups;
-% hold on;
-% h1 = plot(R0_DFE_EE(ind_stable), I_frac(ind_stable),'b-','Marker','.','MarkerSize',30);
-% h2 = plot(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
-% % h1 = scatter(R0_DFE_EE(ind_stable), I_frac(ind_stable),100,'bo','filled');
-% % h2 = scatter(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),100,'r^','filled');
-% grid on; grid minor
-% xlabel('$\mathcal{R}_0(\beta_M)$');
-% ylabel('D+A');
-% axis([0 max(R0_DFE_EE) 0 1])
-% legend([h1 h2], {'stable','unstable'},'Location','e')
+param_DFE_EE = [param,param];
+figure_setups;
+hold on;
+h1 = plot(param_DFE_EE(ind_stable), I_frac_A(ind_stable),'Color',colour_mat2,'Marker','.','MarkerSize',30);
+%h2 = plot(R0_DFE_EE(ind_unstable), I_frac_A(ind_unstable),'Color',colour_mat2,'Marker','o','MarkerSize',5);
+h3 = plot(param_DFE_EE(ind_stable), I_frac_D(ind_stable),'Color',colour_mat7,'Marker','.','MarkerSize',30);
+%h4 = plot(R0_DFE_EE(ind_unstable), I_frac_D(ind_unstable),'Color',colour_mat7,'Marker','^','MarkerSize',5);
+h5 = plot(param_DFE_EE(ind_stable), I_frac(ind_stable),'b-','Marker','.','MarkerSize',30);
+h6 = plot(param_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
+grid on; grid minor
+xlabel('$\beta_M$');
+ylabel('Infected pop.');
+axis([min(param) max(param) 0 1])
+legend([h1 h3 h5 h6], {'AH (stable)','DH (stable)','AH+DH (stable)','AH+DH (unstable)'},'Location','se')
