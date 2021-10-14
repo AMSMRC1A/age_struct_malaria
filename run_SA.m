@@ -96,12 +96,12 @@ if SA_index
     end
 end
 %% generate output
-fname = sprintf('sensitivity_table_h.tex');
+fname = sprintf('Results/SA/sensitivity_table_h.tex');
 Qlen = 1; Plen  = length(lP_list);
 latextable(SI_index', 'Horiz', lP_list, 'Vert', {lQ},...
     'Hline', [0:Qlen,NaN], 'Vline', [0:Plen,NaN],...
     'name', fname, 'format', '%.2g');
-% fname = sprintf('sensitivity_table_v.tex');
+% fname = sprintf('Results/SA/sensitivity_table_v.tex');
 % latextable(SI_index, 'Horiz', {lQ}, 'Vert', lP_list,...
 %     'Hline', [0:Plen,NaN], 'Vline', [0:Qlen,NaN],...
 %     'name', fname, 'format', '%.2g');

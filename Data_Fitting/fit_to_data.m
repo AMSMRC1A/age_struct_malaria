@@ -21,4 +21,4 @@ plot3(x,y,v,'.')
 [xq,yq] = meshgrid(0:1:50,1:10:150);
 vq = F(xq,yq);
 mesh(xq,yq,vq)
-save('Data/F.mat','F'); 
+% save('Data/F.mat','F'); 
