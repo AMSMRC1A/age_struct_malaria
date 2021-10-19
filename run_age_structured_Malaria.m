@@ -171,14 +171,14 @@ grid on
 % axis([0 age_max/365 0 1]);
 % title(['EIR = ',num2str(EIR_EE)])
 %% Mosquito infection dynamics
-% figure_setups;
-% plot(t,SM,'b-'); hold on;
-% plot(t,EM,'-','Color',colour_r1);
-% plot(t,IM,'r-.');
-% plot(t,SM+EM+IM,'-.')
-% legend('SM','EM','IM','$N_M$');
-% title('mosquito population size by stages')
-% axis_years(gca,tfinal); % change to x-axis to years if needed
-% grid on
-% axis([0 tfinal 0 5])
+figure_setups;
+plot(t,SM,'b-'); hold on;
+plot(t,EM,'-','Color',colour_r1);
+plot(t,IM,'r-.');
+plot(t,SM+EM+IM,'-.')
+legend('SM','EM','IM','$N_M$');
+title('mosquito population size by stages')
+axis_years(gca,tfinal); % change to x-axis to years if needed
+grid on
+axis([0 tfinal 0 5])
 toc

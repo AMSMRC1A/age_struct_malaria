@@ -9,30 +9,30 @@ P.h = 1/15; % incubation rate in human
 P.dac = 5*365; % half life of acquired immunity
 P.dm = 0.25*365; % half life of maternal immunity
 P.c1 = 1; % weight for acquired immunity
-P.c2 = 1; % weight for maternal immunity
 P.cS = 0.75; % SH weight
 P.cE = 0.1; % EH weight  ~~ AH
 P.cA = 0.1; % AH weight
 P.cD = 0.05; % DH weight
 P.cV = 0.75; % weight for vaccination ~~ SH
 P.m = 1; % fraction of new-born immunity relative to mother’s
+P.uc = 10; % Duration in which immunity is not boosted
 %% progression probabilities parameters, sigmoid parameters
 % fitted values
-P.L = 16.566816453169395; % effective range is [0,L]
-P.phi_f_0 = 0.1; % value at zero
-P.phi_f_1 = 0.9; % value at L (function saturates to this value)
-P.phi_t_2 = 0.645011887960739; % threshold value (as a fraction of L)
-P.phi_s_2 = 0.542883086916969; % sigmoid steepness, smaller is steeper
+P.L = 10; % effective range is [0,L]
+P.phi_f_0 = 0.01; % value at zero
+P.phi_f_1 = 1; % value at L (function saturates to this value)
+P.phi_t_2 = 0.5; % threshold value (as a fraction of L)
+P.phi_s_2 = 0.05; % sigmoid steepness, smaller is steeper
 % 
-P.rho_f_0 = 0.1; % value at zero
-P.rho_f_1 = 0.9; % value at L (function saturates to this value)
-P.rho_t_2 = 0.080990576562576; % threshold value (as a fraction of L)
-P.rho_s_2 = 0.013315131949897; % sigmoid steepness, smaller is steeper
+P.rho_f_0 = 0.01; % value at zero
+P.rho_f_1 = 1; % value at L (function saturates to this value)
+P.rho_t_2 = 0.5; % threshold value (as a fraction of L)
+P.rho_s_2 = 0.05; % sigmoid steepness, smaller is steeper
 % 
-P.psi_f_0 = 0.1; % value at zero
-P.psi_f_1 = 0.9; % value at L (function saturates to this value)
-P.psi_t_2 = 0.498656592957389; % threshold value (as a fraction of L)
-P.psi_s_2 = 0.428932461561540; % sigmoid steepness, smaller is steeper
+P.psi_f_0 = 0.01; % value at zero
+P.psi_f_1 = 1; % value at L (function saturates to this value)
+P.psi_t_2 = 0.5; % threshold value (as a fraction of L)
+P.psi_s_2 = 0.05; % sigmoid steepness, smaller is steeper
 
 %% mosquito related parameters/rates
 P.bh = 5; P.bh_lower = 2; P.bh_upper = 19;% tolerated biting rate per human

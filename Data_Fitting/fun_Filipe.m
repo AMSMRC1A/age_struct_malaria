@@ -10,41 +10,46 @@ P.rho_t_2 = x(3);
 P.rho_s_2 = x(4); 
 P.psi_t_2 = x(5);
 P.psi_s_2 = x(6);
-P.L = x(7);
 
 Malaria_parameters_transform;
-
+nsamp = 10;
 [~,ind1] = min(abs(P.a-0.1*365));
 [~,ind2] = min(abs(P.a-1*365));
-[~,ind3] = min(abs(P.a-5*365));
-[~,ind4] = min(abs(P.a-10*365));
-ind = round([linspace(ind1,ind2,5),linspace(ind2,ind3,5),linspace(ind3,ind4,5)]);
-x = P.a(ind)/365;
+ind = round(linspace(ind1,ind2,5)');
 
-P.betaM = 0.006; % low EIR region ~ 25
+P.betaM = 0.008; % low EIR region ~ 25
 Malaria_parameters_transform;
 [SH,EH,DH,AH,~,~,Ctot] = steady_state('EE');
-y1 = fit_EIR(SH,EH,DH,AH)*ones(size(x)); % aEIR
-z1 = sigmoid_prob(Ctot(ind)./P.PH_stable(ind), 'rho'); % final rho function at EE
+EIR1 = fit_EIR(SH,EH,DH,AH);
+ind1 = [randsample(length(P.a),nsamp,true,F(P.a/365,EIR1*ones(size(P.a))));ind];
+x1 = P.a(ind1)/365;
+y1 = EIR1*ones(size(x1)); % aEIR
+z1 = sigmoid_prob(Ctot(ind1)./P.PH_stable(ind1), 'rho'); % final rho function at EE
 
 P.betaM = 0.02; % mid EIR ~ 100
 Malaria_parameters_transform;
 [SH,EH,DH,AH,~,~,Ctot] = steady_state('EE');
-y2 = fit_EIR(SH,EH,DH,AH)*ones(size(x)); % aEIR
-z2 = sigmoid_prob(Ctot(ind)./P.PH_stable(ind), 'rho'); % final rho function at EE
+EIR2 = fit_EIR(SH,EH,DH,AH);
+ind2 = [randsample(length(P.a),nsamp,true,F(P.a/365,EIR2*ones(size(P.a))));ind];
+x2 = P.a(ind2)/365;
+y2 = EIR2*ones(size(x2)); % aEIR
+z2 = sigmoid_prob(Ctot(ind2)./P.PH_stable(ind2), 'rho'); % final rho function at EE
 
 P.betaM = 0.25; % high EIR ~ 150
 Malaria_parameters_transform;
 [SH,EH,DH,AH,~,~,Ctot] = steady_state('EE');
-y3 = fit_EIR(SH,EH,DH,AH)*ones(size(x)); % aEIR
-z3 = sigmoid_prob(Ctot(ind)./P.PH_stable(ind), 'rho'); % final rho function at EE
+EIR3 = fit_EIR(SH,EH,DH,AH);
+ind3 = [randsample(length(P.a),nsamp,true,F(P.a/365,EIR3*ones(size(P.a))));ind];
+x3 = P.a(ind3)/365;
+y3 = EIR3*ones(size(x3)); % aEIR
+z3 = sigmoid_prob(Ctot(ind3)./P.PH_stable(ind3), 'rho'); % final rho function at EE
 
-x = [x;x;x];
+x = [x1;x2;x3];
 y = [y1;y2;y3];
 z = [z1;z2;z3];
 
 res = abs(F(x,y)-z);
-w = ones(size(z))./(res+eps);
+w = ones(size(z));%./(res+eps);
 err = sum(w.*(res.^2));
 
 end

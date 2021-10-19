@@ -11,21 +11,24 @@ dt = 20; da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = 
 P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
 %% load data - interpolated function
-s =  load('F.mat','F');
+s =  load('Filipe_paper/F_Filipe.mat','F');
 F = s.F;
 
 %% optimization - fit to data 
 Malaria_parameters_baseline;
 % lP = 'none';
-options = optimset('Display','iter','TolX',10^-3,'MaxIter',30);
-% x0 = [P.phi_t_2, P.phi_s_2,P.rho_t_2, P.rho_s_2,P.psi_t_2, P.psi_s_2,P.L];
-x0 = [0.645011887960739,   0.542883086916969,   0.080990576562576,   0.013315131949897,   0.498656592957389,   0.428932461561540,  16.566816453169395];
-% fitted result 
-% - 0.645011887960739   0.542883086916969   0.080990576562576   0.013315131949897   0.498656592957389   0.428932461561540  16.566816453169395
-% residual - 5.437998e+00
-lb = [0, 0.01, 0, 0.01, 0, 0.01, 2];
-ub = [1, 1, 1, 1, 1, 1, 50];
-[x,fval] = fmincon(@fun,x0,[],[], [], [], lb, ub, [], options);
+options = optimset('Display','iter','TolX',10^-5,'MaxIter',10);
+% x0 = [P.phi_t_2, P.phi_s_2,P.rho_t_2, P.rho_s_2,P.psi_t_2, P.psi_s_2];
+x0 = [0.5,   0.05,  ... % phi
+    0.5,   0.05, ... % rho
+    0.5,   0.05... % psi
+   ];... % uc
+% x0 = [0.436220925335294   0.582458174892928   0.154888567469202   0.139238428973047   0.365630865154306   0.571205351481006];
+% res = 1.165148e;
+lb = [0, 0.01, 0, 0.01, 0, 0.01];
+ub = [1, 1, 1, 1, 1, 1];
+
+[x,fval] = fmincon(@fun_RB,x0,[],[], [], [], lb, ub, [], options);
 
 keyboard
 % ----> update Malaria_parameters_baseline.m with the fitted results <-----
@@ -36,23 +39,29 @@ dt = 20; da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = 
 P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
 Malaria_parameters_baseline;
-% P.betaM = 0.03;
-% Malaria_parameters_transform;
+P.phi_t_2 = x(1);
+P.phi_s_2 = x(2); 
+P.rho_t_2 = x(3);
+P.rho_s_2 = x(4); 
+P.psi_t_2 = x(5);
+P.psi_s_2 = x(6);
+
+Malaria_parameters_transform;
 figure_setups; hold on
 [~,~,~,~,~,~,Ctot] = steady_state('EE');
+Ctot_pp = Ctot./P.PH_stable;
 cc = linspace(min(Ctot_pp),max(Ctot_pp),100);
-rho_curve = sigmoid_prob(cc, 'rho');
 phi_curve = sigmoid_prob(cc, 'phi');
+rho_curve = sigmoid_prob(cc, 'rho');
 psi_curve = sigmoid_prob(cc, 'psi');
-plot(cc,rho_curve)
 plot(cc,phi_curve)
+plot(cc,rho_curve)
 plot(cc,psi_curve)
 % population average sigmoids
-Ctot_pp = Ctot./P.PH_stable;
-rho_ave = trapz(sigmoid_prob(Ctot_pp, 'rho').*P.PH_stable)*P.da;
 phi_ave = trapz(sigmoid_prob(Ctot_pp, 'phi').*P.PH_stable)*P.da;
+rho_ave = trapz(sigmoid_prob(Ctot_pp, 'rho').*P.PH_stable)*P.da;
 psi_ave = trapz(sigmoid_prob(Ctot_pp, 'psi').*P.PH_stable)*P.da;
-legend(['rho, pop ave = ',num2str(rho_ave,3)],['phi, pop ave = ',num2str(phi_ave,3)],['psi, pop ave = ',num2str(psi_ave,3)])
+legend(['phi, pop ave = ',num2str(phi_ave,3)],['rho, pop ave = ',num2str(rho_ave,3)],['psi, pop ave = ',num2str(psi_ave,3)])
 axis([min(Ctot_pp) max(Ctot_pp) 0 1])
 keyboard
 

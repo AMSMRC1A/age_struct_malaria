@@ -2,6 +2,8 @@ global P
 
 a = P.a;
 
+P.c2 = P.c1; % weight for maternal immunity
+
 P.muD = 0*ones(size(a));  % disease-induced human mortality rate
 
 P.rho = sigmoid_prob(zeros(size(a)), 'rho');
