@@ -2,7 +2,7 @@ clear all
 % close all
 % clc
 format long
-global P
+global P 
 global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 colour_mat7
 global colour_r1 colour_r2
 
@@ -17,11 +17,10 @@ P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 % setting this to 1 will speed up runtime
 load_data = 0;
 Malaria_parameters_baseline; % model parameters - rates are in 1/day
-lP = 'betaM'; % bifurcating parameters
-immunity_feedback = 1;
+lP = 'betaM';  % bifurcating parameters
+immunity_feedback = 0;
 if immunity_feedback == 0
-    % average populational sigmoids f0 = f1 = average
-    
+    % average populational sigmoids f0 = f1 = average 
     P.rho_f_0 = 0.109; % value at zero
     P.rho_f_1 = 0.109; % value at L (function saturates to this value)
     
@@ -35,10 +34,7 @@ else
     param = [0.01:0.025:0.55].^2;
 end
 %% options
-
 plot_equilibrium = 0; % can set to zero if working with the DFE
-lP = 'betaM';  % bifurcating parameters
-param = [0.05:0.05:0.75].^2;
 
 re_max_DFE = NaN(1,length(param));
 re_max_EE = NaN(1,length(param));

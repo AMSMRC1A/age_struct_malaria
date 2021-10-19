@@ -17,12 +17,10 @@ P.cV = 0.75; % weight for vaccination ~~ SH
 P.m = 1; % fraction of new-born immunity relative to mother’s
 P.uc = 10; % Duration in which immunity is not boosted
 %% progression probabilities parameters, sigmoid parameters
-
 % fitted values
 P.L = 10; % effective range is [0,L]
 P.phi_f_0 = 0.01; % value at zero
 P.phi_f_1 = 1; % value at L (function saturates to this value)
-
 P.phi_t_2 = 0.5; % threshold value (as a fraction of L)
 P.phi_s_2 = 0.05; % sigmoid steepness, smaller is steeper
 % 
