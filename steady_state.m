@@ -36,7 +36,6 @@ switch lstate
             Ctot = P.c1*Cac+P.c2*Cm;
         end
     case 'EE'
-        % ***only tested for no immunity feedback***
         % use numerical simulation for an initial guess
         dt = 20; tfinal= 10*365; % run for a few years to get closer to EE
         t = (0:dt:tfinal)'; nt = length(t);

@@ -24,11 +24,11 @@ P.da = da;
 P.t = t;
 
 %% SA setting
-lQ = 'EE-infected';  % R0 RHM RMH EE-EIR EE-EDA EE-infected EE-D-frac
-lP_list = {'bh'}; %{'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma','rho0','psi0','phi0'}; 
+lQ = 'EE-EIR';  % R0 RHM RMH EE-EIR EE-EDA EE-infected EE-D-frac
+lP_list = {'betaM'}; %{'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma','rho0','psi0','phi0'}; 
 % 'v0' 'bh', 'bm', 'betaM', 'betaD', 'betaA', 'muM', 'MHr', 'sigma'
 % 'rho0','psi0','phi0'
-SA_index = 1;
+SA_index = 0;
 Malaria_parameters_baseline;
 %%
 tic
@@ -96,12 +96,12 @@ if SA_index
     end
 end
 %% generate output
-fname = sprintf('sensitivity_table_h.tex');
+fname = sprintf('Results/SA/sensitivity_table_h.tex');
 Qlen = 1; Plen  = length(lP_list);
 latextable(SI_index', 'Horiz', lP_list, 'Vert', {lQ},...
     'Hline', [0:Qlen,NaN], 'Vline', [0:Plen,NaN],...
     'name', fname, 'format', '%.2g');
-% fname = sprintf('sensitivity_table_v.tex');
+% fname = sprintf('Results/SA/sensitivity_table_v.tex');
 % latextable(SI_index, 'Horiz', {lQ}, 'Vert', lP_list,...
 %     'Hline', [0:Plen,NaN], 'Vline', [0:Qlen,NaN],...
 %     'name', fname, 'format', '%.2g');

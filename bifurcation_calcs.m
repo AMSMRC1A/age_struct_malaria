@@ -7,44 +7,49 @@ global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 c
 global colour_r1 colour_r2
 
 %% numerical config
-tfinal = 100*365; % final time in days
-age_max = 60*365; % max ages in days
-P.age_max = age_max;
-dt = 50; % time/age step size in days, default = 50; could go dt = 200 (still robust)
-da = dt;
-t = (0:dt:tfinal)';
-nt = length(t);
-a = (0:da:age_max)';
-na = length(a);
+tfinal = 100*365; age_max = 60*365; P.age_max = age_max;
+dt = 100; % time/age step size in days, default = 50; could go dt = 200 (still robust)
+da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = length(a);
 
-P.a = a;
-P.na = na;
-P.nt = nt;
-P.dt = dt;
-P.da = da;
-P.t = t;
+P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
 % load_data is an option to use previously saved solution data if available
 % setting this to 1 will speed up runtime
 load_data = 0;
-
-% model parameters - rates are in 1/day
-Malaria_parameters_baseline;
-
+Malaria_parameters_baseline; % model parameters - rates are in 1/day
+lP = 'betaM'; % bifurcating parameters
+immunity_feedback = 1;
+if immunity_feedback == 0
+    % average populational sigmoids f0 = f1 = average
+    
+    P.rho_f_0 = 0.109; % value at zero
+    P.rho_f_1 = 0.109; % value at L (function saturates to this value)
+    
+    P.phi_f_0 = 0.386; % value at zero
+    P.phi_f_1 = 0.386; % value at L (function saturates to this value)
+    
+    P.psi_f_0 = 0.579; % value at zero
+    P.psi_f_1 = 0.579; % value at L (function saturates to this value)
+    param = [0.01:0.05:1.0].^2;
+else
+    param = [0.01:0.025:0.55].^2;
+end
 %% options
-plot_equilibrium = 1; % can set to zero if working with the DFE
-% bifurcating parameters
-lP = 'betaM'; 
+
+plot_equilibrium = 0; % can set to zero if working with the DFE
+lP = 'betaM';  % bifurcating parameters
 param = [0.05:0.05:0.75].^2;
-% param = [0.01:0.01:0.5].^2;
-% lP = 'bh';
-% param = [sqrt(0.05):sqrt(0.1)/10:sqrt(5)].^2;
-%% Check if stable numerically
+
+re_max_DFE = NaN(1,length(param));
 re_max_EE = NaN(1,length(param));
+
 A_frac_EE = NaN(1,length(param));
 D_frac_EE = NaN(1,length(param));
-re_max_DFE = NaN(1,length(param));
+
 I_frac_DFE = NaN(1,length(param));
+I_frac_EE = NaN(1,length(param));
+
+
 for i = 1:length(param)
     disp(['progress = ',num2str((i-1)/(length(param))*100),'%']);
     P.(lP) = param(i);
@@ -61,9 +66,9 @@ for i = 1:length(param)
             x_EE = S.x_EE;
             ee = S.ee;
         else
-            [S,E,D,A,Cac,~,~] = steady_state('EE');           
-            x0 = [S./P.PH_stable;E./P.PH_stable;D./P.PH_stable;A./P.PH_stable;Cac./P.PH_stable];   
-            [xsol,err,~,~,jacobian] = fsolve(F_prop,x0,options);           
+            [S,E,D,A,Cac,~,~] = steady_state('EE');
+            x0 = [S./P.PH_stable;E./P.PH_stable;D./P.PH_stable;A./P.PH_stable;Cac./P.PH_stable];
+            [xsol,err,~,~,jacobian] = fsolve(F_prop,x0,options);
             x_EE = reshape(xsol,[P.na,5]);
             jacobian([1,P.na+1,2*P.na+1,3*P.na+1, 4*P.na+1],:)=0; % zero out the rows
             jacobian(:,[1,P.na+1,2*P.na+1,3*P.na+1, 4*P.na+1])=0; % zero out the columns
@@ -75,7 +80,6 @@ for i = 1:length(param)
             disp('EE not achieved')
             keyboard
         end
-        %disp('check 1');
         if plot_equilibrium == 1
             % plot proportion
             figure_setups; hold on;
@@ -91,11 +95,10 @@ for i = 1:length(param)
             %axis([0 age_max 0 max(sum(x_EE,2))]);
             %keyboard
         end
-        %I_frac_EE(i) = 1-da*trapz((x_EE(:,1)+x_EE(:,2)).*P.PH_stable);
+        I_frac_EE(i) = 1-da*trapz((x_EE(:,1)+x_EE(:,2)).*P.PH_stable);        
         A_frac_EE(i) = da*trapz((x_EE(:,4)).*P.PH_stable);
         D_frac_EE(i) = da*trapz((x_EE(:,3)).*P.PH_stable);
         re_max_EE(i) = max(real(ee));
-        %disp('check 2');
         %     if re_max_EE(i) < 0
         %        disp(['max real part of eigenvalues = ',num2str(re_max_EE(i),'%10.6f'), '; EE is stable']);
         %     else
@@ -110,7 +113,7 @@ for i = 1:length(param)
         S = load(FileName,'x_DFE','ee');
         x_DFE = S.x_DFE;
         ee = S.ee;
-    else 
+    else
         [~,~,~,~,Cac,~,~] = steady_state('DFE','numerical');
         x0 = [ones(length(a),1); 0*ones(length(a),1); 0*ones(length(a),1); 0*ones(length(a),1); Cac./P.PH_stable]; % initial guess for the DFE
         [xsol_DFE,err,~,~,jacobian] = fsolve(F_prop,x0,options);
@@ -118,13 +121,12 @@ for i = 1:length(param)
             disp('not converged')
             keyboard
         end
-        %disp('check 3');
         jacobian([1, P.na+1, 2*P.na+1, 3*P.na+1, 4*P.na+1],:) = 0; % zero out the rows
         jacobian(:,[1, P.na+1, 2*P.na+1, 3*P.na+1, 4*P.na+1]) = 0; % zero out the columns
         ee = eig(jacobian);
         ee(ee==0)=[];
         x_DFE = reshape(xsol_DFE,[P.na,5]);
-        %         save(FileName,'x_DFE','ee')
+        %  save(FileName,'x_DFE','ee')
     end
     if norm(F_prop(x_DFE),Inf) > 10^-5
         disp('DFE not achieved')
@@ -150,6 +152,7 @@ hold on;
 R0_DFE_EE = [R0_list,R0_list];
 ind_stable = find([re_max_DFE,re_max_EE]<0);
 ind_unstable = find([re_max_DFE,re_max_EE]>0);
+
 I_frac = [I_frac_DFE,A_frac_EE+D_frac_EE];
 I_frac_A = [I_frac_DFE,A_frac_EE];
 I_frac_D = [I_frac_DFE,D_frac_EE];
