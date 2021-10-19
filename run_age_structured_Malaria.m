@@ -9,10 +9,10 @@ global colour_r1 colour_r2
 tic
 
 %% numerical config
-tfinal = 100*365; % final time in days
-age_max = 80*365; % max ages in days
+tfinal = 250*365; % final time in days
+age_max = 70*365; % max ages in days
 P.age_max = age_max;
-dt = 20; % time/age step size in days, default = 5;
+dt = 50; % time/age step size in days, default = 5;
 da = dt;
 t = (0:dt:tfinal)';
 nt = length(t);
@@ -71,6 +71,7 @@ R0 = R0_cal()
 % grid on
 % axis([0 tfinal 0 max(NH)+0.1]);
 %% Age profiles at tfinal
+
 % figure_setups;
 % plot(a/365,SH(:,end),'-','Color',colour_mat1); hold on;
 % plot(a/365,EH(:,end),'--','Color',colour_mat3);
@@ -82,6 +83,7 @@ R0 = R0_cal()
 % xlabel('age');
 % grid on
 % axis([0 age_max/365 0 max(PH_final)]);
+
 %% Age proportions at tfinal prop
 % figure_setups;
 % plot(a/365,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
@@ -141,14 +143,14 @@ R0 = R0_cal()
 % title('$C_{total}(t)$');
 %% Immunity breakdown
 figure_setups;
-plot(a/365,Cac(:,end),'-.r');
+plot(a/365,Cac(:,end)./PH_final,'-.r');
 hold on;
-plot(a/365,Cm(:,end),'-.b');
-plot(a/365,Ctot(:,end),'-.k');
+plot(a/365,Cm(:,end)./PH_final,'-.b');
+plot(a/365,Ctot(:,end)./PH_final,'-.k');
 xlabel('age (years)')
 legend('Acquired','Maternal','Total','Location','SouthEast');
 title(['Immun dist.~~ feedback =',num2str(immunity_feedback)]);
-axis([0 age_max/365 0 max(Ctot(:,end))*1.1]);
+axis([0 age_max/365 0 max(Ctot(:,end)./PH_final)*1.1]);
 grid on
 %%
 figure_setups;
