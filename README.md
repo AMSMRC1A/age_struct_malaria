@@ -1,4 +1,10 @@
-# ReadMe for age_struct_malaria
+# Project Team
+
+This repository is comprised of codes related to the project "Modeling Immunity to Malaria with an Age-Structured PDE Framework" arising from the American Mathematical Society's Mathematical Research Community on infectious diseases (2020-2021). The team members on this project are:
+
+Lauren Childs (Virginia Tech), Christina Edholm (Scripps College), Denis Patterson (Princeton University), Joan Ponce (UCLA), Olivia Propser (University of Tennessee, Knoxville), Zhuolin Qu (University of Texas at San Antonio) and Lihong Zhao (University of California Merced)
+
+# ReadMe
 
 I want to:
 
