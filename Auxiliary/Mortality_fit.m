@@ -40,5 +40,16 @@ plotResiduals(md1, 'fitted')
 % slice plot
 % one can drag the vertical dashed line to see the effect of a change in alpha on mu
 plotSlice(md1)
-
-
+%% 
+figure_setups; hold on
+scatter(alpha*365,rawdata/365)
+age = 0:20:80*365; % days
+b = b_est;
+muH =  b(1) + b(2)*exp(-b(3)*age/365) + b(4)*exp(b(5)*age/365); % natural human mortality rate
+muH = muH/365;
+plot(age,muH)
+b = b_0;
+muH =  b(1) + b(2)*exp(-b(3)*age/365) + b(4)*exp(b(5)*age/365); % natural human mortality rate
+muH = muH/365;
+plot(age,muH)
+legend('data','estimate','initial')

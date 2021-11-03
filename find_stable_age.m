@@ -3,14 +3,9 @@ function find_stable_age()
 
 global P
 
-% natural human mortality rate
-muH_int = P.muH_int_fun; 
-% human fertility rate
-gH = P.gH_fun;
-
 % Look for a zero in [LP,RP] to find p_hat for the stable age distribution
 % use exact function values to reduce numerical errors
-F = @(p) integral(@(age) gH(age).*exp(-p.*age- muH_int(age)),0,Inf) - 1;
+F = @(p) P.da.*trapz(P.gH.*exp(-p*P.a-P.muH_int)) - 1;
 options = optimset('TolX',1e-25); % don't show iterations
 p0 = [-10^-3 10^-3]; % [LP,RP]
 p = fzero(F,p0,options);
@@ -25,7 +20,7 @@ end
 % Construct the stable age distribution using p_hat
 P.K = 1/integral(@(a) exp(-P.p_hat*a-P.muH_int_fun(a)),0,Inf);
 P.PH_stable = P.K*exp(-P.p_hat*P.a-P.muH_int);
-P.PH_stable_fun = @(a) P.K.*exp(-P.p_hat.*a-muH_int(a));
+P.PH_stable_fun = @(a) P.K.*exp(-P.p_hat.*a-P.muH_int_fun(a));
 
 end
 %%

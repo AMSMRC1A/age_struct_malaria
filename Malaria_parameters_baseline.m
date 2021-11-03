@@ -48,11 +48,17 @@ P.MHr = 5; P.MHr_lower = 2; P.MHr_upper = 10; % mosquito-human population ratio 
 P.sigma = 1/15; P.sigma_lower = 1/30; P.sigma_upper = 1/10; % incubation rate for mosquitoes
 
 %% mortality functions (placeholder parameters)
-P.b0 = 0;
-P.b1 = 0.05;
-P.b2 = 0.505;
-P.b3 = 0.01;
-P.b4 = 0.055;
+% P.b0 = 0;
+% P.b1 = 0.05;
+% P.b2 = 0.505;
+% P.b3 = 0.01;
+% P.b4 = 0.055;
+
+P.b0 = 0.0011;
+P.b1 = 0.0902;
+P.b2 = 0.9788;
+P.b3 = 0.0001;
+P.b4 = 0.0824;            
 
 %% fertility rate (placeholder parameters) -- probability not used later...
 P.cc = 4.6;
