@@ -21,15 +21,15 @@ lP = 'betaM';  % bifurcating parameters
 immunity_feedback = 0;
 if immunity_feedback == 0
     % average populational sigmoids f0 = f1 = average 
-    P.rho_f_0 = 0.109; % value at zero
-    P.rho_f_1 = 0.109; % value at L (function saturates to this value)
+    P.phi_f_0 = 0.570320665853183; % value at zero
+    P.phi_f_1 = 0.570320665853183; % value at L (function saturates to this value)
     
-    P.phi_f_0 = 0.386; % value at zero
-    P.phi_f_1 = 0.386; % value at L (function saturates to this value)
+    P.rho_f_0 = 0.088575583518581; % value at zero
+    P.rho_f_1 = 0.088575583518581; % value at L (function saturates to this value)  
     
-    P.psi_f_0 = 0.579; % value at zero
-    P.psi_f_1 = 0.579; % value at L (function saturates to this value)
-    param = [0.01:0.05:1.0].^2;
+    P.psi_f_0 = 0.409302219871934; % value at zero
+    P.psi_f_1 = 0.409302219871934; % value at L (function saturates to this value)   
+    param = [0.01, 0.06, 0.11, 0.13, 0.16:0.05:1.0].^2;
 else
     param = [0.01:0.025:0.55].^2;
 end
@@ -148,46 +148,44 @@ hold on;
 R0_DFE_EE = [R0_list,R0_list];
 ind_stable = find([re_max_DFE,re_max_EE]<0);
 ind_unstable = find([re_max_DFE,re_max_EE]>0);
-
-I_frac = [I_frac_DFE,A_frac_EE+D_frac_EE];
-I_frac_A = [I_frac_DFE,A_frac_EE];
-I_frac_D = [I_frac_DFE,D_frac_EE];
-h5 = plot(R0_DFE_EE(ind_stable), I_frac(ind_stable),'b-','Marker','.','MarkerSize',30);
-h6 = plot(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
-% h1 = scatter(R0_DFE_EE(ind_stable), I_frac(ind_stable),100,'bo','filled');
-% h2 = scatter(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),100,'r^','filled');
+I_frac = [I_frac_DFE,I_frac_EE];
+h1 = plot(R0_DFE_EE(ind_stable), I_frac(ind_stable),'-','Marker','.','MarkerSize',30);
+h4 = plot(R0_list, D_frac_EE,'-','Marker','.','MarkerSize',30);
+h5 = plot(R0_list, A_frac_EE,'-','Marker','.','MarkerSize',30);
+h2 = plot(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
+grid on; grid minor
+xlabel('$\mathcal{R}_0(\beta_M)$');
+ylabel('Fraction of population');
+title(['immunity feedback = ',num2str(immunity_feedback)]);
+% plot baseline
+P.betaM = 0.25;
+[~,~,D,A,~,~,~] = steady_state('EE');
+R0_baseline = R0_cal();
+h3 = plot([R0_baseline,R0_baseline],[0,1],'m-');
+legend([h1 h4 h5 h2 h3], {'D+A','D','A','unstable','baseline'},'Location','e')
+axis([0 6.6 0 1])
+% title(['Bifurcation']);
+xlabel('$\mathcal{R}_0$');
+keyboard
+% save data for comparison
+save(['Results/Bifur/bifur_immune_',num2str(immunity_feedback),'.mat'],'I_frac','ind_stable','ind_unstable','R0_DFE_EE','R0_baseline','R0_list','D_frac_EE','A_frac_EE')
+keyboard
+%% compare immunity feedback impact
+immunity_feedback = 0;
+D0 = load(['Results/Bifur/bifur_immune_',num2str(immunity_feedback),'.mat'],'I_frac','ind_stable','ind_unstable','R0_DFE_EE','R0_baseline');
+immunity_feedback = 1;
+D1 = load(['Results/Bifur/bifur_immune_',num2str(immunity_feedback),'.mat'],'I_frac','ind_stable','ind_unstable','R0_DFE_EE','R0_baseline');
+figure_setups; hold on;
+h1 = plot(D0.R0_DFE_EE(D0.ind_stable), D0.I_frac(D0.ind_stable),'--','Marker','.','MarkerSize',30);
+plot(D0.R0_DFE_EE(D0.ind_unstable), D0.I_frac(D0.ind_unstable),':','Marker','^','MarkerSize',5);
+h2 = plot(D1.R0_DFE_EE(D1.ind_stable), D1.I_frac(D1.ind_stable),'-','Marker','.','MarkerSize',30);
+plot(D1.R0_DFE_EE(D1.ind_unstable), D1.I_frac(D1.ind_unstable),'.','Marker','^','MarkerSize',5);
 grid on; grid minor
 xlabel('$\mathcal{R}_0(\beta_M)$');
 ylabel('D+A');
-axis([0 max(R0_DFE_EE) 0 1])
-legend([h5 h6], {'stable','unstable'},'Location','e')
-
-%% More detailed plot
-figure_setups;
-hold on;
-h1 = plot(R0_DFE_EE(ind_stable), I_frac_A(ind_stable),'Color',colour_mat2,'Marker','.','MarkerSize',30);
-%h2 = plot(R0_DFE_EE(ind_unstable), I_frac_A(ind_unstable),'Color',colour_mat2,'Marker','o','MarkerSize',5);
-h3 = plot(R0_DFE_EE(ind_stable), I_frac_D(ind_stable),'Color',colour_mat7,'Marker','.','MarkerSize',30);
-%h4 = plot(R0_DFE_EE(ind_unstable), I_frac_D(ind_unstable),'Color',colour_mat7,'Marker','^','MarkerSize',5);
-h5 = plot(R0_DFE_EE(ind_stable), I_frac(ind_stable),'b-','Marker','.','MarkerSize',30);
-h6 = plot(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
-grid on; grid minor
-xlabel('$\mathcal{R}_0(\beta_M)$');
-ylabel('Infected pop.');
-axis([0 max(R0_DFE_EE) 0 1])
-legend([h1 h3 h5 h6], {'AH (stable)','DH (stable)','AH+DH (stable)','AH+DH (unstable)'},'Location','nw')
-%% Plot versus the input parameter
-param_DFE_EE = [param,param];
-figure_setups;
-hold on;
-h1 = plot(param_DFE_EE(ind_stable), I_frac_A(ind_stable),'Color',colour_mat2,'Marker','.','MarkerSize',30);
-%h2 = plot(R0_DFE_EE(ind_unstable), I_frac_A(ind_unstable),'Color',colour_mat2,'Marker','o','MarkerSize',5);
-h3 = plot(param_DFE_EE(ind_stable), I_frac_D(ind_stable),'Color',colour_mat7,'Marker','.','MarkerSize',30);
-%h4 = plot(R0_DFE_EE(ind_unstable), I_frac_D(ind_unstable),'Color',colour_mat7,'Marker','^','MarkerSize',5);
-h5 = plot(param_DFE_EE(ind_stable), I_frac(ind_stable),'b-','Marker','.','MarkerSize',30);
-h6 = plot(param_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
-grid on; grid minor
-xlabel('$\beta_M$');
-ylabel('Infected pop.');
-axis([min(param) max(param) 0 1])
-legend([h1 h3 h5 h6], {'AH (stable)','DH (stable)','AH+DH (stable)','AH+DH (unstable)'},'Location','se')
+title('immunity feedback comparison');
+% plot baseline
+h3 = plot([D0.R0_baseline,D0.R0_baseline],[0,1],'m--');
+plot([D1.R0_baseline,D1.R0_baseline],[0,1],'m-');
+legend([h1 h2 h3], {'immunity off','immunity on','baseline'},'Location','e')
+axis([0 7 0 1])

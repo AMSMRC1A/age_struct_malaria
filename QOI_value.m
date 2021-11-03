@@ -6,7 +6,7 @@ global colour_r1 colour_r2
 
 da = P.da;
 a = P.a;
-use_EE_data = 0;
+use_EE_data = 1;
 if strcmp(lQ(1:2),'EE')
     FileName_EE = ['Results/SA/EE_',lP,'_',num2str(P.(lP),5),'.mat'];
     if exist(FileName_EE,'file') && use_EE_data==1 % EE calculated before

@@ -22,7 +22,7 @@ gH =  gH_fun(a); % human fertility rate
 %%
 P.gM = P.muM*P.MHr; % recruitment rate of mosquitoes;
 %%
-v_fun = @(age) P.v0*ones(size(age)); % constant vaccination rate, **if changed, need to update Cac steadystate as well**
+v_fun = @(age) P.v0*(age<5*365); % constant vaccination rate, **if changed, need to update Cac steadystate as well**
 v = v_fun(a); 
 
 P.muH = muH; %

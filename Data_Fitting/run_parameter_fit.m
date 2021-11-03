@@ -23,12 +23,12 @@ x0 = [0.5,   0.05,  ... % phi
     0.5,   0.05, ... % rho
     0.5,   0.05... % psi
    ];... % uc
-% x0 = [0.436220925335294   0.582458174892928   0.154888567469202   0.139238428973047   0.365630865154306   0.571205351481006];
+% L = 10; x0 = [0.436220925335294   0.582458174892928   0.154888567469202   0.139238428973047   0.365630865154306   0.571205351481006];
 % res = 1.165148e;
 lb = [0, 0.01, 0, 0.01, 0, 0.01];
 ub = [1, 1, 1, 1, 1, 1];
 
-[x,fval] = fmincon(@fun_RB,x0,[],[], [], [], lb, ub, [], options);
+[x,fval] = fmincon(@fun_Filipe,x0,[],[], [], [], lb, ub, [], options);
 
 keyboard
 % ----> update Malaria_parameters_baseline.m with the fitted results <-----
@@ -38,15 +38,16 @@ tfinal = 100*365; age_max = 80*365; P.age_max = age_max;
 dt = 20; da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = length(a);
 P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
+% x = [0.436220925335294   0.582458174892928   0.154888567469202   0.139238428973047   0.365630865154306   0.571205351481006];
 Malaria_parameters_baseline;
-P.phi_t_2 = x(1);
-P.phi_s_2 = x(2); 
-P.rho_t_2 = x(3);
-P.rho_s_2 = x(4); 
-P.psi_t_2 = x(5);
-P.psi_s_2 = x(6);
+% P.phi_t_2 = x(1);
+% P.phi_s_2 = x(2); 
+% P.rho_t_2 = x(3);
+% P.rho_s_2 = x(4); 
+% P.psi_t_2 = x(5);
+% P.psi_s_2 = x(6);
+% Malaria_parameters_transform;
 
-Malaria_parameters_transform;
 figure_setups; hold on
 [~,~,~,~,~,~,Ctot] = steady_state('EE');
 Ctot_pp = Ctot./P.PH_stable;
@@ -63,6 +64,7 @@ rho_ave = trapz(sigmoid_prob(Ctot_pp, 'rho').*P.PH_stable)*P.da;
 psi_ave = trapz(sigmoid_prob(Ctot_pp, 'psi').*P.PH_stable)*P.da;
 legend(['phi, pop ave = ',num2str(phi_ave,3)],['rho, pop ave = ',num2str(rho_ave,3)],['psi, pop ave = ',num2str(psi_ave,3)])
 axis([min(Ctot_pp) max(Ctot_pp) 0 1])
+[phi_ave rho_ave psi_ave]
 keyboard
 
 %% plotting heatmap (age, EIR, immunity level)
@@ -70,19 +72,28 @@ tfinal = 100*365; age_max = 80*365; P.age_max = age_max;
 dt = 20; da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = length(a);
 P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
+% x = [0.436220925335294   0.582458174892928   0.154888567469202   0.139238428973047   0.365630865154306   0.571205351481006];
 Malaria_parameters_baseline;
+% P.phi_t_2 = x(1);
+% P.phi_s_2 = x(2); 
+% P.rho_t_2 = x(3);
+% P.rho_s_2 = x(4); 
+% P.psi_t_2 = x(5);
+% P.psi_s_2 = x(6);
+% Malaria_parameters_transform;
+
 EIR_var = 'betaM'; % use this parameter to adjust the EIR
-immunity_feedback = 0;
+immunity_feedback = 1;
 if immunity_feedback == 0
     % population average sigmoids: f0 = f1 = average
-    P.rho_f_0 = 0.109; % value at zero
-    P.rho_f_1 = 0.109; % value at L (function saturates to this value)
+    P.phi_f_0 = 0.570320665853183; % value at zero
+    P.phi_f_1 = 0.570320665853183; % value at L (function saturates to this value)
     
-    P.phi_f_0 = 0.386; % value at zero
-    P.phi_f_1 = 0.386; % value at L (function saturates to this value)
+    P.rho_f_0 = 0.088575583518581; % value at zero
+    P.rho_f_1 = 0.088575583518581; % value at L (function saturates to this value)  
     
-    P.psi_f_0 = 0.579; % value at zero
-    P.psi_f_1 = 0.579; % value at L (function saturates to this value)   
+    P.psi_f_0 = 0.409302219871934; % value at zero
+    P.psi_f_1 = 0.409302219871934; % value at L (function saturates to this value)   
     var_list = [0.01:0.05:1.0].^2; 
 else
     var_list = [0.01:0.025:0.55].^2;
@@ -108,15 +119,15 @@ end
 figure_setups; 
 imagesc(a/365,final_EIR,final_immunity');% ,[0 8.2] % specify the range of cvalues
 xlim([0 10])
-xlabel('age')
+xlabel('age (years)')
 ylabel('EIR')
-title(['Immunity levels, feedback = ',num2str(immunity_feedback)]);
+% title(['Immunity levels, feedback = ',num2str(immunity_feedback)]);
+title('Immunity level per person');
 set(gca,'YDir','normal');
-grid on
 colormap jet
 colorbar('Ticks',0:1:8);
 
-% plot heatmap of rho (age, EIR) = prob E->D
+%% plot heatmap of rho (age, EIR) = prob E->D
 figure_setups; 
 imagesc(a/365,final_EIR,final_rho');% ,[0 8.2] % specify the range of cvalues
 xlim([0 10])

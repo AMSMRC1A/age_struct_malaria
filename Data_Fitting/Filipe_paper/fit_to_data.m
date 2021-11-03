@@ -19,7 +19,7 @@ x = Data_mat(:,1); y = Data_mat(:,2); v = Data_mat(:,3);
 F = scatteredInterpolant(x,y,v,'linear','nearest');
 figure_setups; hold on;
 % plot3(x,y,v,'.')
-[xq,yq] = meshgrid(0:1:10,1:10:150);
+[xq,yq] = meshgrid([0.1:0.2:0.9,1:0.1:10],1:1:150);
 vq = F(xq,yq);
 mesh(xq,yq,vq)
 % save('Filipe_paper/F_Filipe.mat','F'); 
