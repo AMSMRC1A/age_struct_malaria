@@ -7,7 +7,7 @@ global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 c
 global colour_r1 colour_r2
 
 %% numerical config
-tfinal = 100*365; age_max = 60*365; P.age_max = age_max;
+tfinal = 100*365; age_max = 100*365; P.age_max = age_max;
 dt = 100; % time/age step size in days, default = 50; could go dt = 200 (still robust)
 da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = length(a);
 
@@ -18,7 +18,7 @@ P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 load_data = 0;
 Malaria_parameters_baseline; % model parameters - rates are in 1/day
 lP = 'betaM';  % bifurcating parameters
-immunity_feedback = 0;
+immunity_feedback = 1;
 if immunity_feedback == 0
     % average populational sigmoids f0 = f1 = average 
     P.phi_f_0 = 0.570320665853183; % value at zero

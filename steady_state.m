@@ -37,7 +37,7 @@ switch lstate
         end
     case 'EE'
         % use numerical simulation for an initial guess
-        dt = 20; tfinal= 10*365; % run for a few years to get closer to EE
+        dt = 20; tfinal= 15*365; % run for a few years to get closer to EE
         t = (0:dt:tfinal)'; nt = length(t);
         [SH, EH, DH, AH, ~, ~, ~, ~, Cac, ~] = age_structured_Malaria(P.na,P.da,nt);
         %% run solver on a coarser grid to speed up

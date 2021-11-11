@@ -17,22 +17,22 @@ P.cV = 0.75; % weight for vaccination ~~ SH
 P.m = 1; % fraction of new-born immunity relative to mother’s
 P.uc = 10; % Duration in which immunity is not boosted
 %% progression probabilities parameters, sigmoid parameters
-% fitted values
-P.L = 10; % effective range is [0,L]
+% fitted values     
+P.L = 7.974031085468034; % effective range is [0,L]
 P.phi_f_0 = 0.01; % value at zero
 P.phi_f_1 = 1; % value at L (function saturates to this value)
-P.phi_t_2 = 0.436220925335294; % threshold value (as a fraction of L)
-P.phi_s_2 = 0.582458174892928; % sigmoid steepness, smaller is steeper
-
+P.phi_t_2 = 0.200455981024660; % threshold value (as a fraction of L)
+P.phi_s_2 = 0.741327847456465; % sigmoid steepness, smaller is steeper
+% rho = psi
 P.rho_f_0 = 0.01; % value at zero
 P.rho_f_1 = 1; % value at L (function saturates to this value)
-P.rho_t_2 = 0.154888567469202; % threshold value (as a fraction of L)
-P.rho_s_2 = 0.139238428973047; % sigmoid steepness, smaller is steeper
-% 
+P.rho_t_2 = 0.225836736227440; % threshold value (as a fraction of L)
+P.rho_s_2 = 0.227377462176943; % sigmoid steepness, smaller is steeper
+
 P.psi_f_0 = 0.01; % value at zero
 P.psi_f_1 = 1; % value at L (function saturates to this value)
-P.psi_t_2 = 0.365630865154306; % threshold value (as a fraction of L)
-P.psi_s_2 = 0.571205351481006; % sigmoid steepness, smaller is steeper
+P.psi_t_2 = 0.225836736227440; % threshold value (as a fraction of L)
+P.psi_s_2 = 0.227377462176943; % sigmoid steepness, smaller is steeper
 
 %% mosquito related parameters/rates
 P.bh = 5; P.bh_lower = 2; P.bh_upper = 19;% tolerated biting rate per human
@@ -67,5 +67,5 @@ P.alpha = 28;
 P.ww = 13.5;
 
 %%
-P.v0 = 0.5; P.v0_lower = 0.1;  P.v0_upper = 0.8; % vaccination rate parameter (constant rate in age)
+P.v0 = 0; P.v0_lower = 0.1;  P.v0_upper = 0.8; % vaccination rate parameter (constant rate in age)
 Malaria_parameters_transform;

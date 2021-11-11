@@ -10,8 +10,9 @@ P.phi_t_2 = x(1);
 P.phi_s_2 = x(2);
 P.rho_t_2 = x(3);
 P.rho_s_2 = x(4); 
-P.psi_t_2 = x(5);
-P.psi_s_2 = x(6);
+P.psi_t_2 = x(3);
+P.psi_s_2 = x(4);
+P.L = x(5);
 
 Malaria_parameters_transform;
 nsamp = 10;
