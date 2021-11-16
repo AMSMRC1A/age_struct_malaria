@@ -36,5 +36,5 @@ P.gH = fun_balanced_births(P.a);
     hold on;
     plot(P.a/365,P.gH,'-.r');
     legend('original fertility','balanced fertility');
-    keyboard
+%     keyboard
 end

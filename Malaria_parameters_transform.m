@@ -3,6 +3,7 @@ global P
 a = P.a;
 
 P.c2 = P.c1; % weight for maternal immunity
+P.c3 = P.c1; % weight for vaccine-derived immunity
 
 P.muD = 0*ones(size(a));  % disease-induced human mortality rate
 
@@ -22,13 +23,17 @@ gH =  gH_fun(a); % human fertility rate
 %%
 P.gM = P.muM*P.MHr; % recruitment rate of mosquitoes;
 %%
-v_fun = @(age) P.v0*(age<5*365); % constant vaccination rate, **if changed, need to update Cac steadystate as well**
-v = v_fun(a); 
+vb_fun = @(age) P.vb0*(age<5*365); % constant vaccination rate, **if changed, need to update Cac steadystate as well**
+vb = vb_fun(a); 
+vp_fun = @(age) P.vp0*(age<5*365); % constant vaccination rate, **if changed, need to update Cac steadystate as well**
+vp = vp_fun(a); 
 
 P.muH = muH; %
 P.gH = gH; %
-P.v = v;
-P.v_fun = v_fun;
+P.vb = vb;
+P.vb_fun = vb_fun;
+P.vp = vp;
+P.vp_fun = vp_fun;
 P.gH_fun = gH_fun;
 P.muH_int_fun = muH_int_fun;
 P.muH_int = muH_int_fun(a);
@@ -64,4 +69,4 @@ ylabel('age (years)');
 title('Kenya')
 grid on
 axis([0 max(P.PH_stable) 0 age_max/365 ]);
-keyboard
+% keyboard

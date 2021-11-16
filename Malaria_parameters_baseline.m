@@ -2,6 +2,15 @@ global P
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
 P.balance_mortality = 0;
 
+%% vaccine related parameters
+P.vb0 = 0; P.vb0_lower = 0.1;  P.vb0_upper = 0.8; % vaccination rate for boosting immunity (Cv) (boosting)
+P.dv = 7*30; % Half-life of vaccine-boosted immunity (Cv)
+%
+P.vp0 = 0; P.vp0_lower = 0.1;  P.vp0_upper = 0.8; % vaccination rate for sterilizing immunity (VH) (infection protection)
+P.w = 7*30; % Waning rate for infection-protection immunity (VH)
+P.e = 0.5; % Vaccine efficacy for the infection-protection immunity (VH)
+
+%%
 P.rD = 1/180; % recovery rate for DH
 P.rA = 1/360; % recovery rate for AH
 P.h = 1/15; % incubation rate in human
@@ -96,5 +105,4 @@ P.alpha = 4.083610527018673;
 P.ww = 13.196127635937707;
 
 %%
-P.v0 = 0; P.v0_lower = 0.1;  P.v0_upper = 0.8; % vaccination rate parameter (constant rate in age)
 Malaria_parameters_transform;

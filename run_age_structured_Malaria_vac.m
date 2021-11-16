@@ -28,6 +28,7 @@ P.t = t;
 
 % model parameters
 Malaria_parameters_baseline;
+
 % P.betaM = 0.25; % high EIR
 % P.betaM = 0.01; % low EIR
 % Malaria_parameters_transform;
@@ -47,8 +48,8 @@ end
 
 
 %% time evolution
-[SH, EH, DH, AH, SM, EM, IM, Cm, Cac, Ctot] = age_structured_Malaria(na,da,nt);
-PH = SH+EH+DH+AH;
+[SH, EH, DH, AH, VH, SM, EM, IM, Cm, Cac, Cv, Ctot] = age_structured_Malaria_vac(na,da,nt);
+PH = SH+EH+DH+AH+VH;
 PH_final = PH(:,end); % total human at age a, t = n
 NH = trapz(PH,1)*da;
 NM = SM+EM+IM;
@@ -66,8 +67,9 @@ EIR_EE = EIR(end)
 % plot(t,trapz(EH,1)*da,'--','Color',colour_mat3);
 % plot(t,trapz(AH,1)*da,'-.','Color',colour_mat2);
 % plot(t,trapz(DH,1)*da,'-','Color',colour_mat7);
+% plot(t,trapz(VH,1)*da,'-','Color',colour_mat6);
 % plot(t,NH,'-.k')
-% legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$','Location','NorthWest');
+% legend('SH-age','EH-age','AH-age', 'DH-age','VH-age','$N_H$','Location','NorthWest');
 % title(['Population size vs time', '~~feedback = ',num2str(immunity_feedback)]); 
 % axis_years(gca,tfinal); % change to x-axis to years if needed
 % grid on
@@ -79,8 +81,9 @@ plot(a/365,SH(:,end),'-','Color',colour_mat1); hold on;
 plot(a/365,EH(:,end),'--','Color',colour_mat3);
 plot(a/365,DH(:,end),'-.','Color',colour_mat2);
 plot(a/365,AH(:,end),':','Color',colour_mat7);
+plot(a/365,VH(:,end),':','Color',colour_mat6);
 plot(a/365,PH_final,'-k');
-legend('SH','EH','DH', 'AH','PH');
+legend('SH','EH','DH', 'AH','VH','PH');
 % title(['Final Age Dist.,~~ feedback =',num2str(immunity_feedback)]);
 title(['Final Age Distribution']);
 xlabel('age (years)');
@@ -92,8 +95,9 @@ plot(a/365,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
 plot(a/365,EH(:,end)./PH_final,'--','Color',colour_mat3);
 plot(a/365,DH(:,end)./PH_final,'-.','Color',colour_mat2);
 plot(a/365,AH(:,end)./PH_final,':','Color',colour_mat7);
+plot(a/365,VH(:,end)./PH_final,':','Color',colour_mat6);
 plot(a/365,PH_final./PH_final,'-k');
-legend('SH/PH','EH/PH','DH/PH', 'AH/PH');
+legend('SH/PH','EH/PH','DH/PH', 'AH/PH', 'VH/PH');
 title(['Final Age Dist. Proportions']); 
 % title(['Final Age Dist. Proportions ~~ feedback =',num2str(immunity_feedback)]); 
 xlabel('age (years)');
@@ -106,8 +110,9 @@ xlim([0 10])
 % plot(t,trapz(EH,1)*da./NH,'--','Color',colour_mat3);
 % plot(t,trapz(AH,1)*da./NH,'-.','Color',colour_mat2);
 % plot(t,trapz(DH,1)*da./NH,'-','Color',colour_mat7);
-% plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da./NH,'-.k');
-% legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$');
+% plot(t,trapz(VH,1)*da./NH,'-','Color',colour_mat6);
+% plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1)+trapz(VH,1))*da./NH,'-.k');
+% legend('SH-age','EH-age','AH-age', 'DH-age', 'VH-age','$N_H$');
 % title('Population proportions vs time');
 % axis_years(gca,tfinal); % change to x-axis to years if needed
 % xlabel('time');
@@ -151,9 +156,10 @@ xlim([0 10])
 % plot(a/365,Cac(:,end),'-.r');
 % hold on;
 % plot(a/365,Cm(:,end),'-.b');
+% plot(a/365,Cv(:,end),'-.c');
 % plot(a/365,Ctot(:,end),'-.k');
 % xlabel('age (years)')
-% legend('Acquired','Maternal','Total','Location','SouthEast');
+% legend('Acquired','Maternal','Vaccine-derived','Total','Location','SouthEast');
 % title(['Immun dist.~~ feedback =',num2str(immunity_feedback)]);
 % axis([0 age_max/365 0 max(Ctot(:,end))*1.1]);
 % grid on
@@ -162,10 +168,11 @@ xlim([0 10])
 % plot(a/365,Cac(:,end)./PH_final,'-.');
 % hold on;
 % plot(a/365,Cm(:,end)./PH_final,'--');
+% plot(a/365,Cv(:,end)./PH_final,'--');
 % plot(a/365,Ctot(:,end)./PH_final,'-');
 % xlabel('age (years)')
 % ylabel('immunity level')
-% legend('Acquired (pp)','Maternal (pp)','Total (pp)','Location','SouthEast');
+% legend('Acquired (pp)','Maternal (pp)','Vaccine-derived (pp)','Total (pp)','Location','SouthEast');
 % % title(['Per-person Immun dist.~~ feedback =',num2str(immunity_feedback)]);
 % title('Per-person Immun distribution');
 % axis([0 age_max/365 0 max(Ctot(:,end)./PH_final)*1.1]);
