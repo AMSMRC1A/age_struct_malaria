@@ -1,5 +1,6 @@
 global P
 P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
+P.balance_mortality = 0;
 
 P.rD = 1/180; % recovery rate for DH
 P.rA = 1/360; % recovery rate for AH
@@ -54,17 +55,45 @@ P.sigma = 1/15; P.sigma_lower = 1/30; P.sigma_upper = 1/10; % incubation rate fo
 % P.b3 = 0.01;
 % P.b4 = 0.055;
 
-P.b0 = 0.0011;
-P.b1 = 0.0902;
-P.b2 = 0.9788;
-P.b3 = 0.0001;
-P.b4 = 0.0824;            
+% % use rawdata - Burkina Faso
+% P.b0 = 0.0011;
+% P.b1 = 0.0902;
+% P.b2 = 0.9788;
+% P.b3 = 0.0001;
+% P.b4 = 0.0824;
+
+% use rawdata - Burkina Faso - nqx
+P.b0 = -0.00184060298929884;
+P.b1 = 0.0612534257767888;
+P.b2 = 0.22936269839461;
+P.b3 = 0.00168680186366339;
+P.b4 = 0.0685738198995137;
+
+% use rawdata - Kenya - nqx
+% P.b0 = 0.00535813305445784;
+% P.b1 = 0.0399375790345927;
+% P.b2 = 0.832506289191262;
+% P.b3 = 0.00109779169164845;
+% P.b4 = 0.0728962842590868;
+
+% use rawdata - Kenya
+P.b0 = 0.0033187534243402;
+P.b1 = 3.42791330234217;
+P.b2 = 9.42359357885154;
+P.b3 = 3.09390934659351e-05;
+P.b4 = 0.100923988335168;
 
 %% fertility rate (placeholder parameters) -- probability not used later...
-P.cc = 4.6;
-P.zz = 25;
-P.alpha = 28;
-P.ww = 13.5;
+% P.cc = 4.6;
+% P.zz = 25;
+% P.alpha = 28;
+% P.ww = 13.5;
+
+% for Kenya
+P.cc = 4.024086261410830;
+P.zz = 17.963601264000353;
+P.alpha = 4.083610527018673;
+P.ww = 13.196127635937707;
 
 %%
 P.v0 = 0; P.v0_lower = 0.1;  P.v0_upper = 0.8; % vaccination rate parameter (constant rate in age)
