@@ -57,7 +57,9 @@ NM = SM+EM+IM;
 [bh,bm] = biting_rate(NH,NM);
 EIR = bh.*IM./NM*365;
 EIR_EE = EIR(end)
-% R0 = R0_cal()
+tic
+R0 = R0_cal_vac()
+toc
 % figure_setups;
 % plot(t,EIR,'b-'); hold on;
 
