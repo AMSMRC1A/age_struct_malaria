@@ -30,12 +30,23 @@ vb = vb_fun(a);
 vp_fun = @(age) P.vp0.*(age>=age1).*(age<=age2);
 vp = vp_fun(a); 
 
+% approximation of theta at DFE - needed for analytical purpose: DFE, R0, bifurcation
+pi_fun = @(x) P.w+P.e.*vp_fun(x);
+pi_int_a = intf(pi_fun,P.a);
+pi_int_fun = @(x) interp1(P.a,pi_int_a,x);
+exp_pi_int_a = intf(@(x) P.w.*exp(pi_int_fun(x)),P.a);
+exp_pi_int = @(x) interp1(P.a,exp_pi_int_a,x);
+theta_fun = @(x) exp(-pi_int_fun(x)).*(1+exp_pi_int(x));
+theta0 = theta_fun(P.a);
+
 P.muH = muH; 
 P.gH = gH; 
 P.vb = vb;
 P.vb_fun = vb_fun;
 P.vp = vp;
 P.vp_fun = vp_fun;
+P.theta_fun = theta_fun;
+P.theta = theta0;
 P.gH_fun = gH_fun;
 P.muH_int_fun = muH_int_fun;
 P.muH_int = muH_int_fun(a);
@@ -72,3 +83,12 @@ find_stable_age;
 % grid on
 % axis([0 max(P.PH_stable) 0 age_max/365 ]);
 % % keyboard
+
+function intfx = intf(f,xs)
+ns = length(xs);
+fx = f(xs);
+e = ones(ns,ns+1)/2;
+e(2:end,1:end-1)=1;e(1,end)=0;
+A = spdiags(e,-ns:0,ns,ns);
+intfx= A*fx;
+end

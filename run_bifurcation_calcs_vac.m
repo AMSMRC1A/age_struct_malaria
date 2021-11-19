@@ -31,7 +31,8 @@ if immunity_feedback == 0
     P.psi_f_1 = 0.409302219871934; % value at L (function saturates to this value)   
     param = [0.01, 0.06, 0.11, 0.13, 0.16:0.05:1.0].^2;
 else
-    param = [0.01:0.025:0.55].^2;
+%     param = [0.01:0.1:0.55].^2; % coarse grid - for debugging
+    param = [0.01:0.025:0.55].^2; % fine grid
 end
 %% options
 plot_equilibrium = 0; % can set to zero if working with the DFE
@@ -68,7 +69,6 @@ for i = 1:length(param)
             x0 = [S./P.PH_stable;E./P.PH_stable;D./P.PH_stable;A./P.PH_stable;V./P.PH_stable;Cac./P.PH_stable;Cv./P.PH_stable];
             [xsol,err,~,~,jacobian] = fsolve(F_prop,x0,options);
             x_EE = reshape(xsol,[P.na,7]);
-            keyboard
             jacobian([1, P.na+1, 2*P.na+1, 3*P.na+1, 4*P.na+1, 5*P.na+1, 6*P.na+1],:)=0; % zero out the rows
             jacobian(:,[1, P.na+1, 2*P.na+1,3*P.na+1, 4*P.na+1, 5*P.na+1, 6*P.na+1])=0; % zero out the columns
             ee = eig(jacobian);
@@ -83,19 +83,19 @@ for i = 1:length(param)
             % plot proportion
             figure_setups; hold on;
             plot(a,x_EE(:,1),'-','Color',colour_mat1);
-            plot(a,x_EE(:,2),'-','Color',colour_mat3);
-            plot(a,x_EE(:,4),'-','Color',colour_mat2);
+            plot(a,x_EE(:,2),'-','Color',colour_mat3);            
             plot(a,x_EE(:,3),'-','Color',colour_mat7);
+            plot(a,x_EE(:,4),'-','Color',colour_mat2);
             plot(a,x_EE(:,5),'-','Color',colour_mat6);
-            legend('SH (solver)','EH (solver)','AH (solver)', 'DH (solver)', 'VH (solver)');
+            legend('SH (solver)','EH (solver)','DH (solver)', 'AH (solver)', 'VH (solver)');
             title('Final Age Dist. prop');
             xlabel('age');
             axis_years(gca,age_max); % change to x-axis to years if needed
             grid on
             %axis([0 age_max 0 max(sum(x_EE,2))]);
             %keyboard
-        end
-        I_frac_EE(i) = 1-da*trapz((x_EE(:,1)+x_EE(:,2)).*P.PH_stable);        
+        end 
+        I_frac_EE(i) = da*trapz((x_EE(:,3)+x_EE(:,4)).*P.PH_stable);        
         A_frac_EE(i) = da*trapz((x_EE(:,4)).*P.PH_stable);
         D_frac_EE(i) = da*trapz((x_EE(:,3)).*P.PH_stable);
         re_max_EE(i) = max(real(ee));
@@ -114,9 +114,9 @@ for i = 1:length(param)
         x_DFE = S.x_DFE;
         ee = S.ee;
     else 
-        [S,~,~,~,V,~,Cm,Cv,~] = steady_state_vac('DFE','numerical');
+        [S,~,~,~,V,~,~,Cv,~] = steady_state_vac('DFE','numerical');
         x0 = [S./P.PH_stable; 0*ones(length(a),1); 0*ones(length(a),1); 0*ones(length(a),1); V./P.PH_stable;...
-            0*ones(length(a),1); Cm./P.PH_stable; Cv./P.PH_stable]; % initial guess for the DFE
+            0*ones(length(a),1); Cv./P.PH_stable]; % initial guess for the DFE
         [xsol_DFE,err,~,~,jacobian] = fsolve(F_prop,x0,options);
         if max(max(abs(err)))>10^-5
             disp('not converged')
@@ -127,13 +127,13 @@ for i = 1:length(param)
         ee = eig(jacobian);
         ee(ee==0)=[];
         x_DFE = reshape(xsol_DFE,[P.na,7]);
-        %  save(FileName,'x_DFE','ee')
+%         save(FileName,'x_DFE','ee')
     end
     if norm(F_prop(x_DFE),Inf) > 10^-5
         disp('DFE not achieved')
         keyboard
     end
-    I_frac_DFE(i) = 1 - da*trapz((x_DFE(:,1)+x_DFE(:,2)).*P.PH_stable);
+    I_frac_DFE(i) = da*trapz((x_DFE(:,3)+x_DFE(:,4)).*P.PH_stable);
     re_max_DFE(i) = max(real(ee));
     %     if re_max_DFE(i) < 0
     %        disp(['max real part of eigenvalues = ',num2str(re_max_DFE(i),'%10.6f'), '; DFE is stable']);

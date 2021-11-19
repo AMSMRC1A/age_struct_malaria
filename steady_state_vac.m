@@ -8,15 +8,12 @@ gH = P.gH_fun; % feritlity function handle
 muH_int = P.muH_int_fun; % death function handle M
 switch lstate
     case 'DFE'               
-        pi_int_fun = @(a) integral(@(z) (P.w+P.e.*P.vp_fun(z)), 0, a);
-        fun = @(age) integral(@(a) exp(pi_int_fun(a)), 0, age);
-        theta_fun = @(age) exp(-pi_int_fun(age)).*(1+P.w.*fun(age));
         if strcmp(lreturn,'handle')
-            S = @(alpha) theta_fun(alpha).*ones(size(alpha)).*P.PH_stable_fun(alpha);
+            S = @(alpha) P.theta_fun(alpha).*ones(size(alpha)).*P.PH_stable_fun(alpha);
             E = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
             D = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
             A = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
-            V = @(alpha) (1-theta_fun).*ones(size(alpha)).*P.PH_stable_fun(alpha);
+            V = @(alpha) (1-P.theta_fun).*ones(size(alpha)).*P.PH_stable_fun(alpha);
             % Cac
             Cac_prop = @(alpha) 0*ones(size(alpha));
             % Cv exact expression obtained based on simple v(alpha)
@@ -30,13 +27,12 @@ switch lstate
             Cv = @(alpha) Cv_prop(alpha).*P.PH_stable_fun(alpha);
             Ctot = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha)+P.c3*Cv(alpha);
         elseif strcmp(lreturn,'numerical')
-            a = P.a;
-            theta0 = theta_fun(a); 
-            S = theta0.*ones(size(a)).*P.PH_stable;
+            a = P.a; 
+            S = P.theta.*ones(size(a)).*P.PH_stable;
             E = 0*ones(size(a)).*P.PH_stable;
             D = 0*ones(size(a)).*P.PH_stable;
             A = 0*ones(size(a)).*P.PH_stable;
-            V = (1-theta0).*ones(size(a)).*P.PH_stable;
+            V = (1-P.theta).*ones(size(a)).*P.PH_stable;
             % Cac
             Cac_prop = 0*ones(size(a));
             % Cv exact expression obtained based on simple v(alpha)
@@ -99,4 +95,13 @@ switch lstate
     otherwise
         error('undefined steady state label...')
 end
+end
+
+function intfx = intf(f,xs)
+ns = length(xs);
+fx = f(xs);
+e = ones(ns,ns+1)/2;
+e(2:end,1:end-1)=1;e(1,end)=0;
+A = spdiags(e,-ns:0,ns,ns);
+intfx= A*fx;
 end

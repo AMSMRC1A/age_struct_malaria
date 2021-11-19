@@ -11,23 +11,16 @@ if P.balance_fertility == 1 || P.balance_mortality == 1
     sigmoid_phi = sigmoid_prob_fun('phi'); % return a function handle
     rho = @(a) sigmoid_rho(CH(a));
     phi = @(a) sigmoid_phi(CH(a));
-    %% For D part ----- double integral (alpha, a, s)
-    pi_fun = @(x) P.w+P.e.*P.vp_fun(x);
-    pi_int_a = intf(pi_fun,P.a);
-    pi_int_fun = @(x) interp1(P.a,pi_int_a,x);
-    exp_pi_int_a = intf(@(x) P.w.*exp(pi_int_fun(x)),P.a);
-    exp_pi_int = @(x) interp1(P.a,exp_pi_int_a,x);
-    theta_fun = @(x) exp(-pi_int_fun(x)).*(1+exp_pi_int(x));
-    D_alpha_a_x = @(alpha,a,x) exp(-muH_int(alpha)).*exp(-P.rD.*(alpha-a)).*rho(a).*P.h.*exp(-P.h.*(a-x)).*theta_fun(x);
+    %% For D part ----- integral (alpha, a, s)
+    D_alpha_a_x = @(alpha,a,x) exp(-muH_int(alpha)).*exp(-P.rD.*(alpha-a)).*rho(a).*P.h.*exp(-P.h.*(a-x)).*P.theta_fun(x);
     amax = @(alpha) alpha;
     xmax = @(alpha,a) a;
     D_int = integral3(D_alpha_a_x,0,alphamax,0,amax,0,xmax);
-    
-    %%  For A part --- double + triple integral on (alpha, a, x)...
+    %%  For A part --- integral on (alpha, a, x) + integral on (alpha, a, x, s)...
     A1_alpha_a_x = @(alpha,a,x) exp(-muH_int(alpha)).*exp(-P.rA.*(alpha-a)).*...
-        (1-rho(a)).*P.h.*exp(-P.h.*(a-x)).*theta_fun(x);
+        (1-rho(a)).*P.h.*exp(-P.h.*(a-x)).*P.theta_fun(x);
     A2_alpha_a_x_s = @(alpha,a,x,s) exp(-muH_int(alpha)).*exp(-P.rA.*(alpha-a)).*...
-        P.rD.*(1-phi(a)).*exp(-P.rD.*(a-x)).*rho(x).*P.h.*exp(-P.h.*(x-s)).*theta_fun(s);
+        P.rD.*(1-phi(a)).*exp(-P.rD.*(a-x)).*rho(x).*P.h.*exp(-P.h.*(x-s)).*P.theta_fun(s);
     amax = @(alpha) alpha;
     xmax = @(alpha,a) a;
     smax = @(alpha,a,x) x;
@@ -42,15 +35,6 @@ if P.balance_fertility == 1 || P.balance_mortality == 1
     R0 = RHM*RMH;
     R0 = sqrt(R0);
 end
-end
-
-function intfx = intf(f,xs)
-ns = length(xs);
-fx = f(xs);
-e = ones(ns,ns+1)/2;
-e(2:end,1:end-1)=1;e(1,end)=0;
-A = spdiags(e,-ns:0,ns,ns);
-intfx= A*fx;
 end
 
 
