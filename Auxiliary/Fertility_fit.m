@@ -1,11 +1,10 @@
 % close all 
 clear all
 % clc
-%% Kenya  per-capita annual birth rate
+%% Kenya per-capita annual birth rate
 rawdata = [0 0 0 0 96 206 183 148 100 38 9 0 0 0 0 0 0 0 0]/1000/365/2;
 %% years old
-% Age Group: <1 year, 1-4 years, 5-9 years, 10-14 years,..., 80-84 years,
-% and 85+ years
+% Age Group: <1 year, 1-4 years, 5-9 years, 10-14 years,..., 80-84 years and 85+ years
 alpha = [0.5 2.5 7 12 17 22 27 32 37 42 47 52 57 62 67 72 77 82 87.5].*365;
 gH = rawdata;
 %% estimate parameter values for the mortality rate function (2.*cc.*normpdf((age-zz)./ww).*normcdf(alpha.*(age-zz)./ww)./ww);
@@ -34,7 +33,6 @@ age = 0:0.1:100*365; % years
 b = b_est;
 gH_fit =  modelfun(b_est,age); % natural human mortality rate
 plot(age/365,gH_fit)
-% axis([0 100 0 2*10^-3])
 plot(age/365,modelfun(b_0,age));
 legend('data','estimate','initial')
 

@@ -2,7 +2,7 @@ function [R0,RHM,RMH] = R0_cal()
 global P
 
 % Stability of DFE when q = 0
-if P.balance_fertility == 1
+if P.balance_fertility == 1 || P.balance_mortality == 1
     alphamax = P.age_max; %% Inf
     muH_int = P.muH_int_fun;
     [~,~,~,~,~,~,CH] = steady_state('DFE','handle'); % steady state for CH - total immunity (function handle)

@@ -1,14 +1,14 @@
 global P
-P.balance_fertility = 1; % 0 to keep original fertility, 1 for balanced birth rate so that pop. growth is zero
-P.balance_mortality = 0;
+P.balance_fertility = 0; % balanced fertility or not
+P.balance_mortality = 1; % balanced mortality or not
 
 %% vaccine related parameters
 P.vb0 = 0; P.vb0_lower = 0.1;  P.vb0_upper = 0.8; % vaccination rate for boosting immunity (Cv) (boosting)
-P.dv = 7*30; % Half-life of vaccine-boosted immunity (Cv)
+P.dv = 5*365; % Half-life of vaccine-boosted immunity (Cv)
 %
 P.vp0 = 0; P.vp0_lower = 0.1;  P.vp0_upper = 0.8; % vaccination rate for sterilizing immunity (VH) (infection protection)
-P.w = 7*30; % Waning rate for infection-protection immunity (VH)
-P.e = 0.5; % Vaccine efficacy for the infection-protection immunity (VH)
+P.w = 1/(0.66*365); % Waning rate for infection-protection immunity (VH) for children 
+P.e = 0.73; % Vaccine efficacy for the infection-protection immunity (VH) for children 
 
 %%
 P.rD = 1/180; % recovery rate for DH
@@ -57,48 +57,16 @@ P.muM = 1/10; P.muM_lower = 1/15; P.muM_upper = 1/7; % natural mortality rate of
 P.MHr = 5; P.MHr_lower = 2; P.MHr_upper = 10; % mosquito-human population ratio gm = muM*ratio
 P.sigma = 1/15; P.sigma_lower = 1/30; P.sigma_upper = 1/10; % incubation rate for mosquitoes
 
-%% mortality functions (placeholder parameters)
-% P.b0 = 0;
-% P.b1 = 0.05;
-% P.b2 = 0.505;
-% P.b3 = 0.01;
-% P.b4 = 0.055;
+%% mortality rate parameters (initial estimates from raw data)
+% use rawdata - Kenya - nMx
+P.b0 = 0.0024214446844162;
+P.b1 = 0.0887924178445357;
+P.b2 = 2.09862983723212;
+P.b3 = 6.87709371762464e-05;
+P.b4 = 0.0901695513967616;
 
-% % use rawdata - Burkina Faso
-% P.b0 = 0.0011;
-% P.b1 = 0.0902;
-% P.b2 = 0.9788;
-% P.b3 = 0.0001;
-% P.b4 = 0.0824;
-
-% use rawdata - Burkina Faso - nqx
-P.b0 = -0.00184060298929884;
-P.b1 = 0.0612534257767888;
-P.b2 = 0.22936269839461;
-P.b3 = 0.00168680186366339;
-P.b4 = 0.0685738198995137;
-
-% use rawdata - Kenya - nqx
-% P.b0 = 0.00535813305445784;
-% P.b1 = 0.0399375790345927;
-% P.b2 = 0.832506289191262;
-% P.b3 = 0.00109779169164845;
-% P.b4 = 0.0728962842590868;
-
+%% fertility rate parameters (initial estimates)
 % use rawdata - Kenya
-P.b0 = 0.0033187534243402;
-P.b1 = 3.42791330234217;
-P.b2 = 9.42359357885154;
-P.b3 = 3.09390934659351e-05;
-P.b4 = 0.100923988335168;
-
-%% fertility rate (placeholder parameters) -- probability not used later...
-% P.cc = 4.6;
-% P.zz = 25;
-% P.alpha = 28;
-% P.ww = 13.5;
-
-% for Kenya
 P.cc = 4.024086261410830;
 P.zz = 17.963601264000353;
 P.alpha = 4.083610527018673;

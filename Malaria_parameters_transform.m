@@ -22,14 +22,16 @@ gH =  gH_fun(a); % human fertility rate
 
 %%
 P.gM = P.muM*P.MHr; % recruitment rate of mosquitoes;
-%%
-vb_fun = @(age) P.vb0*(age<5*365); % constant vaccination rate, **if changed, need to update Cac steadystate as well**
+%% vaccination functions
+age1 = 5*30;
+age2 = 17*30;
+vb_fun = @(age) P.vb0.*(age>=age1).*(age<=age2);
 vb = vb_fun(a); 
-vp_fun = @(age) P.vp0*(age<5*365); % constant vaccination rate, **if changed, need to update Cac steadystate as well**
+vp_fun = @(age) P.vp0.*(age>=age1).*(age<=age2);
 vp = vp_fun(a); 
 
-P.muH = muH; %
-P.gH = gH; %
+P.muH = muH; 
+P.gH = gH; 
 P.vb = vb;
 P.vb_fun = vb_fun;
 P.vp = vp;
@@ -48,25 +50,25 @@ if P.balance_mortality == 1
 end
 
 find_stable_age;
-%% plot death
-figure_setups;
-plot(a/365, P.muH, a/365, P.gH)
-title(['balanced birth and death Kenya']);
-axis([0 age_max/365 0 2*10^-3]);
-%% plot stable age distribution PH
-figure_setups;
-plot(a/365,P.PH_stable,'-k');
-title(['Age Distribution']);
-xlabel('age (years)');
-title('Kenya')
-grid on
-axis([0 age_max/365 0 max(P.PH_stable)]);
-%% flip
-figure_setups;
-plot(P.PH_stable,a/365,'-k');
-title(['Age Distribution']);
-ylabel('age (years)');
-title('Kenya')
-grid on
-axis([0 max(P.PH_stable) 0 age_max/365 ]);
-% keyboard
+% %% plot death
+% figure_setups;
+% plot(a/365, P.muH, a/365, P.gH)
+% title(['balanced birth and death Kenya']);
+% axis([0 age_max/365 0 2*10^-3]);
+% %% plot stable age distribution PH
+% figure_setups;
+% plot(a/365,P.PH_stable,'-k');
+% title(['Age Distribution']);
+% xlabel('age (years)');
+% title('Kenya')
+% grid on
+% axis([0 age_max/365 0 max(P.PH_stable)]);
+% %% flip
+% figure_setups;
+% plot(P.PH_stable,a/365,'-k');
+% title(['Age Distribution']);
+% ylabel('age (years)');
+% title('Kenya')
+% grid on
+% axis([0 max(P.PH_stable) 0 age_max/365 ]);
+% % keyboard

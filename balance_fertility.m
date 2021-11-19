@@ -31,10 +31,11 @@ P.gH = fun_balanced_births(P.a);
 % p0 = [-10^-3 10^-3]; % [LP,RP]
 % p_new = fzero(F3,p0,options);
 % P.p_hat = p_new;
-    figure_setups;
-    plot(P.a/365,gH_old,'b');
-    hold on;
-    plot(P.a/365,P.gH,'-.r');
-    legend('original fertility','balanced fertility');
-%     keyboard
+% %
+%     figure_setups;
+%     plot(P.a/365,gH_old,'b');
+%     hold on;
+%     plot(P.a/365,P.gH,'-.r');
+%     legend('original fertility','balanced fertility');
+% %     keyboard
 end

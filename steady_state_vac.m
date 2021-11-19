@@ -7,14 +7,16 @@ global P
 gH = P.gH_fun; % feritlity function handle
 muH_int = P.muH_int_fun; % death function handle M
 switch lstate
-    case 'DFE'         
+    case 'DFE'               
+        pi_int_fun = @(a) integral(@(z) (P.w+P.e.*P.vp_fun(z)), 0, a);
+        fun = @(age) integral(@(a) exp(pi_int_fun(a)), 0, age);
+        theta_fun = @(age) exp(-pi_int_fun(age)).*(1+P.w.*fun(age));
         if strcmp(lreturn,'handle')
-            theta0 = @(alpha) P.w./(P.w+P.e*P.vp_fun(alpha)); 
-            S = @(alpha) theta0(alpha).*ones(size(alpha)).*P.PH_stable_fun(alpha);
+            S = @(alpha) theta_fun(alpha).*ones(size(alpha)).*P.PH_stable_fun(alpha);
             E = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
             D = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
             A = @(alpha) 0*ones(size(alpha)).*P.PH_stable_fun(alpha);
-            V = @(alpha) (1-theta0).*ones(size(alpha)).*P.PH_stable_fun(alpha);
+            V = @(alpha) (1-theta_fun).*ones(size(alpha)).*P.PH_stable_fun(alpha);
             % Cac
             Cac_prop = @(alpha) 0*ones(size(alpha));
             % Cv exact expression obtained based on simple v(alpha)
@@ -28,13 +30,13 @@ switch lstate
             Cv = @(alpha) Cv_prop(alpha).*P.PH_stable_fun(alpha);
             Ctot = @(alpha) P.c1*Cac(alpha)+P.c2*Cm(alpha)+P.c3*Cv(alpha);
         elseif strcmp(lreturn,'numerical')
-            theta0 = P.w./(P.w+P.e*P.vp); 
             a = P.a;
-            S = theta0*ones(size(a)).*P.PH_stable;
+            theta0 = theta_fun(a); 
+            S = theta0.*ones(size(a)).*P.PH_stable;
             E = 0*ones(size(a)).*P.PH_stable;
             D = 0*ones(size(a)).*P.PH_stable;
             A = 0*ones(size(a)).*P.PH_stable;
-            V = (1-theta0)*ones(size(a)).*P.PH_stable;
+            V = (1-theta0).*ones(size(a)).*P.PH_stable;
             % Cac
             Cac_prop = 0*ones(size(a));
             % Cv exact expression obtained based on simple v(alpha)
@@ -49,7 +51,7 @@ switch lstate
     case 'EE'
         % use numerical simulation for an initial guess
         dt = 20; tfinal= 15*365; % run for a few years to get closer to EE
-        t = (0:dt:tfinal)'; nt = length(t);
+        t = (0:dt:tfinal)'; nt = length(t); 
         [SH, EH, DH, AH, VH, ~, ~, ~, ~, Cac, Cv, ~] = age_structured_Malaria_vac(P.na,P.da,nt);
         %% run solver on a coarser grid to speed up
         da_fine = P.da; da_coarse = 100; P.da = da_coarse; 
@@ -63,7 +65,7 @@ switch lstate
         VH0 = interp1(a_fine,VH(:,end),a_coarse);
         Cac0 = interp1(a_fine,Cac(:,end),a_coarse);
         Cv0 = interp1(a_fine,Cv(:,end),a_coarse);
-        PH0 = SH0 + EH0 + AH0 + DH0;
+        PH0 = SH0 + EH0 + AH0 + DH0 + VH0;
         x0 = [SH0./PH0; EH0./PH0; DH0./PH0; AH0./PH0; VH0./PH0; Cac0./PH0; Cv0./PH0];
         options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
         F_prop = @(x) human_model_der_prop_vac(x);

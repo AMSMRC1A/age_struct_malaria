@@ -1,5 +1,5 @@
 clear all
-% close all
+close all
 % clc
 format long
 global P
@@ -59,6 +59,7 @@ EIR = bh.*IM./NM*365;
 EIR_EE = EIR(end)
 tic
 R0 = R0_cal_vac()
+keyboard
 toc
 % figure_setups;
 % plot(t,EIR,'b-'); hold on;

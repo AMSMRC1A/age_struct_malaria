@@ -35,10 +35,12 @@ P.muH = (fun_balanced_muH_int(P.a+1)-fun_balanced_muH_int(P.a-1))/2;
 % p0 = [-10^-3 10^-3]; % [LP,RP]
 % p_new = fzero(F3,p0,options);
 % P.p_hat = p_new;
-    figure_setups;
-    plot(P.a/365,muH_old,'b');
-    hold on;
-    plot(P.a/365,P.muH,'-.r');
-    legend('original mortality','balanced mortality');
-    keyboard
+% %
+%     figure_setups;
+%     plot(P.a/365,muH_old,'b');
+%     hold on;
+%     plot(P.a/365,P.muH,'-.r');
+%     legend('original mortality','balanced mortality');
+%     keyboard
+% %
 end
