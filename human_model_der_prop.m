@@ -34,10 +34,10 @@ DHa = P.rho(2:end).*P.h.*EH(2:end) + P.psi(2:end).*Lambda_H.*AH(2:end) - P.rD*DH
      [(-3*DH(1)+4*DH(2)-DH(3))/(2*da); (DH(3:end)-DH(1:end-2))/(2*da)]; %  diff(DH)/da;
 AHa = (1-P.rho(2:end)).*P.h.*EH(2:end) - P.psi(2:end).*Lambda_H.*AH(2:end) - P.rA*AH(2:end) + P.rD*(1-P.phi(2:end)).*DH(2:end)  - ...
      [(-3*AH(1)+4*AH(2)-AH(3))/(2*da); (AH(3:end)-AH(1:end-2))/(2*da)]; % diff(AH)/da;
-Caca = f(Lambda_H)*(P.cS*SH(2:end)+P.cE*EH(2:end)+P.cA*AH(2:end)+P.cD*DH(2:end)) + P.cV*P.v(2:end).*SH(2:end) - 1/P.dac*Cac(2:end) - ...
+Caca = f(Lambda_H)*(P.cS*SH(2:end)+P.cE*EH(2:end)+P.cA*AH(2:end)+P.cD*DH(2:end)) + P.cV*P.vb(2:end).*SH(2:end) - 1/P.dac*Cac(2:end) - ...
      [(-3*Cac(1)+4*Cac(2)-Cac(3))/(2*da); (Cac(3:end)-Cac(1:end-2))/(2*da)]; % diff(Cac)/da;
 
-Cac0 = P.cV*P.v(1);
+Cac0 = P.cV*P.vb(1);
 % include boundary condition
 SHa = [-SH(1)+1; SHa];
 EHa = [-EH(1); EHa];

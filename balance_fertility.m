@@ -4,10 +4,9 @@ global P
 
 if exist('balanced_births.mat','file') % need to re-run the mat file if the death rates are updated!!
     load('balanced_births.mat','fun_balanced_births')
-    disp('Previously calculated balanced birth rate loaded.')
-
+    if P.verbose==1; disp('Previously calculated balanced birth rate loaded.'); end
 else
-    disp('calculating new balanced fertility profile.')    
+    if P.verbose==1; disp('calculating new balanced fertility profile.'); end
     gH = P.gH_fun;
     muH_int = P.muH_int_fun;
     da_fine = 5; % fine grid for approximating new birth

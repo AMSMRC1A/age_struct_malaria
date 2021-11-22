@@ -10,7 +10,7 @@ tic
 
 %% numerical config
 tfinal = 100*365; % final time in days
-age_max = 100*365; % max ages in days
+age_max = 80*365; % max ages in days
 P.age_max = age_max;
 dt = 20; % time/age step size in days, default = 5;
 da = dt;
@@ -54,13 +54,14 @@ PH_final = PH(:,end); % total human at age a, t = n
 NH = trapz(PH,1)*da;
 NM = SM+EM+IM;
 %% EIR
-[bh,bm] = biting_rate(NH,NM);
-EIR = bh.*IM./NM*365;
-EIR_EE = EIR(end)
-tic
-R0 = R0_cal_vac()
-keyboard
-toc
+% [bh,bm] = biting_rate(NH,NM);
+% EIR = bh.*IM./NM*365;
+% EIR_EE = EIR(end)
+% tic
+% R0 = R0_cal_vac()
+% keyboard
+% toc
+
 % figure_setups;
 % plot(t,EIR,'b-'); hold on;
 

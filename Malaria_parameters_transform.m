@@ -61,19 +61,24 @@ if P.balance_mortality == 1
 end
 
 find_stable_age;
-% %% plot death
-% figure_setups;
+
+% %% plot calibrated fertility & death
+% figure_setups; hold on
+% grid on
 % plot(a/365, P.muH, a/365, P.gH)
-% title(['balanced birth and death Kenya']);
-% axis([0 age_max/365 0 2*10^-3]);
+% xlabel('Age (years)')
+% ylabel('Daily rates')
+% title(['Balanced demographics']);
+% legend('Mortality rate $\mu_H(\alpha)$','Fertility rate $g_H(\alpha)$')
 % %% plot stable age distribution PH
 % figure_setups;
 % plot(a/365,P.PH_stable,'-k');
-% title(['Age Distribution']);
+% title(['Stable age distribution']);
+% legend('$P_H(\alpha)$')
 % xlabel('age (years)');
-% title('Kenya')
 % grid on
 % axis([0 age_max/365 0 max(P.PH_stable)]);
+% 
 % %% flip
 % figure_setups;
 % plot(P.PH_stable,a/365,'-k');

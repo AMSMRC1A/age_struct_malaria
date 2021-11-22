@@ -4,12 +4,12 @@ clear all
 % clc
 f_0 = 0.01; % value at zero
 f_1 = 1; % value at L (function saturates to this value)
-t_2 = 0.5 ; % threshold value (as a fraction of L)
-s_2 = 0.1; % sigmoid steepness, smaller is steeper
+s_2 = 2.463896001674960 ; % threshold value (as a fraction of L)
+r_2 = 10; % sigmoid steepness, smaller is steeper
 x = 0:0.01:8; %input
 %            
-y_inc = f_0 + (f_1-f_0)./(1 + exp(-(x./L-t_2)./s_2));
-y_dec = f_1 + (f_0-f_1)./(1 + exp(-(x./L-t_2)./s_2)); % switch f0 f1
+y_inc = f_0 + (f_1-f_0)./(1 + exp(-(x-s_2)./r_2));
+y_dec = f_1 + (f_0-f_1)./(1 + exp(-(x-s_2)./r_2)); % switch f0 f1
 
 figure_setups; hold on
 plot(x,y_inc,'linewidth',2)

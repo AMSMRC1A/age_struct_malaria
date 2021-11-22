@@ -12,7 +12,6 @@ P.rho_t_2 = x(3);
 P.rho_s_2 = x(4); 
 P.psi_t_2 = x(3);
 P.psi_s_2 = x(4);
-P.L = x(5);
 
 Malaria_parameters_transform;
 nsamp = 10;
@@ -20,26 +19,27 @@ nsamp = 10;
 [~,ind2] = min(abs(P.a-10*365)); % end at 10 years old
 ind = round(linspace(ind1,ind2,nsamp)');
 
-P.betaM = 0.01; % low EIR region ~ 25
+P.betaM = 0.2; % low EIR region ~ 25
 Malaria_parameters_transform;
 [SH,EH,DH,AH,~,~,Ctot] = steady_state('EE');
-EIR1 = fit_EIR(SH,EH,DH,AH); if EIR1<5; keyboard; end
+EIR1 = fit_EIR(SH,EH,DH,AH);
+if EIR1<5; keyboard; end
 x1 = P.a(ind)/365;
 y1 = EIR1*ones(size(x1)); % aEIR
 z1 = Ctot(ind)./P.PH_stable(ind); % final Ctot at EE
 
-P.betaM = 0.02; % mid EIR ~ 100
+P.betaM = 0.5; % mid EIR ~ 100
 Malaria_parameters_transform;
 [SH,EH,DH,AH,~,~,Ctot] = steady_state('EE');
-EIR2 = fit_EIR(SH,EH,DH,AH);
+EIR2 = fit_EIR(SH,EH,DH,AH); 
 x2 = P.a(ind)/365;
 y2 = EIR2*ones(size(x2)); % aEIR
 z2 = Ctot(ind)./P.PH_stable(ind); % final Ctot at EE
 
-P.betaM = 0.25; % high EIR ~ 150
+P.betaM = 1; % high EIR ~ 150
 Malaria_parameters_transform;
 [SH,EH,DH,AH,~,~,Ctot] = steady_state('EE');
-EIR3 = fit_EIR(SH,EH,DH,AH);
+EIR3 = fit_EIR(SH,EH,DH,AH); 
 x3 = P.a(ind)/365;
 y3 = EIR3*ones(size(x3)); % aEIR
 z3 = Ctot(ind)./P.PH_stable(ind); % final Ctot at EE

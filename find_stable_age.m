@@ -10,9 +10,10 @@ options = optimset('TolX',1e-25); % don't show iterations
 p0 = [-10^-3 10^-3]; % [LP,RP]
 p = fzero(F,p0,options);
 P.p_hat = p;
-if P.balance_fertility == 1
+if P.balance_fertility == 1 || P.balance_mortality == 1
     if abs(p)>10^-3
         disp('recheck the balance fertility')
+        keyboard
     end
 end
 

@@ -6,7 +6,7 @@ global P lP
 global F
 
 % numerical config
-tfinal = 100*365; age_max = 100*365; P.age_max = age_max;
+tfinal = 100*365; age_max = 80*365; P.age_max = age_max;
 dt = 20; da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = length(a);
 P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
@@ -16,20 +16,19 @@ F = s.F;
 
 %% optimization - fit to data 
 Malaria_parameters_baseline;
-options = optimset('Display','iter','TolX',10^-5,'MaxIter',10);
-          
-x0 = [0.469638663283222, 0.543314482330510,  ... % phi
-      0.177378797967747, 0.220419188961217,  ... % rho = psi
-      8.370304463522121 % L
-   ]; 
-% age_max = 100;
-% res = 1.197; L = 10; x = [0.423736367029315   0.547583380663965 0.173640457234346   0.175176012516704]; not too sensitive to Initial guess
-% res = 1.199; L = 5;  x = [0.388255983233911   0.629539286068975 0.358933326495389   0.368027194195680]; not too sensitive to Initial guess
-% res = 1.208; L = 20; x = [0.170419947143750   0.172846316120512   0.084973685532207 0.090371375233933];
-% res = 1.26; L vary, x = [0.469638663283222   0.543314482330510 0.177378797967747   0.220419188961217   8.370304463522121];
-% res = 1.183; L vary, x = [0.200455981024660   0.741327847456465 0.225836736227440   0.227377462176943   7.974031085468034];
-lb = [0, 0.01, 0, 0.01, 1];
-ub = [1, 1, 1, 1, 30];
+options = optimset('Display','iter','TolX',10^-5,'MaxIter',20);
+% [phi_t phi_s rho_t=psi_t rho_s=psi_s L(if existed)]
+x0 = [2.463896001674960   1.380197849431860  3.186330251207430   1.029829480184870]; 
+%====L=20=============
+% res = 4.332481e-01; 31 iter, x = [0.123194800083748   0.069009892471593   0.157791442612232   0.051328791141945]; IC = [0.2 0.05 0.1 0.05];
+%====L=10=============
+% res = 4.376491e-01; 33 iter, x = [0.243400495658224   0.128546913213757   0.318633025120743   0.102982948018487]; IC = [0.3, 0.05, 0.3, 0.05];
+%====L=5=============
+% res = 4.376486e-01; 36 iter, x = [0.486500373585591   0.255614405471651   0.637327792072830   0.206052605587558]; IC = [0.5 0.1 0.5 0.1];
+%====two parameter sigmoid t*L = t2 s*L=s2
+% res = 4.376486e-01; x = [2.432473210664639   1.277554702429119   3.186642715992263   1.030298116795388]; IC - fitted values with L
+lb = [0, 0.1, 0, 0.1];
+ub = [8, 10, 8, 10];
 
 [x,fval] = fmincon(@fun_Filipe,x0,[],[], [], [], lb, ub, [], options);
 
@@ -37,20 +36,19 @@ keyboard
 % ----> update Malaria_parameters_baseline.m with the fitted results <-----
 
 %% plot sigmoids with the populational average (in legend)
-tfinal = 100*365; age_max = 100*365; P.age_max = age_max;
+tfinal = 100*365; age_max = 80*365; P.age_max = age_max;
 dt = 20; da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = length(a);
 P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
-x = [0.200455981024660   0.741327847456465   0.225836736227440   0.227377462176943   7.974031085468034];
+% x = [2.432473210664639   1.277554702429119   3.186642715992263   1.030298116795388];
 Malaria_parameters_baseline;
-P.phi_t_2 = x(1);
-P.phi_s_2 = x(2); 
-P.rho_t_2 = x(3);
-P.rho_s_2 = x(4); 
-P.psi_t_2 = x(3);
-P.psi_s_2 = x(4);
-P.L = x(5);
-Malaria_parameters_transform;
+% P.phi_t_2 = x(1);
+% P.phi_s_2 = x(2); 
+% P.rho_t_2 = x(3);
+% P.rho_s_2 = x(4); 
+% P.psi_t_2 = x(3);
+% P.psi_s_2 = x(4);
+% Malaria_parameters_transform;
 
 figure_setups; hold on
 [~,~,~,~,~,~,Ctot] = steady_state('EE');
@@ -61,33 +59,25 @@ rho_curve = sigmoid_prob(cc, 'rho');
 psi_curve = sigmoid_prob(cc, 'psi');
 plot(cc,phi_curve,'-')
 plot(cc,rho_curve,'--')
-plot(cc,psi_curve,'-.')
+% plot(cc,psi_curve,'-.')
 % population average sigmoids
 phi_ave = trapz(sigmoid_prob(Ctot_pp, 'phi').*P.PH_stable)*P.da;
 rho_ave = trapz(sigmoid_prob(Ctot_pp, 'rho').*P.PH_stable)*P.da;
 psi_ave = trapz(sigmoid_prob(Ctot_pp, 'psi').*P.PH_stable)*P.da;
-legend(['$\phi$, pop ave = ',num2str(phi_ave,3)],['$\rho$, pop ave = ',num2str(rho_ave,3)],['$\psi$, pop ave = ',num2str(psi_ave,3)],'Location','e')
+legend('$\phi(\tilde{C}_{H})$','$\rho(\tilde{C}_{H})=\psi(\tilde{C}_{H})$','Location','e')
 axis([0 max(Ctot_pp) 0 1])
 xlabel('$\tilde{C}_{H}$')
 ylabel('Probability')
+title('Calibrated linking functions')
 [phi_ave rho_ave psi_ave]
 keyboard
 
 %% plotting heatmap (age, EIR, immunity level)
-tfinal = 100*365; age_max = 100*365; P.age_max = age_max;
+tfinal = 100*365; age_max = 80*365; P.age_max = age_max;
 dt = 20; da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = length(a);
 P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
-x = [0.357191327860647   0.706962687481590   0.194435605429801   0.165465456034519   0.094284616922569   0.434722350678851   8.577416380343156];
 Malaria_parameters_baseline;
-P.phi_t_2 = x(1);
-P.phi_s_2 = x(2); 
-P.rho_t_2 = x(3);
-P.rho_s_2 = x(4); 
-P.psi_t_2 = x(5);
-P.psi_s_2 = x(6);
-P.L = x(7);
-Malaria_parameters_transform;
 
 EIR_var = 'betaM'; % use this parameter to adjust the EIR
 immunity_feedback = 1;

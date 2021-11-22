@@ -7,7 +7,7 @@ global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 c
 global colour_r1 colour_r2
 
 %% numerical config
-tfinal = 100*365; age_max = 100*365; P.age_max = age_max;
+tfinal = 100*365; age_max = 80*365; P.age_max = age_max;
 dt = 100; % time/age step size in days, default = 50; could go dt = 200 (still robust)
 da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = length(a);
 

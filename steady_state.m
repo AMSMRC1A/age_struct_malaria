@@ -37,11 +37,11 @@ switch lstate
         end
     case 'EE'
         % use numerical simulation for an initial guess
-        dt = 20; tfinal= 15*365; % run for a few years to get closer to EE
+        dt = 20; tfinal= 20*365; % run for a few years to get closer to EE
         t = (0:dt:tfinal)'; nt = length(t);
         [SH, EH, DH, AH, ~, ~, ~, ~, Cac, ~] = age_structured_Malaria(P.na,P.da,nt);
         %% run solver on a coarser grid to speed up
-        da_fine = P.da; da_coarse = 100; P.da = da_coarse; 
+        da_fine = P.da; da_coarse = 80; P.da = da_coarse; 
         a_fine = P.a; a_coarse = (0:da_coarse:P.age_max)'; P.a = a_coarse;
         na_fine = P.na; na_coarse = length(a_coarse); P.na = na_coarse;
         Malaria_parameters_transform;
@@ -54,7 +54,6 @@ switch lstate
         x0 = [SH0./PH0; EH0./PH0; DH0./PH0; AH0./PH0; Cac0./PH0];
         options = optimoptions('fsolve','Display','none','OptimalityTolerance', 1e-25);
         F_prop = @(x) human_model_der_prop(x);
-        %keyboard;
         [xsol,err,~,~,~] = fsolve(F_prop,x0,options);
         if max(max(abs(err)))>10^-5
             disp('not converged')

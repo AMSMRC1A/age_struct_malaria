@@ -42,7 +42,7 @@ for n = 1:nt-1
     % adjust mosquito infection accordingly - use tn level!
     [SM(1,n+1),EM(1,n+1),IM(1,n+1)] = mosquito_ODE(DH(:,n),AH(:,n),NH(n),NM);
     
-    % immunity gained at age = 0 ---> fixed Boundary condition
+    % immunity gained at age = 0
     Cm(1,n+1) = P.m*trapz(P.gH.*Cac(:,n))*da;
     Cac(1,n+1) = P.cV*P.vb(1)*P.PH_stable(1);
     % maternal immunity
