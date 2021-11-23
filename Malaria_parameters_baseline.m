@@ -1,6 +1,6 @@
 global P
 %% 
-P.verbose = 0; % turn on the warning messages. Error messages from the check routines will display regardless
+P.verbose = 1; % turn on the warning messages. Error messages from the check routines will display regardless
 P.balance_fertility = 0; % balanced fertility or not
 P.balance_mortality = 1; % balanced mortality or not
 

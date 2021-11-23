@@ -26,7 +26,8 @@ muH_old = P.muH;
 
 P.muH_int_fun = fun_balanced_muH_int;
 P.muH_int = fun_balanced_muH_int(P.a);
-P.muH = (fun_balanced_muH_int(P.a+1)-fun_balanced_muH_int(P.a-1))/2;
+P.muH(2:end) = (P.muH_int(2:end)-P.muH_int(1:end-1))/P.da;
+P.muH(1) = P.muH(2);
 
 %% check if new growth factor is approximately zero
 % F3 = @(p) P.da.*trapz(P.gH.*exp(-p*P.a-P.muH_int)) - 1;
