@@ -15,23 +15,23 @@ P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
 % load_data is an option to use previously saved solution data if available
 % setting this to 1 will speed up runtime
-load_data = 0;
+load_data = 1;
 Malaria_parameters_baseline; % model parameters - rates are in 1/day
 lP = 'betaM';  % bifurcating parameters
-immunity_feedback = 1;
+immunity_feedback = 0; 
 if immunity_feedback == 0
     % average populational sigmoids f0 = f1 = average 
-    P.phi_f_0 = 0.570320665853183; % value at zero
-    P.phi_f_1 = 0.570320665853183; % value at L (function saturates to this value)
+    P.phi_f_0 = 0.915792480087329; % value at zero
+    P.phi_f_1 = 0.915792480087329; % value at L (function saturates to this value)
     
-    P.rho_f_0 = 0.088575583518581; % value at zero
-    P.rho_f_1 = 0.088575583518581; % value at L (function saturates to this value)  
+    P.rho_f_0 = 0.114825053290306; % value at zero
+    P.rho_f_1 = 0.114825053290306; % value at L (function saturates to this value)  
     
-    P.psi_f_0 = 0.409302219871934; % value at zero
-    P.psi_f_1 = 0.409302219871934; % value at L (function saturates to this value)   
-    param = [0.01, 0.06, 0.11, 0.13, 0.16:0.05:1.0].^2;
+    P.psi_f_0 = 0.114825053290306; % value at zero
+    P.psi_f_1 = 0.114825053290306; % value at L (function saturates to this value)   
+    param = [0.01, 0.06, 0.11, 0.13, 0.16:0.05:1.0].^2; % max R0 < 7
 else
-    param = [0.01:0.025:0.55].^2;
+    param = [0.01:0.025:0.525].^2; % max R0 = 7.3
 end
 %% options
 plot_equilibrium = 0; % can set to zero if working with the DFE
@@ -56,7 +56,7 @@ for i = 1:length(param)
     R0_cal()
     %% solve for EE
     if R0_cal()>1
-        FileName = ['Results/Bifur/EE_',num2str(param(i),'%2.4f'),'.mat'];
+        FileName = ['Results/Bifur/',num2str(immunity_feedback),'/EE_',num2str(param(i),'%2.4f'),'.mat'];
         if exist(FileName,'file') && load_data == 1 % Q_val already calculated before
             S = load(FileName,'x_EE','ee');
             x_EE = S.x_EE;
@@ -70,9 +70,9 @@ for i = 1:length(param)
             jacobian(:,[1,P.na+1,2*P.na+1,3*P.na+1, 4*P.na+1])=0; % zero out the columns
             ee = eig(jacobian);
             ee(ee==0)=[];
-            %         save(FileName,'x_EE','ee')
+            save(FileName,'x_EE','ee')
         end
-        if norm(F_prop(x_EE),Inf) > 10^-5
+        if norm(F_prop(x_EE),Inf) > 10^-4
             disp('EE not achieved')
             keyboard
         end
@@ -103,8 +103,8 @@ for i = 1:length(param)
     end
     toc
     tic
-    %% Solve for DFE
-    FileName = ['Results/Bifur/DFE_',num2str(param(i),'%2.4f'),'.mat'];
+    %% Solve for DFE 
+    FileName = ['Results/Bifur/',num2str(immunity_feedback),'/DFE_',num2str(param(i),'%2.4f'),'.mat'];
     if exist(FileName,'file') && load_data == 1 % Q_val already calculated before
         S = load(FileName,'x_DFE','ee');
         x_DFE = S.x_DFE;
@@ -122,7 +122,7 @@ for i = 1:length(param)
         ee = eig(jacobian);
         ee(ee==0)=[];
         x_DFE = reshape(xsol_DFE,[P.na,5]);
-        %  save(FileName,'x_DFE','ee')
+        save(FileName,'x_DFE','ee')
     end
     if norm(F_prop(x_DFE),Inf) > 10^-5
         disp('DFE not achieved')
@@ -150,22 +150,23 @@ ind_stable = find([re_max_DFE,re_max_EE]<0);
 ind_unstable = find([re_max_DFE,re_max_EE]>0);
 I_frac = [I_frac_DFE,I_frac_EE];
 h1 = plot(R0_DFE_EE(ind_stable), I_frac(ind_stable),'-','Marker','.','MarkerSize',30);
-h4 = plot(R0_list, D_frac_EE,'-','Marker','.','MarkerSize',30);
-h5 = plot(R0_list, A_frac_EE,'-','Marker','.','MarkerSize',30);
+h4 = plot(R0_list, D_frac_EE,'-','Marker','o','MarkerSize',10);
+h5 = plot(R0_list, A_frac_EE,'-','Marker','^','MarkerSize',10);
 h2 = plot(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
 grid on; grid minor
 xlabel('$\mathcal{R}_0(\beta_M)$');
 ylabel('Fraction of population');
-title(['immunity feedback = ',num2str(immunity_feedback)]);
+title(['Immunity feedback = ',num2str(immunity_feedback)]);
 % plot baseline
 P.betaM = 0.25;
 [~,~,D,A,~,~,~] = steady_state('EE');
 R0_baseline = R0_cal();
 h3 = plot([R0_baseline,R0_baseline],[0,1],'m-');
-legend([h1 h4 h5 h2 h3], {'D+A','D','A','unstable','baseline'},'Location','e')
-axis([0 6.6 0 1])
+% legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','nw')
+legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','e')
+axis([0 7.2 0 1])
 % title(['Bifurcation']);
-xlabel('$\mathcal{R}_0$');
+xlabel('$\mathcal{R}_0 (\beta_M)$');
 keyboard
 % save data for comparison
 save(['Results/Bifur/bifur_immune_',num2str(immunity_feedback),'.mat'],'I_frac','ind_stable','ind_unstable','R0_DFE_EE','R0_baseline','R0_list','D_frac_EE','A_frac_EE')

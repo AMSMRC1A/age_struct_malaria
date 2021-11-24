@@ -6,12 +6,12 @@ global P
 % =  immunity (~ Ctot) from RB's paper, Fig 5
 % (~ rho) from Filipe's paper
 
-P.phi_t_2 = x(1);
-P.phi_s_2 = x(2);
-P.rho_t_2 = x(3);
-P.rho_s_2 = x(4); 
-P.psi_t_2 = x(3);
-P.psi_s_2 = x(4);
+P.phi_s_2 = x(1);
+P.phi_r_2 = x(2);
+P.rho_s_2 = x(3);
+P.rho_r_2 = x(4); 
+P.psi_s_2 = x(3);
+P.psi_r_2 = x(4);
 
 Malaria_parameters_transform;
 nsamp = 10;

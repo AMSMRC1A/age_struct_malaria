@@ -17,8 +17,8 @@ F = s.F;
 %% optimization - fit to data 
 Malaria_parameters_baseline;
 options = optimset('Display','iter','TolX',10^-5,'MaxIter',20);
-% [phi_t phi_s rho_t=psi_t rho_s=psi_s L(if existed)]
-x0 = [2.463896001674960   1.380197849431860  3.186330251207430   1.029829480184870]; 
+% [phi_s phi_r rho_s=psi_s rho_r=psi_r]
+x0 = [2.432473210664639   1.277554702429119   3.186642715992263   1.030298116795388]; 
 %====L=20=============
 % res = 4.332481e-01; 31 iter, x = [0.123194800083748   0.069009892471593   0.157791442612232   0.051328791141945]; IC = [0.2 0.05 0.1 0.05];
 %====L=10=============
@@ -26,7 +26,7 @@ x0 = [2.463896001674960   1.380197849431860  3.186330251207430   1.0298294801848
 %====L=5=============
 % res = 4.376486e-01; 36 iter, x = [0.486500373585591   0.255614405471651   0.637327792072830   0.206052605587558]; IC = [0.5 0.1 0.5 0.1];
 %====two parameter sigmoid t*L = t2 s*L=s2
-% res = 4.376486e-01; x = [2.432473210664639   1.277554702429119   3.186642715992263   1.030298116795388]; IC - fitted values with L
+% res = 4.376486e-01; x = [2.432431947045749   1.278072983365070   3.186658383357816   1.030263636242633]; IC - fitted values with L
 lb = [0, 0.1, 0, 0.1];
 ub = [8, 10, 8, 10];
 
@@ -40,14 +40,14 @@ tfinal = 100*365; age_max = 80*365; P.age_max = age_max;
 dt = 20; da = dt; t = (0:dt:tfinal)'; nt = length(t); a = (0:da:age_max)'; na = length(a);
 P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
-% x = [2.432473210664639   1.277554702429119   3.186642715992263   1.030298116795388];
+% x = [2.432431947045749   1.278072983365070   3.186658383357816   1.030263636242633];
 Malaria_parameters_baseline;
-% P.phi_t_2 = x(1);
-% P.phi_s_2 = x(2); 
-% P.rho_t_2 = x(3);
-% P.rho_s_2 = x(4); 
-% P.psi_t_2 = x(3);
-% P.psi_s_2 = x(4);
+% P.phi_s_2 = x(1);
+% P.phi_r_2 = x(2); 
+% P.rho_s_2 = x(3);
+% P.rho_r_2 = x(4); 
+% P.psi_s_2 = x(3);
+% P.psi_r_2 = x(4);
 % Malaria_parameters_transform;
 
 figure_setups; hold on
@@ -81,19 +81,19 @@ Malaria_parameters_baseline;
 
 EIR_var = 'betaM'; % use this parameter to adjust the EIR
 immunity_feedback = 1;
-if immunity_feedback == 0
+if immunity_feedback == 0 
     % population average sigmoids: f0 = f1 = average
-    P.phi_f_0 = 0.570320665853183; % value at zero
-    P.phi_f_1 = 0.570320665853183; % value at L (function saturates to this value)
+    P.phi_f_0 = 0.915792480087329; % value at zero
+    P.phi_f_1 = 0.915792480087329; % value at L (function saturates to this value)
     
-    P.rho_f_0 = 0.088575583518581; % value at zero
-    P.rho_f_1 = 0.088575583518581; % value at L (function saturates to this value)  
+    P.rho_f_0 = 0.114825053290306; % value at zero
+    P.rho_f_1 = 0.114825053290306; % value at L (function saturates to this value)  
     
-    P.psi_f_0 = 0.409302219871934; % value at zero
-    P.psi_f_1 = 0.409302219871934; % value at L (function saturates to this value)   
+    P.psi_f_0 = 0.114825053290306; % value at zero
+    P.psi_f_1 = 0.114825053290306; % value at L (function saturates to this value)   
     var_list = [0.01:0.05:1.0].^2; 
 else
-    var_list = [0.01:0.025:0.55].^2;
+    var_list = [0.01:0.05:1].^2;
 end
 final_immunity = zeros(na,length(var_list));
 final_EIR = zeros(1,length(var_list));
@@ -114,15 +114,15 @@ end
 
 % plot heatmap of final immunity(age, EIR)
 figure_setups; 
-imagesc(a/365,final_EIR,final_immunity');% ,[0 8.2] % specify the range of cvalues
-xlim([0 10])
-xlabel('age (years)')
-ylabel('EIR')
+imagesc(a/365,final_EIR,final_immunity');%
+xlim([0 20])
+xlabel('Age (years)')
+ylabel('aEIR')
 % title(['Immunity levels, feedback = ',num2str(immunity_feedback)]);
 title('Immunity level per person');
 set(gca,'YDir','normal');
 colormap jet
-colorbar('Ticks',0:1:8);
+colorbar('Ticks',0:2:10);
 
 %% plot heatmap of rho (age, EIR) = prob E->D
 figure_setups; 

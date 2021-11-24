@@ -29,20 +29,20 @@ P.cV = 0.75; % weight for vaccination ~~ SH
 P.m = 1; % fraction of new-born immunity relative to mother’s
 P.uc = 10; % Duration in which immunity is not boosted
 %% progression probabilities parameters, sigmoid parameters
-% fitted values     
+% fitted values
 P.phi_f_0 = 0.01; 
 P.phi_f_1 = 1;
-P.phi_s_2 = 2.432473210664639; 
-P.phi_r_2 = 1.277554702429119; 
+P.phi_s_2 = 2.432431947045749; 
+P.phi_r_2 = 1.278072983365070; 
 % rho = psi
 P.rho_f_0 = 0.01; 
 P.rho_f_1 = 1; 
-P.rho_s_2 = 3.186642715992263; 
-P.rho_r_2 = 1.030298116795388; 
+P.rho_s_2 = 3.186658383357816; 
+P.rho_r_2 = 1.030263636242633; 
 P.psi_f_0 = 0.01; 
 P.psi_f_1 = 1; 
-P.psi_s_2 = 3.186642715992263; 
-P.psi_r_2 = 1.030298116795388; 
+P.psi_s_2 = 3.186658383357816; 
+P.psi_r_2 = 1.030263636242633; 
 
 %% mosquito related parameters/rates
 P.bh = 5; P.bh_lower = 2; P.bh_upper = 19;% tolerated biting rate per human

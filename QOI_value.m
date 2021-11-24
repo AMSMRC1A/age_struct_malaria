@@ -14,7 +14,7 @@ if strcmp(lQ(1:2),'EE')
         EE = load(FileName_EE,'SH','EH','DH','AH','Ctot','P');
         AA = EE.P; % load
         BB = P; % current
-        fields = {'v_fun','muH_int_fun','gH_fun','PH_stable_fun'};
+        fields = {'muH_int_fun','gH_fun','PH_stable_fun','vb_fun','vp_fun','theta_fun'};
         AA = rmfield(AA,fields); BB = rmfield(BB,fields);
         [~,d1,d2] = comp_struct(AA,BB,0,0,10^-16);
         if ~isempty(d1) || ~isempty(d2)
