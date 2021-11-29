@@ -47,7 +47,7 @@ Malaria_parameters_baseline;
 % Malaria_parameters_transform;
 
 figure_setups; hold on
-[~,~,~,~,~,~,Ctot] = steady_state('EE');
+[~,~,~,~,~,~,Ctot] = steady_state('EE','fsolve');
 Ctot_pp = Ctot./P.PH_stable;
 cc = linspace(0,max(Ctot_pp),100);
 phi_curve = sigmoid_prob(cc, 'phi');
@@ -97,7 +97,7 @@ final_rho = zeros(na,length(var_list));
 for jj = 1:length(var_list)
     P.(EIR_var) = var_list(jj);
     Malaria_parameters_transform;
-    [SH,EH,DH,AH,~,~,Ctot] = steady_state('EE');
+    [SH,EH,DH,AH,~,~,Ctot] = steady_state('EE','fsolve');
     NH = trapz(SH+EH+DH+AH)*P.da;
     NM = P.gM/P.muM;
     [bH,bM] = biting_rate(NH,NM);

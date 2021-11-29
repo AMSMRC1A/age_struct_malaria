@@ -29,7 +29,8 @@ if immunity_feedback == 0
     
     P.psi_f_0 = 0.114825053290306; % value at zero
     P.psi_f_1 = 0.114825053290306; % value at L (function saturates to this value)   
-    param = [0.01, 0.06, 0.11, 0.13, 0.16:0.05:1.0].^2; % max R0 < 7
+%     param = [0.01, 0.06, 0.11, 0.13, 0.16:0.05:1.0].^2; % max R0 < 7
+    param = 0.03;
 else
     param = [0.01:0.025:0.525].^2; % max R0 = 7.3
 end
@@ -62,7 +63,7 @@ for i = 1:length(param)
             x_EE = S.x_EE;
             ee = S.ee;
         else
-            [S,E,D,A,Cac,~,~] = steady_state('EE');
+            [S,E,D,A,Cac,~,~] = steady_state('EE','fsolve');
             x0 = [S./P.PH_stable;E./P.PH_stable;D./P.PH_stable;A./P.PH_stable;Cac./P.PH_stable];
             [xsol,err,~,~,jacobian] = fsolve(F_prop,x0,options);
             x_EE = reshape(xsol,[P.na,5]);
@@ -159,7 +160,7 @@ ylabel('Fraction of population');
 title(['Immunity feedback = ',num2str(immunity_feedback)]);
 % plot baseline
 P.betaM = 0.25;
-[~,~,D,A,~,~,~] = steady_state('EE');
+[~,~,D,A,~,~,~] = steady_state('EE','fsolve');
 R0_baseline = R0_cal();
 h3 = plot([R0_baseline,R0_baseline],[0,1],'m-');
 % legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','nw')

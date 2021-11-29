@@ -1,3 +1,4 @@
+function Malaria_parameters_transform
 global P
 
 a = P.a;
@@ -11,24 +12,22 @@ P.rho = sigmoid_prob(zeros(size(a)), 'rho');
 P.phi = sigmoid_prob(zeros(size(a)), 'phi');
 P.psi = sigmoid_prob(zeros(size(a)), 'psi');
 
-%% mortality functions 
+%% mortality functions
 muH =  P.b0 + P.b1*exp(-P.b2*a/365) + P.b3*exp(P.b4*a/365); % natural human mortality rate
 muH = muH/365;
-muH_int_fun = @(age) (age./365).*P.b0 + (P.b1./P.b2).*(1-exp(-P.b2.*age./365)) + (P.b3./P.b4).*(-1+exp(P.b4.*age./365));        
+muH_int_fun = @(age) (age./365).*P.b0 + (P.b1./P.b2).*(1-exp(-P.b2.*age./365)) + (P.b3./P.b4).*(-1+exp(P.b4.*age./365));
 
-%% fertility rate 
+%% fertility rate
 gH_fun = @(age) (2.*P.cc.*normpdf((age./365-P.zz)./P.ww).*normcdf(P.alpha.*(age./365-P.zz)./P.ww)./P.ww)./365/2;
 gH =  gH_fun(a); % human fertility rate
 
 %%
 P.gM = P.muM*P.MHr; % recruitment rate of mosquitoes;
-%% vaccination functions
-age1 = 5*30;
-age2 = 17*30;
-vb_fun = @(age) P.vb0.*(age>=age1).*(age<=age2);
-vb = vb_fun(a); 
-vp_fun = @(age) P.vp0.*(age>=age1).*(age<=age2);
-vp = vp_fun(a); 
+%% vaccination functions - baseline vaccine (default = 0)
+vb_fun = @(age) P.vb0.*ones(size(age));
+vb = vb_fun(a);
+vp_fun = @(age) P.vp0.*ones(size(age));
+vp = vp_fun(a);
 
 % approximation of theta at DFE - needed for analytical purpose: DFE, R0, bifurcation
 pi_fun = @(x) P.w+P.e.*vp_fun(x);
@@ -39,8 +38,8 @@ exp_pi_int = @(x) interp1(P.a,exp_pi_int_a,x);
 theta_fun = @(x) exp(-pi_int_fun(x)).*(1+exp_pi_int(x));
 theta0 = theta_fun(P.a);
 
-P.muH = muH; 
-P.gH = gH; 
+P.muH = muH;
+P.gH = gH;
 P.vb = vb;
 P.vb_fun = vb_fun;
 P.vp = vp;
@@ -78,7 +77,7 @@ find_stable_age;
 % xlabel('age (years)');
 % grid on
 % axis([0 age_max/365 0 max(P.PH_stable)]);
-% 
+%
 % %% flip
 % figure_setups;
 % plot(P.PH_stable,a/365,'-k');
@@ -88,6 +87,7 @@ find_stable_age;
 % grid on
 % axis([0 max(P.PH_stable) 0 age_max/365 ]);
 % % keyboard
+end
 
 function intfx = intf(f,xs)
 ns = length(xs);
@@ -97,3 +97,4 @@ e(2:end,1:end-1)=1;e(1,end)=0;
 A = spdiags(e,-ns:0,ns,ns);
 intfx= A*fx;
 end
+

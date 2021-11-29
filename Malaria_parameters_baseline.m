@@ -1,10 +1,16 @@
 global P
 %% 
-P.verbose = 1; % turn on the warning messages. Error messages from the check routines will display regardless
+P.verbose = 0; % turn on the warning messages. Error messages from the check routines will display regardless
 P.balance_fertility = 0; % balanced fertility or not
 P.balance_mortality = 1; % balanced mortality or not
 
 %% vaccine related parameters
+% RTS,S in Kenya
+% Homa bay, Kisumu, Migori, Siaya, Busia, Bungoma, Vihiga, and Kakamega counties from wiki 2019 census
+P.NN = 1131950+1155574+1116436+993183+893681+1670570+590013+1867579; % total Kenya population = 47564296
+P.vyear = 120000; % total # of vaccine per year
+P.vage = 9*30; % finish vaccination (three doses at 9 months old)
+%
 P.vb0 = 0; P.vb0_lower = 0.1;  P.vb0_upper = 0.8; % vaccination rate for boosting immunity (Cv) (boosting)
 P.dv = 5*365; % Half-life of vaccine-boosted immunity (Cv)
 %
