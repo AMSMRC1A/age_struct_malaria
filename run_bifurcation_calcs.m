@@ -18,7 +18,7 @@ P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 load_data = 1;
 Malaria_parameters_baseline; % model parameters - rates are in 1/day
 lP = 'betaM';  % bifurcating parameters
-immunity_feedback = 0; 
+immunity_feedback = 1; 
 if immunity_feedback == 0
     % average populational sigmoids f0 = f1 = average 
     P.phi_f_0 = 0.915792480087329; % value at zero
@@ -29,8 +29,7 @@ if immunity_feedback == 0
     
     P.psi_f_0 = 0.114825053290306; % value at zero
     P.psi_f_1 = 0.114825053290306; % value at L (function saturates to this value)   
-%     param = [0.01, 0.06, 0.11, 0.13, 0.16:0.05:1.0].^2; % max R0 < 7
-    param = 0.03;
+    param = [0.01, 0.06, 0.11, 0.13, 0.16:0.05:1.0].^2; % max R0 < 7
 else
     param = [0.01:0.025:0.525].^2; % max R0 = 7.3
 end
@@ -144,11 +143,21 @@ for i = 1:length(param)
     P.(lP) = param(i);
     R0_list(i) = R0_cal();
 end
+%% extend data to include (R0=1,EE=0) point
+[R0_list,ind] = sort([1,R0_list]);
+re_max_DFE = [0,re_max_DFE]; re_max_DFE = re_max_DFE(ind);
+re_max_EE = [0,re_max_EE]; re_max_EE = re_max_EE(ind);
+I_frac_DFE = [0,I_frac_DFE]; I_frac_DFE = I_frac_DFE(ind);
+I_frac_EE = [0,I_frac_EE]; I_frac_EE = I_frac_EE(ind);
+D_frac_EE = [0,D_frac_EE]; D_frac_EE = D_frac_EE(ind);
+A_frac_EE = [0,A_frac_EE]; A_frac_EE = A_frac_EE(ind);
+
+%%
 figure_setups;
 hold on;
 R0_DFE_EE = [R0_list,R0_list];
-ind_stable = find([re_max_DFE,re_max_EE]<0);
-ind_unstable = find([re_max_DFE,re_max_EE]>0);
+ind_stable = find([re_max_DFE,re_max_EE]<=0);
+ind_unstable = find([re_max_DFE,re_max_EE]>=0);
 I_frac = [I_frac_DFE,I_frac_EE];
 h1 = plot(R0_DFE_EE(ind_stable), I_frac(ind_stable),'-','Marker','.','MarkerSize',30);
 h4 = plot(R0_list, D_frac_EE,'-','Marker','o','MarkerSize',10);
@@ -163,8 +172,8 @@ P.betaM = 0.25;
 [~,~,D,A,~,~,~] = steady_state('EE','fsolve');
 R0_baseline = R0_cal();
 h3 = plot([R0_baseline,R0_baseline],[0,1],'m-');
-% legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','nw')
-legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','e')
+legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','nw')
+% legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','e')
 axis([0 7.2 0 1])
 % title(['Bifurcation']);
 xlabel('$\mathcal{R}_0 (\beta_M)$');
