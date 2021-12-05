@@ -64,9 +64,9 @@ keyboard
 %% Population size versus time
 figure_setups;
 plot(t,trapz(SH,1)*da,'-','Color',colour_mat1); hold on;
-plot(t,trapz(EH,1)*da,'--','Color',colour_mat3);
-plot(t,trapz(AH,1)*da,'-.','Color',colour_mat2);
-plot(t,trapz(DH,1)*da,'-','Color',colour_mat7);
+plot(t,trapz(EH,1)*da,':','Color',colour_mat4);
+plot(t,trapz(AH,1)*da,'--','Color',colour_mat3);
+plot(t,trapz(DH,1)*da,'-.','Color',colour_mat2);
 plot(t,NH,'-.k')
 legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$','Location','NorthWest');
 title(['Population size vs time', '~~feedback = ',num2str(immunity_feedback)]); 
@@ -75,24 +75,24 @@ grid on
 axis([0 tfinal 0 max(NH)+0.1]);
 % keyboard
 %% Age profiles at tfinal
-% figure_setups;
-% plot(a/365,SH(:,end),'-','Color',colour_mat1); hold on;
-% plot(a/365,EH(:,end),'--','Color',colour_mat3);
-% plot(a/365,AH(:,end),':','Color',colour_mat7);
-% plot(a/365,DH(:,end),'-.','Color',colour_mat2);
-% plot(a/365,PH_final,'-k');
-% legend('$S_H$','$E_H$','$A_H$', '$D_H$','$P_H$','location','e');
-% % title(['Final Age Dist.~~ feedback =',num2str(immunity_feedback)]);
-% title(['~~~~~~Final age dist. feedback = ',num2str(immunity_feedback)]); 
-% xlabel('Age (years)');
-% ylabel('Population')
-% grid on
-% axis([0 age_max/365 0 max(PH_final)]);
+figure_setups;
+plot(a/365,SH(:,end),'-','Color',colour_mat1); hold on;
+plot(a/365,EH(:,end),':','Color',colour_mat4);
+plot(a/365,AH(:,end),'--','Color',colour_mat3);
+plot(a/365,DH(:,end),'-.','Color',colour_mat2);
+plot(a/365,PH_final,'-k');
+legend('$S_H$','$E_H$','$A_H$', '$D_H$','$P_H$','location','e');
+% title(['Final Age Dist.~~ feedback =',num2str(immunity_feedback)]);
+title(['~~~~~~Final age dist. feedback = ',num2str(immunity_feedback)]); 
+xlabel('Age (years)');
+ylabel('Population density')
+grid on
+axis([0 age_max/365 0 max(PH_final)]);
 %% Age proportions at tfinal prop
 figure_setups;
 plot(a/365,SH(:,end)./PH_final,'-','Color',colour_mat1); hold on;
-plot(a/365,EH(:,end)./PH_final,'--','Color',colour_mat3);
-plot(a/365,AH(:,end)./PH_final,':','Color',colour_mat7);
+plot(a/365,EH(:,end)./PH_final,':','Color',colour_mat4);
+plot(a/365,AH(:,end)./PH_final,'--','Color',colour_mat3);
 plot(a/365,DH(:,end)./PH_final,'-.','Color',colour_mat2);
 plot(a/365,PH_final./PH_final,'-k');
 legend('$\tilde{S}_H$','$\tilde{E}_H$','$\tilde{A}_H$', '$\tilde{D}_H$','$\tilde{P}_H$','location','e');
@@ -106,9 +106,9 @@ xlim([0 30])
 %% Population proportions versus time
 figure_setups;
 plot(t,trapz(SH,1)*da./NH,'-','Color',colour_mat1); hold on;
-plot(t,trapz(EH,1)*da./NH,'--','Color',colour_mat3);
-plot(t,trapz(AH,1)*da./NH,'-.','Color',colour_mat2);
-plot(t,trapz(DH,1)*da./NH,'-','Color',colour_mat7);
+plot(t,trapz(EH,1)*da./NH,':','Color',colour_mat4);
+plot(t,trapz(AH,1)*da./NH,'--','Color',colour_mat3);
+plot(t,trapz(DH,1)*da./NH,'-.','Color',colour_mat2);
 plot(t,(trapz(SH,1)+trapz(EH,1)+trapz(AH,1)+trapz(DH,1))*da./NH,'-.k');
 legend('SH-age','EH-age','AH-age', 'DH-age','$N_H$');
 title('Population proportions vs time');

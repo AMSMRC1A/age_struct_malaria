@@ -46,7 +46,7 @@ end
 %% initial condition 'init' 'EE'
 [SH0, EH0, DH0, AH0, VH0, SM0, EM0, IM0, Cm0, Cac0, Cv0, Ctot0] = age_structured_Malaria_IC_vac('EE');
 %% time evolution - initial run
-tfinal = 0.5*365; t = (0:dt:tfinal)'; nt = length(t);
+tfinal = 1*365; t = (0:dt:tfinal)'; nt = length(t);
 P.nt = nt;  P.t = t;
 [SH, EH, DH, AH, VH, SM, EM, IM, Cm, Cac, Cv, Ctot] = age_structured_Malaria_vac(da,na,tfinal,...
     SH0, EH0, DH0, AH0, VH0, SM0, EM0, IM0, Cm0, Cac0, Cv0, Ctot0);
@@ -55,7 +55,14 @@ PH_final = PH(:,end); % total human at age a, t = n
 NH = trapz(PH,1)*da;
 vacc = trapz(P.vp.*SH,1)*P.da*365*P.NN/1000;
 %% time evolution - continuous run
-% Malaria_parameters_transform_vac;
+% non-vac control
+% cont_level = 0.5;
+% P.betaA = (1-cont_level)*P.betaA;
+% P.betaD = (1-cont_level)*P.betaD;
+% P.betaM = (1-cont_level)*P.betaM;
+% Malaria_parameters_transform;
+% vac control
+% Malaria_parameters_transform_vac; 
 tfinal_conti = 200*365; t2 = (tfinal:dt:tfinal+tfinal_conti)'; nt = length(t2);
 P.nt = nt;  P.t = t2;
 SH0 = SH(:,end); EH0 = EH(:,end); DH0 = DH(:,end); AH0 = AH(:,end); VH0 = VH(:,end);
@@ -74,6 +81,11 @@ PH = SH+EH+DH+AH+VH;
 PH_final = PH(:,end); % total human at age a, t = n
 NH = [NH, NH2];
 vacc = [vacc, vacc2];
+%% output data to .mat file for analysis
+SH_EE = SH(:,end); EH_EE = EH(:,end); AH_EE = AH(:,end); DH_EE = DH(:,end); VH_EE = VH(:,end); PH_EE = PH(:,end); vp = P.vp;
+Cm_EE = Cm(:,end); Cac_EE = Cac(:,end); Ctot_EE = Ctot(:,end);
+save(['Results/Vaccine/vp0_',num2str(P.vp0*100),'.mat'],'t','a','vp','vacc','SH_EE','EH_EE','AH_EE','DH_EE','VH_EE','PH_EE',...
+    'Cm_EE','Cac_EE','Ctot_EE');
 %% EIR
 % [bh,bm] = biting_rate(NH,NM);
 % EIR = bh.*IM./NM*365;
@@ -100,7 +112,7 @@ plot(t/365,trapz(VH,1)*da,'-','Color',colour_mat6);
 plot(t/365,NH,'-.k')
 legend('SH-age','EH-age','AH-age', 'DH-age','VH-age','$N_H$','Location','e');
 title(['Population size vs time', '~~feedback = ',num2str(immunity_feedback)]); 
-grid on
+grid on; grid minor
 axis([0 max(t)/365 0 max(NH)+0.1]);
 %% Age profiles at tfinal
 figure_setups;

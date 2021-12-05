@@ -1,29 +1,14 @@
-function fig = figure_setups()
-% 08/31/20018 Zhuolin Qu
+function fig = figure_setups_3()
 
-% Home PC single screen -- wide
-% fig = figure('Position', [100, 55,1100, 600]);
-% fig = figure('Position', [20, 55,1900, 500]);
-% fig = figure('Position', [100, 55,1800, 900]);
-
-% % Home PC single screen -- regular
 fig = figure('Position', [100, 25,900, 700]);
-% fig = figure('Position', [100, 45,900, 600]);
-% Home PC single screen -- rectangle
-% fig = figure('Position', [100, 55,700, 700]);
 
 global skip_pt
 global colour_r1 colour_r2 colour_r3 colour_r4
 global colour_blue colour_red colour_yellow
 global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 colour_mat7
 
-% ColorSet = varycolor(20);
-% for Home PC
-set(0,'defaultLineLineWidth',3,'defaultTextFontSize',30,'defaultTextFontname','CMU Serif Italic','defaultAxesFontSize',30,'defaultLineMarkerSize',8)
-% for CCS imac screen
-% set(0,'defaultLineLineWidth',0.5,'defaultTextFontSize',25,'defaultTextFontname','CMU Serif Italic','defaultAxesFontSize',25,'defaultLineMarkerSize',13)
+set(0,'defaultLineLineWidth',5,'defaultTextFontSize',38,'defaultTextFontname','CMU Serif Italic','defaultAxesFontSize',38,'defaultLineMarkerSize',10)
 
-% set(0,'defaultAxesLineStyleOrder',{'-','--o',':s'}) %or whatever you want
 set(0,'defaultAxesColorOrder',lines(5))
 set(0,'defaultLegendInterpreter','latex');
 set(0,'defaultAxesTickLabelInterpreter','latex')
@@ -31,7 +16,7 @@ set(0,'defaulttextinterpreter','latex');
 set(0,'defaultLegendAutoUpdate','off');
 
 grid on
-% grid minor
+
 
 box on
 

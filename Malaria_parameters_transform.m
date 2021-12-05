@@ -61,20 +61,21 @@ end
 
 find_stable_age;
 
-% %% plot calibrated fertility & death
+%% plot calibrated fertility & death
 % figure_setups; hold on
 % grid on
 % plot(a/365, P.muH, a/365, P.gH)
 % xlabel('Age (years)')
 % ylabel('Daily rates')
-% title(['Balanced demographics']);
+% %title(['Balanced demographics']);
 % legend('Mortality rate $\mu_H(\alpha)$','Fertility rate $g_H(\alpha)$')
 % %% plot stable age distribution PH
 % figure_setups;
 % plot(a/365,P.PH_stable,'-k');
-% title(['Stable age distribution']);
+% %title(['Stable age distribution']);
 % legend('$P_H(\alpha)$')
-% xlabel('age (years)');
+% xlabel('Age (years)');
+% ylabel('Population density')
 % grid on
 % axis([0 age_max/365 0 max(P.PH_stable)]);
 %

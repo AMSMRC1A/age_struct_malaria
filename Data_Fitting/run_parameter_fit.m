@@ -68,7 +68,7 @@ legend('$\phi(\tilde{C}_{H})$','$\rho(\tilde{C}_{H})=\psi(\tilde{C}_{H})$','Loca
 axis([0 max(Ctot_pp) 0 1])
 xlabel('$\tilde{C}_{H}$')
 ylabel('Probability')
-title('Calibrated linking functions')
+%title('Calibrated linking functions')
 [phi_ave rho_ave psi_ave]
 keyboard
 
@@ -111,7 +111,7 @@ for jj = 1:length(var_list)
     final_immunity(:,jj) = Ctot./P.PH_stable;
     final_rho(:,jj) = sigmoid_prob(Ctot./P.PH_stable, 'rho');
 end
-
+% save(['Results/Heatmap.mat'],'var_list','final_EIR','final_immunity')
 % plot heatmap of final immunity(age, EIR)
 figure_setups; 
 imagesc(a/365,final_EIR,final_immunity');%
