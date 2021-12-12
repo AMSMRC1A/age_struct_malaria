@@ -1,5 +1,5 @@
 %% plot Fig4 a & b - bifurcation plots -- results from "run_bifurcation_calcs.m"
-
+tic 
 clear all
 close all
 clc
@@ -22,10 +22,10 @@ if immunity_feedback == 0
     % average populational sigmoids f0 = f1 = average
     P.phi_f_0 = 0.915792480087329; % value at zero
     P.phi_f_1 = 0.915792480087329; % value at L (function saturates to this value)
-    
+
     P.rho_f_0 = 0.114825053290306; % value at zero
     P.rho_f_1 = 0.114825053290306; % value at L (function saturates to this value)
-    
+
     P.psi_f_0 = 0.114825053290306; % value at zero
     P.psi_f_1 = 0.114825053290306; % value at L (function saturates to this value)
     param = [0.01, 0.06, 0.11, 0.13, 0.16:0.05:1.0].^2; % max R0 < 7
@@ -68,7 +68,6 @@ for i = 1:length(param)
     ee = S.ee;
     I_frac_DFE(i) = 1 - da*trapz((x_DFE(:,1)+x_DFE(:,2)).*P.PH_stable);
     re_max_DFE(i) = max(real(ee));
-    
 end
 %% Plot the results
 R0_list = NaN(size(param));
@@ -85,7 +84,7 @@ I_frac_EE = [0,I_frac_EE]; I_frac_EE = I_frac_EE(ind);
 D_frac_EE = [0,D_frac_EE]; D_frac_EE = D_frac_EE(ind);
 A_frac_EE = [0,A_frac_EE]; A_frac_EE = A_frac_EE(ind);
 
-%%
+%% Plot R0 as the bifurcation parameter
 figure_setups_2;
 hold on;
 R0_DFE_EE = [R0_list,R0_list];
@@ -99,8 +98,12 @@ h2 = plot(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','Marke
 grid on; grid minor
 xlabel('$\mathcal{R}_0(\beta_M)$');
 ylabel('Fraction of population');
-title(['Immunity feedback = ',num2str(immunity_feedback)]);
-P.betaM = 0.25;
+if immunity_feedback == 1
+    title('Dynamic Immune Feedback');
+else
+    title('Constant High Immunity'); % could be constant low immunity case
+end
+P.betaM = 0.25; % "baseline value" of betaM
 [~,~,D,A,~,~,~] = steady_state('EE','fsolve');
 R0_baseline = R0_cal();
 h3 = plot([R0_baseline,R0_baseline],[0,1],'m-');
@@ -114,3 +117,4 @@ else
     legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','e')
     print('Figures/result_bifur_0.eps', '-depsc','-r300')
 end
+toc

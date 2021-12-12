@@ -47,7 +47,7 @@ plot(a/365,Cm(:,end)./PH_final,'--');
 plot(a/365,Ctot(:,end)./PH_final,'-');
 xlabel('Age (years)')
 ylabel('Immunity level')
-legend('Exposure $\widetilde{C}_e$','Maternal $\widetilde{C}_{m}$','Total $\widetilde{C}_{H}$','Location','SouthEast');
+legend('$\widetilde{C}_e$','$\widetilde{C}_{m}$','$\widetilde{C}_{H}$','Location','SouthEast');
 title('Per-person immunity dist.');
 axis([0 age_max/365 0 max(Ctot(:,end)./PH_final)*1.1]);
 xlim([0 10])
@@ -55,7 +55,7 @@ ylim([0 7])
 grid on
 set(gcf, 'Renderer', 'Painters');
 if P.betaM == 0.008
-    legend('Exposure $\widetilde{C}_e$','Maternal $\widetilde{C}_{m}$','Total $\widetilde{C}_{H}$','Location','NorthEast');
+    legend('$\widetilde{C}_e$','$\widetilde{C}_{m}$','$\widetilde{C}_{H}$','Location','NorthEast');
     print('Figures/result_immunity_low.eps', '-depsc','-r300')
 else
     print('Figures/result_immunity_high.eps', '-depsc','-r300')
