@@ -8,7 +8,7 @@ global P
 global colour_mat1 colour_mat2 colour_mat3 colour_mat4 colour_mat5 colour_mat6 colour_mat7
 global colour_r1 colour_r2
 %% numerical config
-tfinal = 100*365; % final time in days
+tfinal = 300*365; % final time in days
 age_max = 80*365; % max ages in days
 P.age_max = age_max;
 dt = 20; % time/age step size in days, default = 5;
@@ -47,7 +47,7 @@ plot(a/365,Cm(:,end)./PH_final,'--');
 plot(a/365,Ctot(:,end)./PH_final,'-');
 xlabel('Age (years)')
 ylabel('Immunity level')
-legend('$\widetilde{C}_e$','$\widetilde{C}_{m}$','$\widetilde{C}_{H}$','Location','SouthEast');
+legend('$\widetilde{C}_e$ (Exposure-acquired immunity)','$\widetilde{C}_{m}$ (Maternal immunity)','$\widetilde{C}_{H}$ (Total immunity)','Location','SouthEast');
 title('Per-person immunity dist.');
 axis([0 age_max/365 0 max(Ctot(:,end)./PH_final)*1.1]);
 xlim([0 10])
@@ -55,7 +55,7 @@ ylim([0 7])
 grid on
 set(gcf, 'Renderer', 'Painters');
 if P.betaM == 0.008
-    legend('$\widetilde{C}_e$','$\widetilde{C}_{m}$','$\widetilde{C}_{H}$','Location','NorthEast');
+    legend('$\widetilde{C}_e$ (Exposure-acquired immunity)','$\widetilde{C}_{m}$ (Maternal immunity)','$\widetilde{C}_{H}$ (Total immunity)','Location','SouthEast');
     print('Figures/result_immunity_low.eps', '-depsc','-r300')
 else
     print('Figures/result_immunity_high.eps', '-depsc','-r300')

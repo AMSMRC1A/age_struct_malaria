@@ -19,9 +19,9 @@ load_data = 1;
 Malaria_parameters_baseline; % model parameters - rates are in 1/day
 lP = 'betaM';  % bifurcating parameters
 
-plot_equilibrium = 0; % can set to zero if working with the DFE
-age_plot = 1;
-immunity_feedback = 1; % -1 = low immunity fixed, 1 = dynamic, 0 = high fixed
+plot_equilibrium = 1; % can set to zero if working with the DFE
+age_plot = 0;
+immunity_feedback = 0; % -1 = low immunity fixed, 1 = dynamic, 0 = high fixed
 comparison = 0; % plot multiple diagrams at the end if the data is there
 
 store_data_DH = [];
@@ -40,8 +40,9 @@ if immunity_feedback == -1 % betaM = 0.008
 
     P.psi_f_0 = 0.9076; % value at zero
     P.psi_f_1 = 0.9076; % value at L (function saturates to this value)
-    param = [0.01:0.01:0.547722557505166].^2;
-    %param = [0.01:0.01:0.14, 0.15:0.05:1.0].^2; % max R0 < 7
+    param = 0.138;
+    %[0.01:0.01:0.547722557505166].^2; %0.138 gives R0=5
+    % max R0 < 7
 elseif immunity_feedback == 0 % betaM = 0.25
     % average populational sigmoids f0 = f1 = average
     P.phi_f_0 = 0.915792480087329; % value at zero
@@ -52,10 +53,11 @@ elseif immunity_feedback == 0 % betaM = 0.25
 
     P.psi_f_0 = 0.114825053290306; % value at zero
     P.psi_f_1 = 0.114825053290306; % value at L (function saturates to this value)
-    param = [0.01:0.01:0.547722557505166].^2;
-    %[0.01:0.01:0.14, 0.15:0.05:1.0].^2; % max R0 < 7
+    param = [0.539]; % 0.539 gives R0=5
+    %[0.01:0.01:0.547722557505166].^2; % max R0 < 4
 elseif immunity_feedback == 1
-    param = [0.01:0.01:0.547722557505166].^2; % max R0 = 7.3
+    param = [0.1305];
+    %[0.01:0.01:0.547722557505166].^2; % max R0 = 7.3
 end
 %% options
 re_max_DFE = NaN(1,length(param));
@@ -101,17 +103,18 @@ for i = 1:length(param)
         if plot_equilibrium == 1
             % plot proportion
             figure_setups; hold on;
-            plot(a,x_EE(:,1),'-','Color',colour_mat1);
-            plot(a,x_EE(:,2),'-','Color',colour_mat3);
-            plot(a,x_EE(:,4),'-','Color',colour_mat2);
-            plot(a,x_EE(:,3),'-','Color',colour_mat7);
-            legend('SH (solver)','EH (solver)','AH (solver)', 'DH (solver)');
-            title('Final Age Dist. prop');
-            xlabel('age');
-            axis_years(gca,age_max); % change to x-axis to years if needed
+            plot(a/365,x_EE(:,1),'-','Color',colour_mat1);
+            plot(a/365,x_EE(:,2),':','Color',colour_mat4);
+            plot(a/365,x_EE(:,4),'--','Color',colour_mat3);
+            plot(a/365,x_EE(:,3),'-.','Color',colour_mat2);
+            plot(a/365,x_EE(:,1)+x_EE(:,2)+x_EE(:,3)+x_EE(:,4),'-k');
+            legend('$\widetilde{S}_H$','$\widetilde{E}_H$','$\widetilde{A}_H$', '$\widetilde{D}_H$','$\widetilde{P}_H$','location','e');
+            title('Final age dist. proportion'); 
+            xlabel('Age (years)');
+            ylabel('Fraction of population')
             grid on
-            %axis([0 age_max 0 max(sum(x_EE,2))]);
-            %keyboard
+            axis([0 P.age_max/365 0 1.1]);
+            xlim([0 30])
         end
         % calculate aEIR at the equilibrium
         NM = P.gM/P.muM;
@@ -188,6 +191,7 @@ elseif immunity_feedback == 0
 else 
     plot(param,R0_list,'-','Marker','^','MarkerSize',10);
 end
+
 xlim([min(param) max(param)]);
 xlabel('$\beta_M$');
 ylabel('$\mathcal{R}_0(\beta_M)$');
