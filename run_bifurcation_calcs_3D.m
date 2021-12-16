@@ -21,24 +21,27 @@ lP = 'betaM';  % bifurcating parameters
 
 plot_equilibrium = 0; % can set to zero if working with the DFE
 age_plot = 1;
-immunity_feedback = 0; % -1 = low immunity fixed, 1 = dynamic, 0 = high fixed
+immunity_feedback = 1; % -1 = low immunity fixed, 1 = dynamic, 0 = high fixed
 comparison = 0; % plot multiple diagrams at the end if the data is there
+
 store_data_DH = [];
 store_data_DH_density = [];
 store_data_AH = [];
 store_param = [];
 
-if immunity_feedback == -1 % betaM = 0.025
-    P.phi_f_0 = 0.57; % value at zero
-    P.phi_f_1 = 0.57; % value at L (function saturates to this value)
+aEIR_list = [];
 
-    P.rho_f_0 = 0.59; % value at zero
-    P.rho_f_1 = 0.59; % value at L (function saturates to this value)
+if immunity_feedback == -1 % betaM = 0.008
+    P.phi_f_0 = 0.2311; % value at zero
+    P.phi_f_1 = 0.2311; % value at L (function saturates to this value)
 
-    P.psi_f_0 = 0.59; % value at zero
-    P.psi_f_1 = 0.59; % value at L (function saturates to this value)
-    param = [0.01:0.01:0.525].^2;
-    %[0.01:0.01:0.14, 0.15:0.05:1.0].^2; % max R0 < 7
+    P.rho_f_0 = 0.9076; % value at zero
+    P.rho_f_1 = 0.9076; % value at L (function saturates to this value)
+
+    P.psi_f_0 = 0.9076; % value at zero
+    P.psi_f_1 = 0.9076; % value at L (function saturates to this value)
+    param = [0.01:0.01:0.547722557505166].^2;
+    %param = [0.01:0.01:0.14, 0.15:0.05:1.0].^2; % max R0 < 7
 elseif immunity_feedback == 0 % betaM = 0.25
     % average populational sigmoids f0 = f1 = average
     P.phi_f_0 = 0.915792480087329; % value at zero
@@ -49,10 +52,10 @@ elseif immunity_feedback == 0 % betaM = 0.25
 
     P.psi_f_0 = 0.114825053290306; % value at zero
     P.psi_f_1 = 0.114825053290306; % value at L (function saturates to this value)
-    param = [0.01:0.01:0.525].^2;
+    param = [0.01:0.01:0.547722557505166].^2;
     %[0.01:0.01:0.14, 0.15:0.05:1.0].^2; % max R0 < 7
 elseif immunity_feedback == 1
-    param = [0.01:0.01:0.525].^2; % max R0 = 7.3
+    param = [0.01:0.01:0.547722557505166].^2; % max R0 = 7.3
 end
 %% options
 re_max_DFE = NaN(1,length(param));
@@ -110,6 +113,12 @@ for i = 1:length(param)
             %axis([0 age_max 0 max(sum(x_EE,2))]);
             %keyboard
         end
+        % calculate aEIR at the equilibrium
+        NM = P.gM/P.muM;
+        [~,~,IM] = mosquito_ODE(x_EE(:,3).*P.PH_stable,x_EE(:,4).*P.PH_stable,1,NM); % NH = 1
+        [bh,bm] = biting_rate(1,NM);
+        EIR = bh.*IM./NM*365;
+        aEIR_list = [aEIR_list EIR];
         if age_plot == 1
             %keyboard
             store_data_DH = [store_data_DH x_EE(:,3)];
@@ -169,6 +178,23 @@ for i = 1:length(param)
     P.(lP) = param(i);
     R0_list(i) = R0_cal();
 end
+%% plot R0 vs betaM
+%figure_setups;
+hold on;
+if immunity_feedback == -1
+    plot(param,R0_list,'-','Marker','.','MarkerSize',10);
+elseif immunity_feedback == 0
+    plot(param,R0_list,'-','Marker','o','MarkerSize',10);
+else 
+    plot(param,R0_list,'-','Marker','^','MarkerSize',10);
+end
+xlim([min(param) max(param)]);
+xlabel('$\beta_M$');
+ylabel('$\mathcal{R}_0(\beta_M)$');
+hold on;
+plot([min(param), max(param)],[1,1],'m-.');
+% legend({'Fixed Low Immunity','Fixed High Immunity','Dynamic Immunity','$\mathcal{R}_0 = 1$'},'Location','nw');
+
 %% extend data to include (R0=1,EE=0) point - could solve for this betaM numerically?
 % [R0_list,ind] = sort([1,R0_list]);
 % re_max_DFE = [0,re_max_DFE]; re_max_DFE = re_max_DFE(ind);
@@ -179,55 +205,61 @@ end
 % A_frac_EE = [0,A_frac_EE]; A_frac_EE = A_frac_EE(ind);
 
 %% Heat map/3D plots of age versus bifurcation parameter
-figure_setups;
-surf(store_param,a,store_data_DH,'EdgeColor','none','FaceLighting','gouraud');
-%imagesc(store_param,a,store_data_DH);
-%set(gca,'YDir','normal')
-%hold on;
-%x_spacing = 3;  
-%y_spacing = 12;
-%mesh(store_param(1:x_spacing:end),a(1:y_spacing:end),...
-%    store_data_DH(1:y_spacing:end,1:x_spacing:end),'FaceColor','none','EdgeColor','k');
-xlabel('$\beta_M$');
-ylabel('age');
-zlim([0 1]);
-temp = yticks;
-temp = [temp age_max];
-set(gca,'ytickLabel',compose('%d',round(temp/365)));
-colorbar;
-caxis([0 1]);
-title('DH proportions');
-view([-98 33]);
+if age_plot == 1
+    %surfmax = max(max(max(store_data_DH)),max(max(store_data_DH)));
+    %surfmin = min(min(min(store_data_DH)),min(min(store_data_DH)));
+    figure_setups;
+    %surf(store_param,a,store_data_DH,'EdgeColor','none','FaceLighting','gouraud');
+    imagesc(store_param,a,store_data_DH);
+    set(gca,'YDir','normal')
+    hold on;
+    %x_spacing = 3;
+    %y_spacing = 12;
+    %mesh(store_param(1:x_spacing:end),a(1:y_spacing:end),...
+    %    store_data_DH(1:y_spacing:end,1:x_spacing:end),'FaceColor','none','EdgeColor','k');
+    xlabel('$\beta_M$');
+    ylabel('age');
+    %zlim([0 1]);
+    temp = yticks;
+    temp = [temp age_max];
+    set(gca,'ytickLabel',compose('%d',round(temp/365)));
+    colormap(jetwhite);
+    colorbar;
+    caxis([0 1]);
+    title('DH proportions');
+    %view([-98 33]);
 
-% DH density plot
-% figure_setups;
-% surf(store_param,a,store_data_DH_density,'EdgeColor','interp','FaceLighting','gouraud');
-% %imagesc(store_param,a,store_data_DH);
-% %set(gca,'YDir','normal')
-% xlabel('$\beta_M$');
-% ylabel('age');
-% zlim([0 max(max(store_data_DH_density))]);
-% temp = yticks;
-% set(gca,'ytickLabel',compose('%d',round(temp/365)));
-% %colorbar;
-% %caxis([0 1]);
-% title('DH Density');
+    % DH density plot
+    % figure_setups;
+    % surf(store_param,a,store_data_DH_density,'EdgeColor','interp','FaceLighting','gouraud');
+    % %imagesc(store_param,a,store_data_DH);
+    % %set(gca,'YDir','normal')
+    % xlabel('$\beta_M$');
+    % ylabel('age');
+    % zlim([0 max(max(store_data_DH_density))]);
+    % temp = yticks;
+    % set(gca,'ytickLabel',compose('%d',round(temp/365)));
+    % %colorbar;
+    % %caxis([0 1]);
+    % title('DH Density');
 
-figure_setups;
-surf(store_param,a,store_data_AH,'EdgeColor','none','FaceLighting','gouraud');
-%imagesc(store_param,a,store_data_DH);
-%set(gca,'YDir','normal')
-xlabel('$\beta_M$');
-ylabel('age');
-zlim([0 1]);
-ylim([0 age_max]);
-temp = yticks;
-set(gca,'ytickLabel',compose('%d',round(temp/365)));
-colorbar;
-caxis([0 1]);
-title('AH proportions');
-view([-98 33]);
+    figure_setups;
+    %surf(store_param,a,store_data_AH,'EdgeColor','none','FaceLighting','gouraud');
+    imagesc(store_param,a,store_data_AH);
+    set(gca,'YDir','normal')
+    xlabel('$\beta_M$');
+    ylabel('age');
+    %zlim([0 1]);
+    %ylim([0 age_max]);
+    temp = yticks;
+    set(gca,'ytickLabel',compose('%d',round(temp/365)));
+    colormap(jetwhite);
+    colorbar;
+    caxis([0 1]);
+    title('AH proportions');
+    %view([-98 33]);
 
+end
 %% Plot with R0 on the x-axis
 figure_setups;
 hold on;
@@ -276,8 +308,7 @@ title(['Immunity feedback = ',num2str(immunity_feedback)]);
 % plot baseline
 P.betaM = 0.25;
 [~,~,D,A,~,~,~] = steady_state('EE','fsolve');
-R0_baseline = R0_cal();
-h3 = plot([R0_baseline,R0_baseline],[0,1],'m-');
+h3 = plot([0.25,0.25],[0,1],'m-');
 legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','nw')
 % legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','e')
 axis([0 max(R0_list) 0 1])
