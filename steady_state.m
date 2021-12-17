@@ -50,7 +50,7 @@ switch lstate
             [SH0, EH0, DH0, AH0, SM0, EM0, IM0, Cm0, Cac0, Ctot0] = age_structured_Malaria_IC('init');
             [SH, EH, DH, AH, ~, ~, ~, ~, Cac, ~] = age_structured_Malaria(da,na,tfinal, SH0, EH0, DH0, AH0, SM0, EM0, IM0, Cm0, Cac0, Ctot0);
             %% run solver on a coarser grid to speed up
-            da_fine = P.da; da_coarse = 20; P.da = da_coarse;
+            da_fine = P.da; da_coarse = 80; P.da = da_coarse;
             a_fine = P.a; a_coarse = (0:da_coarse:P.age_max)'; P.a = a_coarse;
             na_fine = P.na; na_coarse = length(a_coarse); P.na = na_coarse;
             Malaria_parameters_transform;

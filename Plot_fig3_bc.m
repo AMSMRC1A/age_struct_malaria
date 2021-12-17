@@ -20,8 +20,8 @@ na = length(a);
 P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
 Malaria_parameters_baseline;
-% P.betaM = 0.008; %low aEIR
-% Malaria_parameters_transform;
+P.betaM = 0.008; %low aEIR
+Malaria_parameters_transform;
 %% initial condition 'init' 'EE'
 [SH0, EH0, DH0, AH0, SM0, EM0, IM0, Cm0, Cac0, Ctot0] = age_structured_Malaria_IC('init');
 %% time evolution

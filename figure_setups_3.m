@@ -1,6 +1,6 @@
 function fig = figure_setups_3()
 
-fig = figure('Position', [100, 25,900, 700]);
+fig = figure('Position', [100, 55,900, 700]);
 
 global skip_pt
 global colour_r1 colour_r2 colour_r3 colour_r4

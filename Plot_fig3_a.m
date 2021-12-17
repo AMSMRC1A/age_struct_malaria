@@ -22,8 +22,11 @@ P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 Malaria_parameters_baseline;
 load(['Results/Heatmap.mat'],'var_list','final_EIR','final_immunity')
 % plot heatmap of final immunity(age, EIR)
-figure_setups_3; 
+figure_setups_3; hold on
 imagesc(a/365,final_EIR,final_immunity');%
+% indicates two cuts at 84.614242650691182 and 44.658135926297568
+plot([0 20],[84.614242650691182 84.614242650691182],'k--')
+plot([0 20],[44.658135926297568 44.658135926297568],'k--')
 xlim([0 20])
 xlabel('Age (years)')
 ylabel('aEIR')

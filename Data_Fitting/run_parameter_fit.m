@@ -42,13 +42,14 @@ P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
 % x = [2.432431947045749   1.278072983365070   3.186658383357816   1.030263636242633];
 Malaria_parameters_baseline;
+P.betaM = 0.008;
 % P.phi_s_2 = x(1);
 % P.phi_r_2 = x(2); 
 % P.rho_s_2 = x(3);
 % P.rho_r_2 = x(4); 
 % P.psi_s_2 = x(3);
 % P.psi_r_2 = x(4);
-% Malaria_parameters_transform;
+Malaria_parameters_transform;
 
 figure_setups; hold on
 [~,~,~,~,~,~,Ctot] = steady_state('EE','fsolve');

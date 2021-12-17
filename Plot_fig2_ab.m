@@ -33,12 +33,12 @@ set(gcf, 'Renderer', 'Painters');
 print('Figures/demo_fer_mor.eps', '-depsc','-r300')
 %% figure 2b: plot stable age distribution PH
 figure_setups_3;
-plot(a/365,P.PH_stable,'-k');
+plot(a/365,P.PH_stable*365,'-k');
 legend('$P_H(\alpha)$')
 xlabel('Age (years)');
 ylabel('Population density')
 grid on
-axis([0 age_max/365 0 max(P.PH_stable)]);
+axis([0 age_max/365 0 max(P.PH_stable*365)]);
 %title(['Stable age distribution']);
 set(gcf, 'Renderer', 'Painters');
 print('Figures/demo_PH.eps', '-depsc','-r300')

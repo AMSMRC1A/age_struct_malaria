@@ -18,31 +18,25 @@ P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 load_data = 1;
 Malaria_parameters_baseline; % model parameters - rates are in 1/day
 lP = 'betaM';  % bifurcating parameters
-immunity_feedback = -1; % -1 = low immunity fixed, 1 = dynamic, 0 = high fixed
+immunity_feedback = 0; % -1 = low immunity fixed, 1 = dynamic, 0 = high fixed
 comparison = 0; % plot multiple diagrams at the end if the data is there
-if immunity_feedback == -1 % betaM = 0.025
-    P.phi_f_0 = 0.57; % value at zero
-    P.phi_f_1 = 0.57; % value at L (function saturates to this value)
-
-    P.rho_f_0 = 0.59; % value at zero
-    P.rho_f_1 = 0.59; % value at L (function saturates to this value)
-
-    P.psi_f_0 = 0.59; % value at zero
-    P.psi_f_1 = 0.59; % value at L (function saturates to this value)
-    param = [0.01:0.01:0.14, 0.15:0.05:1.0].^2; % max R0 < 7
+param =[0.01:0.01:0.65].^2;
+if immunity_feedback == -1 % betaM = 0.008
+    P.phi_f_0 = 0.230971153687268; % value at zero
+    P.phi_f_1 = 0.230971153687268; % value at L (function saturates to this value)
+    P.rho_f_0 = 0.907631179204690; % value at zero
+    P.rho_f_1 = 0.907631179204690 ; % value at L (function saturates to this value)
+    P.psi_f_0 = 0.907631179204690 ; % value at zero
+    P.psi_f_1 = 0.907631179204690 ; % value at L (function saturates to this value)
 elseif immunity_feedback == 0 % betaM = 0.25
     % average populational sigmoids f0 = f1 = average
     P.phi_f_0 = 0.915792480087329; % value at zero
     P.phi_f_1 = 0.915792480087329; % value at L (function saturates to this value)
-
     P.rho_f_0 = 0.114825053290306; % value at zero
-    P.rho_f_1 = 0.114825053290306; % value at L (function saturates to this value)
-
+    P.rho_f_1 = 0.114825053290306; % value at L (function saturates to this value
     P.psi_f_0 = 0.114825053290306; % value at zero
     P.psi_f_1 = 0.114825053290306; % value at L (function saturates to this value)
-    param = [0.01:0.01:0.14, 0.15:0.05:1.0].^2; % max R0 < 7
 elseif immunity_feedback == 1
-    param = [0.01:0.01:0.525].^2; % max R0 = 7.3
 end
 %% options
 plot_equilibrium = 0; % can set to zero if working with the DFE
@@ -185,7 +179,7 @@ R0_baseline = R0_cal();
 h3 = plot([R0_baseline,R0_baseline],[0,1],'m-');
 legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','nw')
 % legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','e')
-axis([0 7.2 0 1])
+axis([0 max(R0_list) 0 1])
 % title(['Bifurcation']);
 xlabel('$\mathcal{R}_0 (\beta_M)$');
 %keyboard
@@ -194,16 +188,16 @@ save(['Results/Bifur/bifur_immune_',num2str(immunity_feedback),'.mat'],'I_frac',
 %keyboard
 %% Plot with betaM on the x-axis
 figure_setups;
-R0_list = param; % for betaM on the x-axis
+beta_list = param; % for betaM on the x-axis
 hold on;
-R0_DFE_EE = [R0_list,R0_list];
+beta_DFE_EE = [beta_list,beta_list];
 ind_stable = find([re_max_DFE,re_max_EE]<=0);
 ind_unstable = find([re_max_DFE,re_max_EE]>=0);
 I_frac = [I_frac_DFE,I_frac_EE];
-h1 = plot(R0_DFE_EE(ind_stable), I_frac(ind_stable),'-','Marker','.','MarkerSize',30);
-h4 = plot(R0_list, D_frac_EE,'-','Marker','o','MarkerSize',10);
-h5 = plot(R0_list, A_frac_EE,'-','Marker','^','MarkerSize',10);
-h2 = plot(R0_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
+h1 = plot(beta_DFE_EE(ind_stable), I_frac(ind_stable),'-','Marker','.','MarkerSize',30);
+h4 = plot(beta_list, D_frac_EE,'-','Marker','o','MarkerSize',10);
+h5 = plot(beta_list, A_frac_EE,'-','Marker','^','MarkerSize',10);
+h2 = plot(beta_DFE_EE(ind_unstable), I_frac(ind_unstable),'r.','Marker','^','MarkerSize',5);
 grid on; grid minor
 xlabel('$\mathcal{R}_0(\beta_M)$');
 ylabel('Fraction of population');
@@ -211,11 +205,10 @@ title(['Immunity feedback = ',num2str(immunity_feedback)]);
 % plot baseline
 P.betaM = 0.25;
 [~,~,D,A,~,~,~] = steady_state('EE','fsolve');
-R0_baseline = R0_cal();
-h3 = plot([R0_baseline,R0_baseline],[0,1],'m-');
-legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','nw')
-% legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','e')
-axis([0 max(R0_list) 0 1])
+h3 = plot([P.betaM,P.betaM],[0,1],'m-');
+% legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','nw')
+legend([h1 h4 h5 h2 h3], {'$D_H+A_H$','$D_H$','$A_H$','Unstable','Baseline'},'Location','e')
+axis([0 max(beta_list) 0 1])
 % title(['Bifurcation']);
 xlabel('$\beta_M$');
 %% compare immunity feedback impact
