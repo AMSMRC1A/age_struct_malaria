@@ -80,7 +80,7 @@ if immunity_feedback == -1
     legend('$\widetilde{S}_H$','$\widetilde{E}_H$','$\widetilde{A}_H$', '$\widetilde{D}_H$','$\widetilde{P}_H$','location','e');
     print('Figures/solu_final_age_prop_-1.eps', '-depsc','-r300')
 elseif immunity_feedback == 0
-    title('Final age dist. (fixed low)');
+    title('Final age dist. (fixed high)');
     print('Figures/solu_final_age_prop_0.eps', '-depsc','-r300')
 elseif immunity_feedback == 1
     title('Final age dist. (dynamic)'); 
