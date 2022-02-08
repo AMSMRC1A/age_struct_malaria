@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Qu
+    given-names: Zhuolin
+  - family-names: Patterson
+    given-names: Denis
+  - family-names: Childs
+    given-names: Lauren
+  - family-names: Edholm
+    given-names: Christina J.
+  - family-names: Ponce
+    given-names: Joan
+  - family-names: Prosper
+    given-names: Olivia
+  - family-names: Zhao
+    given-names: Lihong
+title: "Modelimg immunity to Malaria with an age-structured PDE framework"
+date-released: 
+url: ""
