@@ -16,7 +16,7 @@ P.a = a; P.na = na; P.nt = nt; P.dt = dt; P.da = da; P.t = t;
 
 Malaria_parameters_baseline; % model parameters - rates are in 1/day
 lP = 'betaM';  % bifurcating parameters
-immunity_feedback = 0;
+immunity_feedback = 1; % -1 = low immunity fixed, 1 = dynamic, 0 = high fixed
 param =[0.01:0.01:0.65].^2;
 if immunity_feedback == -1 % betaM = 0.008
     P.phi_f_0 = 0.230971153687268; % value at zero
