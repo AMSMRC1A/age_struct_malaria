@@ -54,7 +54,7 @@ P.psi_r_2 = 1.030263636242633;
 P.bh = 5; P.bh_lower = 2; P.bh_upper = 19;% tolerated biting rate per human
 P.bm = 0.6; P.bm_lower = 0.4; P.bm_upper = 0.7; % desired biting rate per mosquito
 
-P.betaM = 0.008; P.betaM_lower = 0.125; P.betaM_upper = 0.3; % infectivity of mosquitoes
+P.betaM = 0.25; P.betaM_lower = 0.125; P.betaM_upper = 0.3; % infectivity of mosquitoes
 P.betaD = 0.35; P.betaD_lower = 0.3; P.betaD_upper = 0.4; % infectivity of DH
 P.betaA = 0.03; P.betaA_lower = 0.02; P.betaA_upper = 0.04; % infectivity of AH
 
